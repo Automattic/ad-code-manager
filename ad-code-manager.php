@@ -32,7 +32,7 @@ define( 'AD_CODE_MANAGER_URL' , plugins_url( plugin_basename(dirname(__FILE__)).
 class Ad_Code_Manager
 {
 
-	var $ad_tags = array();
+	var $ad_codes = array();
 	var $script_url_whitelist = array();
 	
 	/**
@@ -89,18 +89,18 @@ class Ad_Code_Manager
 	 * @since ???
 	 *
 	 * @param string $tag Ad tag for this instance of code
-	 * @param string $script URL for ad tag
+	 * @param string $script URL for ad code
 	 * @param array $where WordPress-style conditionals for where this code should be displayed
 	 * @param int $priority What priority this registration runs at
 	 * @param array $url_vars Replace tokens in $script with these values
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_tag( $tag, $script, $where = array(), $priority = 10, $url_vars = array() ) {
+	function register_ad_code( $tag, $script, $where = array(), $priority = 10, $url_vars = array() ) {
 
 		// @todo Run $script aganist a whitelist to make sure it's a safe URL
 		// @todo Sanitize all of the other input
 
-		// @todo logic for saving the ad tag to $this->ad_tags so it's available to $this->action_acm_tag()
+		// @todo logic for saving the ad code to $this->ad_codes so it's available to $this->action_acm_tag()
 	} 
 
 	/**
@@ -114,11 +114,11 @@ class Ad_Code_Manager
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - where it should be displayed
-		// - priority against other ad tags
+		// - priority against other ad codes
 
 		// @todo Parse the script URL and replace with any $url_vars
 
-		echo '<script type="text/javascript" src="' . esc_url( $tag_url ) . '"></script>';
+		echo '<script type="text/javascript" src="' . esc_url( $code_url ) . '"></script>';
 
 	}
 
