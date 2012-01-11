@@ -36,6 +36,7 @@ class Ad_Code_Manager
 	var $script_url_whitelist = array();
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
+	var $plugin_slug = 'acm';
 
 	/**
 	 * Instantiate the plugin
@@ -46,10 +47,11 @@ class Ad_Code_Manager
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
-		add_action( 'admin_init', array( &$this, 'create_ad_code' ) );    // C
+		add_action( 'admin_init', array( &$this, 'create_ad_code' ) ); // C
 		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );   // R
 		add_action( 'admin_init', array( &$this, 'update_ad_code' ) ); // U
 		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) ); // D
+		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles') );
 	}
 
 	/**
@@ -76,7 +78,7 @@ class Ad_Code_Manager
 	 * @since ??
 	 */
 	function action_admin_init() {
-		$this->register_scripts_and_styles();
+		//$this->register_scripts_and_styles();
 		///$this->register_ajax_calls();
 		//$this->display_menu();
 		// @todo conditionally load the admin interface if that's enabled
@@ -160,16 +162,8 @@ class Ad_Code_Manager
 		exit;
 	}
 
-	/**
-	 * Defaults to manage_options, but could be easily changed via acm_manage_ads_cap filter
-	 *
-	 */
-	function manage_ads_cap() {
-		return apply_filters( 'acm_manage_ads_cap', 'manage_options' );
-	}
-
 	function display_menu() {
-		add_menu_page( $this->title, $this->title, $this->manage_ads_cap(), 'acm', array( &$this, 'admin_view_controller' ) );
+		add_menu_page( $this->title, $this->title, apply_filters( 'acm_manage_ads_cap', 'manage_options' ), $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
 	}
 
 	/**
@@ -187,11 +181,13 @@ class Ad_Code_Manager
 	 *
 	 */
 	function register_scripts_and_styles() {
-		wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css');
-		wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css');
-		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array('jquery', 'jquery-ui-core' ) );
-		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array('jquery', 'jquery-ui-core' ) );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array('jquery', 'jquery-ui-core' ) );
+		if ( isset( $_GET['page'] ) && $_GET['page'] == $this->plugin_slug ) {
+			wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css');
+			wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css');
+			wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array('jquery', 'jquery-ui-core' ) );
+			wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array('jquery', 'jquery-ui-core' ) );
+			wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array('jquery', 'jquery-ui-core' ) );
+		}
 	}
 
 	/**
