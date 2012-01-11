@@ -47,10 +47,10 @@ class Ad_Code_Manager
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
-		add_action( 'admin_init', array( &$this, 'create_ad_code' ) ); // C
-		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );   // R
-		add_action( 'admin_init', array( &$this, 'update_ad_code' ) ); // U
-		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) ); // D
+		add_action( 'admin_init', array( &$this, 'create_ad_code' ) );
+		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
+		add_action( 'admin_init', array( &$this, 'update_ad_code' ) );
+		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles') );
 	}
 
