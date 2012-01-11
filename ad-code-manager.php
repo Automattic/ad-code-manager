@@ -52,6 +52,7 @@ class Ad_Code_Manager
 		add_action( 'admin_init', array( &$this, 'update_ad_code' ) );
 		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles') );
+		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 	}
 
 	/**
@@ -139,6 +140,7 @@ class Ad_Code_Manager
 	function update_ad_code() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'update' && ! empty( $_POST ) ) {
 		// do update
+		exit;
 		}
 		return;
 	}
@@ -160,6 +162,16 @@ class Ad_Code_Manager
 		header( 'Content-type: application/json;' );
 		echo json_encode( $data );
 		exit;
+	}
+	/**
+	 * Print our vars as JS
+	 */
+	function post_admin_header() {
+		?>
+		<script type="text/javascript">
+			var acm_url = '<?php echo esc_js( admin_url('admin.php?page=' . $this->plugin_slug ) )  ?>';
+		</script>
+		<?php
 	}
 
 	function display_menu() {

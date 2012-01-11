@@ -1,6 +1,6 @@
 jQuery( document ).ready( function( $ ) {
   var last_selected;
-  var base_url = '/wp-admin/admin.php?page=acm'; // remove hardcode?
+  var base_url = acm_url; 
 
   jQuery("#acm-codes-list").jqGrid({
 	datatype: "json",
