@@ -2,7 +2,7 @@
 /*
 Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
-Description: Easy ad code management 
+Description: Easy ad code management
 Author: Daniel Bachhuber, Rinat Khaziev, Automattic
 Version: 0.0
 Author URI: http://automattic.com
@@ -36,18 +36,20 @@ class Ad_Code_Manager
 	var $script_url_whitelist = array();
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
-	
+
 	/**
 	 * Instantiate the plugin
 	 *
 	 * @since ??
 	 */
 	function __construct() {
-
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
-		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
+		add_action( 'admin_init', array( &$this, 'create_ad_code' ) );    // C
+		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );   // R
+		add_action( 'admin_init', array( &$this, 'update_ad_code' ) ); // U
+		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) ); // D
 	}
 
 	/**
@@ -65,12 +67,12 @@ class Ad_Code_Manager
 			require_once AD_CODE_MANAGER_ROOT . '/template-tags.php';
 			add_action( 'acm_tag', array( &$this, 'action_acm_tag' ) );
 		}
-		
+
 	}
 
 	/**
 	 * Code to run on WordPress' 'admin_init' hook
-	 * 
+	 *
 	 * @since ??
 	 */
 	function action_admin_init() {
@@ -83,19 +85,27 @@ class Ad_Code_Manager
 		// - Displaying the interface
 		// - Saving the data
 		// - Loading the ad codes in the database and registering them
-		// with the plugin using 
-		
+		// with the plugin using
+
 	}
-	
+
 	/**
 	 * Returns json encoded ad code
 	 * This is the datasource for jqGRID
 	 *
 	 * @todo nonce?
 	 * @todo actual logic for getting ad codes from our custom post type
-	 */ 
+	 */
 	function get_ad_codes() {
 		// These are params that should be managed via UI
+		/**
+		 * NB!
+		 * $response is an object with following properties
+		 * $response->page = current page
+		 * $response->total = total pages
+		 * $response->record = count of rows
+		 * $response->rows = nested array of assoc arrays @see $model
+		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
 			$model = array(
@@ -112,22 +122,44 @@ class Ad_Code_Manager
 				$response->rows[$i] = $model;
 			}
 			$count = count( $response->rows );
-			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit 
-			
+			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
+
 			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
 			$response->total = $total_pages;
-			$response->records = $count;			
+			$response->records = $count;
 			$this->print_json( $response );
 		}
 		return;
 	}
-	
+	/**
+	 * @todo nonce + jqGrid?
+	 */
+	function update_ad_code() {
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'update' && ! empty( $_POST ) ) {
+		// do update
+		}
+		return;
+	}
+	/**
+	 * @uses register_ad_code()
+	 */
+	function create_ad_code() {
+		return;
+	}
+
+	function delete_ad_code() {
+		return;
+	}
+
+	/**
+	 * encode as json any given $data
+	 */
 	function print_json( $data = array() ) {
 		header( 'Content-type: application/json;' );
 		echo json_encode( $data );
 		exit;
 	}
-	
+
 	/**
 	 * Defaults to manage_options, but could be easily changed via acm_manage_ads_cap filter
 	 *
@@ -135,23 +167,23 @@ class Ad_Code_Manager
 	function manage_ads_cap() {
 		return apply_filters( 'acm_manage_ads_cap', 'manage_options' );
 	}
-	
+
 	function display_menu() {
 		add_menu_page( $this->title, $this->title, $this->manage_ads_cap(), 'acm', array( &$this, 'admin_view_controller' ) );
 	}
-	
-	/** 
+
+	/**
 	 * @todo remove html to views
 	 */
 	function admin_view_controller() {
 	?>
-	<table id="acm-codes-list"></table>	
-	<div id="acm-codes-pager"></div>	
+	<table id="acm-codes-list"></table>
+	<div id="acm-codes-pager"></div>
 	<?php
 	}
-	
+
 	/**
-	 * Register scripts and styles 
+	 * Register scripts and styles
 	 *
 	 */
 	function register_scripts_and_styles() {
@@ -159,7 +191,7 @@ class Ad_Code_Manager
 		wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css');
 		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array('jquery', 'jquery-ui-core' ) );
 		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array('jquery', 'jquery-ui-core' ) );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array('jquery', 'jquery-ui-core' ) );		
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array('jquery', 'jquery-ui-core' ) );
 	}
 
 	/**
@@ -181,7 +213,7 @@ class Ad_Code_Manager
 		// @todo Sanitize all of the other input
 
 		// @todo logic for saving the ad code to $this->ad_codes so it's available to $this->action_acm_tag()
-	} 
+	}
 
 	/**
 	 * Display the ad code based on what's registered
@@ -190,7 +222,7 @@ class Ad_Code_Manager
 	 * @uses do_action( 'acm_tag, 'your_tag_id' )
 	 */
 	function action_acm_tag( $tag_id ) {
-		
+
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - where it should be displayed
