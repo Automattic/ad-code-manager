@@ -71,7 +71,7 @@ class Ad_Code_Manager
 	 * @since ??
 	 */
 	function action_admin_init() {
-
+		$this->register_scripts_and_styles();
 		// @todo conditionally load the admin interface if that's enabled
 		// The admin interface should be enabled by a filter and off by default
 		// We'll need additional methods for:
@@ -79,6 +79,20 @@ class Ad_Code_Manager
 		// - Saving the data
 		// - Loading the ad codes in the database and registering them
 		// with the plugin using 
+		
+	}
+	
+	
+	/**
+	 * Register scripts and styles 
+	 *
+	 */
+	function register_scripts_and_styles() {
+		wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_FILE_PATH . '/common/css/jquery-ui-1.8.17.custom.css');
+		wp_enqueue_style( 'acm-jqgrid-css', AD_CODE_MANAGER_FILE_PATH . '/common/css/ui.jqgrid.css');
+		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_FILE_PATH . '/common/js/grid.locale-en.js'. array('jquery', 'jquery-ui' ) );
+		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_FILE_PATH . '/common/js/jquery.jqGrid.min.js'. array('jquery', 'jquery-ui' ) );
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_FILE_PATH . '/common/js/acm.js'. array('jquery', 'jquery-ui' ) );
 		
 	}
 
