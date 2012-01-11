@@ -34,6 +34,8 @@ class Ad_Code_Manager
 
 	var $ad_codes = array();
 	var $script_url_whitelist = array();
+	var $title = 'Ad Code Manager';
+	var $post_type = 'acm-code';
 	
 	/**
 	 * Instantiate the plugin
@@ -44,7 +46,8 @@ class Ad_Code_Manager
 
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
-		
+		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
+		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
 	}
 
 	/**
@@ -67,11 +70,13 @@ class Ad_Code_Manager
 
 	/**
 	 * Code to run on WordPress' 'admin_init' hook
-	 *
+	 * 
 	 * @since ??
 	 */
 	function action_admin_init() {
 		$this->register_scripts_and_styles();
+		///$this->register_ajax_calls();
+		//$this->display_menu();
 		// @todo conditionally load the admin interface if that's enabled
 		// The admin interface should be enabled by a filter and off by default
 		// We'll need additional methods for:
@@ -82,18 +87,79 @@ class Ad_Code_Manager
 		
 	}
 	
+	/**
+	 * Returns json encoded ad code
+	 * This is the datasource for jqGRID
+	 *
+	 * @todo nonce?
+	 * @todo actual logic for getting ad codes from our custom post type
+	 */ 
+	function get_ad_codes() {
+		// These are params that should be managed via UI
+		$response;
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
+			$model = array(
+						   'id' => 1,
+						   'site_name' => 'ltv.witi.home',
+						   'zone1' => 'homepage',
+						   's1' => 'homepage', // does  that always mirror zone?
+						   'fold' => 'atf', // atf|btf
+						   'sz' => '300x250' // 300x250 | 728x90 | 1x1 | 160x600
+						   );
+			$return = array();
+			for ( $i = 0; $i < 5; $i++ ) {
+				$model['id'] = $i;
+				$response->rows[$i] = $model;
+			}
+			$count = count( $response->rows );
+			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit 
+			
+			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
+			$response->total = $total_pages;
+			$response->records = $count;			
+			$this->print_json( $response );
+		}
+		return;
+	}
+	
+	function print_json( $data = array() ) {
+		header( 'Content-type: application/json;' );
+		echo json_encode( $data );
+		exit;
+	}
+	
+	/**
+	 * Defaults to manage_options, but could be easily changed via acm_manage_ads_cap filter
+	 *
+	 */
+	function manage_ads_cap() {
+		return apply_filters( 'acm_manage_ads_cap', 'manage_options' );
+	}
+	
+	function display_menu() {
+		add_menu_page( $this->title, $this->title, $this->manage_ads_cap(), 'acm', array( &$this, 'admin_view_controller' ) );
+	}
+	
+	/** 
+	 * @todo remove html to views
+	 */
+	function admin_view_controller() {
+	?>
+	<table id="acm-codes-list"></table>	
+	<div id="acm-codes-pager"></div>	
+	<?php
+	}
 	
 	/**
 	 * Register scripts and styles 
 	 *
 	 */
 	function register_scripts_and_styles() {
-		wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_FILE_PATH . '/common/css/jquery-ui-1.8.17.custom.css');
-		wp_enqueue_style( 'acm-jqgrid-css', AD_CODE_MANAGER_FILE_PATH . '/common/css/ui.jqgrid.css');
-		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_FILE_PATH . '/common/js/grid.locale-en.js'. array('jquery', 'jquery-ui' ) );
-		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_FILE_PATH . '/common/js/jquery.jqGrid.min.js'. array('jquery', 'jquery-ui' ) );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_FILE_PATH . '/common/js/acm.js'. array('jquery', 'jquery-ui' ) );
-		
+		wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css');
+		wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css');
+		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array('jquery', 'jquery-ui-core' ) );
+		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array('jquery', 'jquery-ui-core' ) );
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array('jquery', 'jquery-ui-core' ) );		
 	}
 
 	/**
