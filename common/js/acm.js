@@ -6,14 +6,12 @@ jQuery( document ).ready( function( $ ) {
 	datatype: "json",
 	url: base_url + '&acm-action=datasource',
 	height: 400,
-   	colNames:['Id','Site Name', 'Zone1', 's1','Fold','Size'],
+   	colNames:['Id','Site Name', 'Zone1', 's1'],
    	colModel:[
    		{name:'id',index:'id', width:60, sorttype:"int"},
    		{name:'site_name',index:'site_name', width:200, editable: true, edittype:'text'},
    		{name:'zone1',index:'zone1', width:100, editable: true},
-   		{name:'s1',index:'s1', width:100, align:"right", editable: true},
-   		{name:'fold',index:'fold', width:60, align:"right", editable: true, edittype: 'select', editoptions: {value: "atf:atf;btf:btf"}},
-   		{name:'sz',index:'sz', width:80,align:"right", editable: true, edittype: 'select', editoptions: {value: "300x250:300x250;728x90:728x90;160x600:160x600;1x1:1x1"}}
+   		{name:'s1',index:'s1', width:100, align:"right", editable: true}
    	],
 	prmNames:{ page: 'acm-grid-page' },
 	rowNum:10,

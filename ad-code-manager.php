@@ -115,9 +115,7 @@ class Ad_Code_Manager
 						   'id' => 1,
 						   'site_name' => 'ltv.witi.home',
 						   'zone1' => 'homepage',
-						   's1' => 'homepage', // does  that always mirror zone?
-						   'fold' => 'atf', // atf|btf
-						   'sz' => '300x250' // 300x250 | 728x90 | 1x1 | 160x600
+						   's1' => 'homepage'
 						   );
 			$return = array();
 			for ( $i = 0; $i < 5; $i++ ) {
