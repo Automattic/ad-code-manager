@@ -193,7 +193,8 @@ class Ad_Code_Manager
 	 *
 	 */
 	function register_scripts_and_styles() {
-		if ( isset( $_GET['page'] ) && $_GET['page'] == $this->plugin_slug ) {
+		global $pagenow;
+		if ( 'admin.php' == $pagenow && isset( $_GET['page'] ) && $_GET['page'] == $this->plugin_slug ) {
 			wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css');
 			wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css');
 			wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array('jquery', 'jquery-ui-core' ) );
