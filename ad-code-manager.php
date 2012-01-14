@@ -115,11 +115,13 @@ class Ad_Code_Manager
 						   'id' => 1,
 						   'site_name' => 'ltv.witi.home',
 						   'zone1' => 'homepage',
-						   's1' => 'homepage'
+						   's1' => 'homepage',
+						   'act'
 						   );
 			$return = array();
 			for ( $i = 0; $i < 5; $i++ ) {
 				$model['id'] = $i;
+
 				$response->rows[$i] = $model;
 			}
 			$count = count( $response->rows );
@@ -183,6 +185,9 @@ class Ad_Code_Manager
 	?>
 	<table id="acm-codes-list"></table>
 	<div id="acm-codes-pager"></div>
+	
+	<table id="acm-codes-conditions-list"></table>
+	<div id="acm-codes-conditions-pager"></div>
 	<?php
 	}
 
