@@ -1,5 +1,5 @@
 jQuery( document ).ready( function( $ ) {
-	var last_selected;
+	var last_selected, subgrid_lastsel;
 	var base_url = acm_url;
 	var grid_selector = jQuery("#acm-codes-list"); //avoid unnecessary selector calls
 	var subgrid_selector = jQuery( '#acm-codes-conditions-list' );
@@ -33,7 +33,7 @@ jQuery( document ).ready( function( $ ) {
 		viewrecords: true,
 		sortorder: "desc",
 		caption:"Ad Codes",
-		jsonReader : { repeatitems: false },
+		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
 		gridComplete: function(){
 			var ids = grid_selector.jqGrid( 'getDataIDs' );
 			for(var i=0;i < ids.length;i++){
@@ -68,21 +68,29 @@ jQuery( document ).ready( function( $ ) {
 		editurl: actions.conditions_edit,
 		prmNames:{ page: 'acm-grid-page' },
 		datatype: "json",
-		colNames:['Condition', 'Value', 'Priority'],
+		colNames:['ID','Condition', 'Value', 'Priority'],
 		colModel:[
+			{name:'id',index:'id', width:60, sorttype:"int"},
 			{name:'condition',index:'condition', width:180, editable: true, edittype: 'select', editoptions: {value: conditions_options}},
 			{name:'value',index:'value', width:80, align:"left", editable: true, edittype: 'text'},
 			{name:'priority',index:'priority', width:80, align:"left", editable: true, edittype: 'text'}
 		],
+		onSelectRow: function(id){
+		if(id && id!==subgrid_lastsel){
+			subgrid_selector.jqGrid('restoreRow',subgrid_lastsel);
+			subgrid_selector.jqGrid('editRow',id,true);
+			subgrid_lastsel=id;
+		}},
 		rowNum:5,
 		rowList:[5,10,20],
 		pager: '#acm-codes-conditions-pager',
 		sortname: 'item',
+		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
 		viewrecords: true,
 		sortorder: "asc",
 		multiselect: true,
 		caption:"Conditions for Ad Code"
-	}).navGrid( '#acm-codes-conditions-pager',{ add:true,edit:false,del:false } );
+	}).navGrid( '#acm-codes-conditions-pager',{ add:true,edit:true,del:true } );
 
 
 } );

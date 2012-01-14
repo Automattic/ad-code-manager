@@ -44,6 +44,7 @@ class Ad_Code_Manager
 	 * @since ??
 	 */
 	function __construct() {
+		// @todo refactor TODO
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
@@ -51,6 +52,7 @@ class Ad_Code_Manager
 		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
 		add_action( 'admin_init', array( &$this, 'update_ad_code' ) );
 		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) );
+		add_action( 'admin_init', array( &$this, 'get_conditions' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles') );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 	}
@@ -116,9 +118,8 @@ class Ad_Code_Manager
 						   'site_name' => 'ltv.witi.home',
 						   'zone1' => 'homepage',
 						   's1' => 'homepage',
-						   'act'
+						   'act' => '',
 						   );
-			$return = array();
 			for ( $i = 0; $i < 5; $i++ ) {
 				$model['id'] = $i;
 
@@ -134,11 +135,45 @@ class Ad_Code_Manager
 		}
 		return;
 	}
+	
+	function get_conditions() {
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditions' & 0 !== intval( $_GET[ 'id' ] ) ) {
+			$response;
+			$model = array(
+				array(
+					'id' => '123',
+					'condition' => 'is_front_page',
+					'value' => 'true', //should probably always be string as we may pass true or object slug
+					'priority' => 1
+					),
+				array(
+					'id' => '1546',
+					'condition' => 'is_home',
+					'value' => 'true', //should probably always be string as we may pass true or object slug
+					'priority' => 1
+					)				
+			);
+			//for ( $i = 0; $i < count($model); $i++ ) {
+			foreach ($model as $index => $item ) {
+				//$item['id'] = $index;
+				$response->rows[$index] = $item;
+			}
+			$count = count( $response->rows );
+			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
+
+			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
+			$response->total = $total_pages;
+			$response->records = $count;
+			$this->print_json( $response );
+		}
+		return;
+	}
+	
 	/**
 	 * @todo nonce + jqGrid?
 	 */
 	function update_ad_code() {
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'update' && ! empty( $_POST ) ) {
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit' && ! empty( $_POST ) ) {
 		// do update
 		exit;
 		}
