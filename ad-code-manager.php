@@ -25,9 +25,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 define( 'AD_CODE_MANAGER_VERSION', '0.0' );
-define( 'AD_CODE_MANAGER_ROOT' , dirname(__FILE__) );
-define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename(__FILE__) );
-define( 'AD_CODE_MANAGER_URL' , plugins_url( plugin_basename(dirname(__FILE__)).'/') );
+define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
+define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
+define( 'AD_CODE_MANAGER_URL' , plugins_url( plugin_basename( dirname( __FILE__ ) ) . '/' ) );
 
 class Ad_Code_Manager
 {
@@ -52,12 +52,12 @@ class Ad_Code_Manager
 		add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
 		add_action( 'admin_init', array( &$this, 'conditions_edit_actions' ) );
 		add_action( 'admin_init', array( &$this, 'get_conditions' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles') );
+		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
-		
+
 		$this->post_type_labels = array(
 										'name' => __( 'DFP Ad Codes' ),
-										'singular_name' => __( 'DFP Ad Codes' )
+										'singular_name' => __( 'DFP Ad Codes' ),
 										);
 	}
 
@@ -94,17 +94,14 @@ class Ad_Code_Manager
 		// - Loading the ad codes in the database and registering them
 		// with the plugin using
 	}
-	
+
 	/**
 	 * Register our custom post type to store ad codes
 	 *
 	 * @since ??
 	 */
 	function register_acm_post_type() {
-		register_post_type( $this->post_type, array(
-			'labels' => $this->post_type_labels,
-			'public' => false
-			) );
+		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
 	}
 
 	/**
@@ -126,10 +123,7 @@ class Ad_Code_Manager
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
-			
-			$ad_codes = get_posts( array(
-										 'post_type' => $this->post_type
-										 ) );
+			$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
 			// prepare data in jqGrid specific format
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
@@ -137,7 +131,7 @@ class Ad_Code_Manager
 					'id' => $ad_code->ID,
 					'site_name' => get_post_meta( $ad_code->ID, 'site_name', true ),
 					'zone1' => get_post_meta( $ad_code->ID, 'zone1', true ),
-					'act' => ''
+					'act' => '',
 				);
 			}
 			$response->rows = $pass;
@@ -145,20 +139,20 @@ class Ad_Code_Manager
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
-			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
+			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? $_GET[ 'acm-grid-page' ] : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
 		}
 		return;
 	}
-	
+
 	function get_conditions() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditions' & 0 !== intval( $_GET[ 'id' ] ) ) {
 			$response;
-			$conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true);			
-			foreach ($conditions as $index => $item ) 
-				$response->rows[] = $item;			
+			$conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
+			foreach ($conditions as $index => $item )
+				$response->rows[] = $item;
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
@@ -169,7 +163,7 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-	
+
 	/**
 	 * Handles Create, Update, Delete actions
 	 *
@@ -177,7 +171,8 @@ class Ad_Code_Manager
 	 */
 	function ad_code_edit_actions() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit' && ! empty( $_POST ) ) {
-			switch( $_POST[ 'oper' ] ) { //this is jqGrid param 
+			 //this is jqGrid param
+			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
 					$this->create_ad_code();
 					break;
@@ -192,10 +187,10 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-	
+
 	function conditions_edit_actions() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit-conditions' && ! empty( $_POST ) ) {
-			switch( $_POST[ 'oper' ] ) { //this is jqGrid param 
+			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
 					$this->create_condition();
 					break;
@@ -204,13 +199,13 @@ class Ad_Code_Manager
 					break;
 				case 'del':
 					$this->delete_condition();
-					break;		
+					break;
 			}
-			exit;			
+			exit;
 		}
 		return;
 	}
-	
+
 	/**
 	 * @uses register_ad_code()
 	 * @todo validation / nonce
@@ -222,73 +217,73 @@ class Ad_Code_Manager
 							  'post_status' => 'publish',
 							  'comment_status' => 'closed',
 							  'ping_status' => 'closed',
-							  'post_type' => $this->post_type
+							  'post_type' => $this->post_type,
 							  );
-			if ( !is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true) ) ) { // ??
-				update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
-				update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
-				
-			} 
+			if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
+				update_post_meta( $acm_inserted_post_id, 'site_name', $_POST[ 'site_name' ] );
+				update_post_meta( $acm_inserted_post_id, 'zone1', $_POST[ 'zone1' ] );
+			}
 		}
 		return;
 	}
-	
+
 	function edit_ad_code() {
 		if ( isset($_POST['id'] ) && $_POST['site_name'] && $_POST['zone1'] ) {
 			$acm_inserted_post_id = intval( $_POST[ 'id' ] );
 			update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
-			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );		
+			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
 		}
 		return;
 	}
 
 	function delete_ad_code() {
-		if ( isset( $_POST['id'] ) ) 
-			wp_delete_post( intval( $_POST[ 'id' ] ) , true ); //force delete post		
+		if ( isset( $_POST['id'] ) )
+			wp_delete_post( intval( $_POST[ 'id' ] ) , true ); //force delete post
 		return;
 	}
-	
+
 	function create_condition() {
-		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditions =  get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true ); 
-			if ( ! is_array( $existing_conditions) ) {
+		if ( isset( $_GET['id'] ) && ! empty( $_POST ) ) {
+			$existing_conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
+			if ( ! is_array( $existing_conditions ) ) {
 				$existing_conditions = array();
 			}
 			$existing_conditions[] = array(
 											'condition' => $_POST[ 'condition' ],
 											'value' => $_POST[ 'value' ],
-											'priority'=> intval( $_POST[ 'priority' ] )
+											'priority' => intval( $_POST[ 'priority' ] ),
 										   );
 			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', $existing_conditions );
 		}
 		return;
 	}
-	
+
 	function edit_condition() {
 		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditions = (array) get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true ); 
-			
+			$existing_conditions = (array) get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
+
 			foreach ( $existing_conditions as $index => $condition ) {
 				if ( $_POST[ 'condition' ] == $condition[ 'condition' ] ) {
 					$existing_conditions[ $index ] = array(
 								  'condition' => $_POST[ 'condition' ],
 								  'value' => $_POST[ 'value' ],
-								  'priority'=> intval( $_POST[ 'priority' ] ) );
+								  'priority' => intval( $_POST[ 'priority' ] ),
+								  );
 				}
 			}
 			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', $existing_conditions );
 		}
 		return;
 	}
-	
+
 	function delete_condition() {
 		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true ); 
-			$ids_to_delete = explode(",", $_POST[ 'id' ] ); // 
-			foreach ($ids_to_delete as $index ) 
+			$existing_conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
+			$ids_to_delete = explode(',', $_POST[ 'id' ] ); //
+			foreach ($ids_to_delete as $index )
 				unset( $existing_conditions[ --$index ] ); // jqGrid starts with one, PHP starts with 0
 			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', array_values( $existing_conditions ) ); //array_values to keep indices consistent
-		}		
+		}
 		return;
 	}
 
@@ -304,16 +299,19 @@ class Ad_Code_Manager
 	 * Print our vars as JS
 	 */
 	function post_admin_header() {
-		$conditions = apply_filters('acm_conditions',
-									array('is_category' => 'Is Category?',
-										 'is_page' => 'Is Page?',
-										 'has_category' => 'Has Category?',
-										 'is_tag' => 'Is Tag?',
-										 'has_tag' => 'Has Tag?' ) );
+		$conditions = apply_filters(
+									'acm_conditions',
+									array(
+										'is_category' => 'Is Category?',
+										'is_page' => 'Is Page?',
+										'has_category' => 'Has Category?',
+										'is_tag' => 'Is Tag?',
+										'has_tag' => 'Has Tag?',
+										)
+									);
 		$conditions_parsed = array();
-		foreach ($conditions as $ck => $cv ) 					
-			$conditions_parsed[] = "$ck:$cv";		
-		
+		foreach ( $conditions as $ck => $cv )
+			$conditions_parsed[] = "$ck:$cv";
 		?>
 		<script type="text/javascript">
 			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
@@ -325,8 +323,8 @@ class Ad_Code_Manager
 	function display_menu() {
 		add_menu_page( $this->title, $this->title, apply_filters( 'acm_manage_ads_cap', 'manage_options' ), $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
 	}
-	
-	
+
+
 
 	/**
 	 * @todo remove html to views
@@ -349,11 +347,11 @@ class Ad_Code_Manager
 	function register_scripts_and_styles() {
 		global $pagenow;
 		if ( 'admin.php' == $pagenow && isset( $_GET['page'] ) && $_GET['page'] == $this->plugin_slug ) {
-			wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css');
-			wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css');
-			wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array('jquery', 'jquery-ui-core' ) );
-			wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array('jquery', 'jquery-ui-core' ) );
-			wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array('jquery', 'jquery-ui-core' ) );
+			wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css' );
+			wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css' );
+			wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array( 'jquery', 'jquery-ui-core' ) );
+			wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array( 'jquery', 'jquery-ui-core' ) );
+			wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
 		}
 	}
 
