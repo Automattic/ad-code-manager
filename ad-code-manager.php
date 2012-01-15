@@ -304,9 +304,20 @@ class Ad_Code_Manager
 	 * Print our vars as JS
 	 */
 	function post_admin_header() {
+		$conditions = apply_filters('acm_conditions',
+									array('is_category' => 'Is Category?',
+										 'is_page' => 'Is Page?',
+										 'has_category' => 'Has Category?',
+										 'is_tag' => 'Is Tag?',
+										 'has_tag' => 'Has Tag?' ) );
+		$conditions_parsed = array();
+		foreach ($conditions as $ck => $cv ) 					
+			$conditions_parsed[] = "$ck:$cv";		
+		
 		?>
 		<script type="text/javascript">
-			var acm_url = '<?php echo esc_js( admin_url('admin.php?page=' . $this->plugin_slug ) )  ?>';
+			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
+			var acm_conditions = '<?php echo esc_js( implode( ';', $conditions_parsed ) )?>';
 		</script>
 		<?php
 	}
@@ -314,6 +325,8 @@ class Ad_Code_Manager
 	function display_menu() {
 		add_menu_page( $this->title, $this->title, apply_filters( 'acm_manage_ads_cap', 'manage_options' ), $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
 	}
+	
+	
 
 	/**
 	 * @todo remove html to views

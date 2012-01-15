@@ -9,7 +9,7 @@ jQuery( document ).ready( function( $ ) {
 			  conditions_datasource: base_url + '&acm-action=datasource-conditions',
 			  conditions_edit: base_url + '&acm-action=edit-conditions'
 	};
-	var conditions_options = "is_category:Is Category?;is_page:Is Page;has_category:Has Category?;is_tag:Is Tag?;has_tag:Has Tag?"; // this should probably be printed in head
+	var conditions_options = acm_conditions;
 
 	grid_selector.jqGrid({
 		datatype: "json",
