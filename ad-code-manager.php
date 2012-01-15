@@ -137,7 +137,6 @@ class Ad_Code_Manager
 					'id' => $ad_code->ID,
 					'site_name' => get_post_meta( $ad_code->ID, 'site_name', true ),
 					'zone1' => get_post_meta( $ad_code->ID, 'zone1', true ),
-					's1' => get_post_meta( $ad_code->ID, 'zone1', true ),
 					'act' => ''
 				);
 			}
@@ -228,7 +227,7 @@ class Ad_Code_Manager
 			if ( !is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true) ) ) { // ??
 				update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
 				update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
-				update_post_meta( $acm_inserted_post_id, 's1', $_POST['zone1'] ); // to remove
+				
 			} 
 		}
 		return;
@@ -238,8 +237,7 @@ class Ad_Code_Manager
 		if ( isset($_POST['id'] ) && $_POST['site_name'] && $_POST['zone1'] ) {
 			$acm_inserted_post_id = intval( $_POST[ 'id' ] );
 			update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
-			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
-			update_post_meta( $acm_inserted_post_id, 's1', $_POST['zone1'] ); // to remove			
+			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );		
 		}
 		return;
 	}

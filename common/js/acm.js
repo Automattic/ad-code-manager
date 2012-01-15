@@ -17,12 +17,11 @@ jQuery( document ).ready( function( $ ) {
 		editurl: actions.codes_edit,
 		height: 400,
 		width: 600,
-		colNames:['Id','Site Name', 'Zone1', 's1', 'Actions'],
+		colNames:['Id','Site Name', 'Zone1', 'Actions'],
 		colModel:[
 			{name:'id',index:'id', width:60, sorttype:"int"},
 			{name:'site_name',index:'site_name', width:200, editable: true, edittype:'text'},
 			{name:'zone1',index:'zone1', width:100, editable: true},
-			{name:'s1',index:'s1', width:100, editable: true},
 			{name:'act',index:'act', width:125,sortable:false, align: 'center'},
 		],
 		prmNames:{ page: 'acm-grid-page' },
