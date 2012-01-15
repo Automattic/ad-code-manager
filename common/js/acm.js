@@ -7,7 +7,7 @@ jQuery( document ).ready( function( $ ) {
 			  codes_datasource: base_url + '&acm-action=datasource',
 			  codes_edit: base_url + '&acm-action=edit',
 			  conditions_datasource: base_url + '&acm-action=datasource-conditions',
-			  conditions_edit: base_url + '&acm-action=datasource-edit'
+			  conditions_edit: base_url + '&acm-action=edit-conditions'
 	};
 	var conditions_options = "is_category:Is Category?;is_page:Is Page;has_category:Has Category?;is_tag:Is Tag?;has_tag:Has Tag?"; // this should probably be printed in head
 
@@ -68,9 +68,8 @@ jQuery( document ).ready( function( $ ) {
 		editurl: actions.conditions_edit,
 		prmNames:{ page: 'acm-grid-page' },
 		datatype: "json",
-		colNames:['ID','Condition', 'Value', 'Priority'],
+		colNames:['Condition', 'Value', 'Priority'],
 		colModel:[
-			{name:'id',index:'id', width:60, sorttype:"int"},
 			{name:'condition',index:'condition', width:180, editable: true, edittype: 'select', editoptions: {value: conditions_options}},
 			{name:'value',index:'value', width:80, align:"left", editable: true, edittype: 'text'},
 			{name:'priority',index:'priority', width:80, align:"left", editable: true, edittype: 'text'}

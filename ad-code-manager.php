@@ -37,7 +37,7 @@ class Ad_Code_Manager
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
 	var $plugin_slug = 'acm';
-
+	var $post_type_labels ;
 	/**
 	 * Instantiate the plugin
 	 *
@@ -48,13 +48,17 @@ class Ad_Code_Manager
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
-		add_action( 'admin_init', array( &$this, 'create_ad_code' ) );
 		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
-		add_action( 'admin_init', array( &$this, 'update_ad_code' ) );
-		add_action( 'admin_init', array( &$this, 'delete_ad_code' ) );
+		add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
+		add_action( 'admin_init', array( &$this, 'conditions_edit_actions' ) );
 		add_action( 'admin_init', array( &$this, 'get_conditions' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles') );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+		
+		$this->post_type_labels = array(
+										'name' => __( 'DFP Ad Codes' ),
+										'singular_name' => __( 'DFP Ad Codes' )
+										);
 	}
 
 	/**
@@ -72,6 +76,7 @@ class Ad_Code_Manager
 			require_once AD_CODE_MANAGER_ROOT . '/template-tags.php';
 			add_action( 'acm_tag', array( &$this, 'action_acm_tag' ) );
 		}
+		$this->register_acm_post_type();
 
 	}
 
@@ -81,9 +86,6 @@ class Ad_Code_Manager
 	 * @since ??
 	 */
 	function action_admin_init() {
-		//$this->register_scripts_and_styles();
-		///$this->register_ajax_calls();
-		//$this->display_menu();
 		// @todo conditionally load the admin interface if that's enabled
 		// The admin interface should be enabled by a filter and off by default
 		// We'll need additional methods for:
@@ -91,7 +93,18 @@ class Ad_Code_Manager
 		// - Saving the data
 		// - Loading the ad codes in the database and registering them
 		// with the plugin using
-
+	}
+	
+	/**
+	 * Register our custom post type to store ad codes
+	 *
+	 * @since ??
+	 */
+	function register_acm_post_type() {
+		register_post_type( $this->post_type, array(
+			'labels' => $this->post_type_labels,
+			'public' => false
+			) );
 	}
 
 	/**
@@ -113,18 +126,23 @@ class Ad_Code_Manager
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
-			$model = array(
-						   'id' => 1,
-						   'site_name' => 'ltv.witi.home',
-						   'zone1' => 'homepage',
-						   's1' => 'homepage',
-						   'act' => '',
-						   );
-			for ( $i = 0; $i < 5; $i++ ) {
-				$model['id'] = $i;
-
-				$response->rows[$i] = $model;
+			
+			$ad_codes = get_posts( array(
+										 'post_type' => $this->post_type
+										 ) );
+			// prepare data in jqGrid specific format
+			$pass = array();
+			foreach ( $ad_codes as $ad_code ) {
+				$pass[] = array(
+					'id' => $ad_code->ID,
+					'site_name' => get_post_meta( $ad_code->ID, 'site_name', true ),
+					'zone1' => get_post_meta( $ad_code->ID, 'zone1', true ),
+					's1' => get_post_meta( $ad_code->ID, 'zone1', true ),
+					'act' => ''
+				);
 			}
+			$response->rows = $pass;
+
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
@@ -139,25 +157,9 @@ class Ad_Code_Manager
 	function get_conditions() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditions' & 0 !== intval( $_GET[ 'id' ] ) ) {
 			$response;
-			$model = array(
-				array(
-					'id' => '123',
-					'condition' => 'is_front_page',
-					'value' => 'true', //should probably always be string as we may pass true or object slug
-					'priority' => 1
-					),
-				array(
-					'id' => '1546',
-					'condition' => 'is_home',
-					'value' => 'true', //should probably always be string as we may pass true or object slug
-					'priority' => 1
-					)				
-			);
-			//for ( $i = 0; $i < count($model); $i++ ) {
-			foreach ($model as $index => $item ) {
-				//$item['id'] = $index;
-				$response->rows[$index] = $item;
-			}
+			$conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true);			
+			foreach ($conditions as $index => $item ) 
+				$response->rows[] = $item;			
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
@@ -170,23 +172,125 @@ class Ad_Code_Manager
 	}
 	
 	/**
+	 * Handles Create, Update, Delete actions
+	 *
 	 * @todo nonce + jqGrid?
 	 */
-	function update_ad_code() {
+	function ad_code_edit_actions() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit' && ! empty( $_POST ) ) {
-		// do update
-		exit;
+			switch( $_POST[ 'oper' ] ) { //this is jqGrid param 
+				case 'add':
+					$this->create_ad_code();
+					break;
+				case 'edit':
+					$this->edit_ad_code();
+					break;
+				case 'del':
+					$this->delete_ad_code();
+					break;
+			}
+			exit; // exit, jqGrid sends another request to fetch new data
 		}
 		return;
 	}
+	
+	function conditions_edit_actions() {
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit-conditions' && ! empty( $_POST ) ) {
+			switch( $_POST[ 'oper' ] ) { //this is jqGrid param 
+				case 'add':
+					$this->create_condition();
+					break;
+				case 'edit':
+					$this->edit_condition();
+					break;
+				case 'del':
+					$this->delete_condition();
+					break;		
+			}
+			exit;			
+		}
+		return;
+	}
+	
 	/**
 	 * @uses register_ad_code()
+	 * @todo validation / nonce
 	 */
 	function create_ad_code() {
+		if ( $_POST['site_name'] && $_POST['zone1'] ) {
+			$acm_post = array(
+							  'post_title' => $_POST['site_name'] .'-' . $_POST['zone1'],
+							  'post_status' => 'publish',
+							  'comment_status' => 'closed',
+							  'ping_status' => 'closed',
+							  'post_type' => $this->post_type
+							  );
+			if ( !is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true) ) ) { // ??
+				update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
+				update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
+				update_post_meta( $acm_inserted_post_id, 's1', $_POST['zone1'] ); // to remove
+			} 
+		}
+		return;
+	}
+	
+	function edit_ad_code() {
+		if ( isset($_POST['id'] ) && $_POST['site_name'] && $_POST['zone1'] ) {
+			$acm_inserted_post_id = intval( $_POST[ 'id' ] );
+			update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
+			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
+			update_post_meta( $acm_inserted_post_id, 's1', $_POST['zone1'] ); // to remove			
+		}
 		return;
 	}
 
 	function delete_ad_code() {
+		if ( isset( $_POST['id'] ) ) 
+			wp_delete_post( intval( $_POST[ 'id' ] ) , true ); //force delete post		
+		return;
+	}
+	
+	function create_condition() {
+		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
+			$existing_conditions =  get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true ); 
+			if ( ! is_array( $existing_conditions) ) {
+				$existing_conditions = array();
+			}
+			$existing_conditions[] = array(
+											'condition' => $_POST[ 'condition' ],
+											'value' => $_POST[ 'value' ],
+											'priority'=> intval( $_POST[ 'priority' ] )
+										   );
+			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', $existing_conditions );
+		}
+		return;
+	}
+	
+	function edit_condition() {
+		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
+			$existing_conditions = (array) get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true ); 
+			
+			foreach ( $existing_conditions as $index => $condition ) {
+				if ( $_POST[ 'condition' ] == $condition[ 'condition' ] ) {
+					$existing_conditions[ $index ] = array(
+								  'condition' => $_POST[ 'condition' ],
+								  'value' => $_POST[ 'value' ],
+								  'priority'=> intval( $_POST[ 'priority' ] ) );
+				}
+			}
+			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', $existing_conditions );
+		}
+		return;
+	}
+	
+	function delete_condition() {
+		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
+			$existing_conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true ); 
+			$ids_to_delete = explode(",", $_POST[ 'id' ] ); // 
+			foreach ($ids_to_delete as $index ) 
+				unset( $existing_conditions[ --$index ] ); // jqGrid starts with one, PHP starts with 0
+			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', array_values( $existing_conditions ) ); //array_values to keep indices consistent
+		}		
 		return;
 	}
 
@@ -218,9 +322,10 @@ class Ad_Code_Manager
 	 */
 	function admin_view_controller() {
 	?>
+	<h2>Ad Code Manager</h2>
 	<table id="acm-codes-list"></table>
 	<div id="acm-codes-pager"></div>
-	
+
 	<table id="acm-codes-conditions-list"></table>
 	<div id="acm-codes-conditions-pager"></div>
 	<?php
