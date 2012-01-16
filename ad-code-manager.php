@@ -472,10 +472,9 @@ class Ad_Code_Manager
 				$display_codes[] = $ad_code;
 				continue;
 			}
-				
+			
 			$include = true;
 			foreach( $ad_code['conditionals'] as $conditional ) {
-
 				// If the conditional was passed as an array, then we have a complex rule
 				// Otherwise, we have a function name and expect rue
 				if ( is_array( $conditional ) ) {
@@ -499,7 +498,7 @@ class Ad_Code_Manager
 					$cond_func = ltrim( $cond_func, '!' );
 					$cond_result = false;
 				}
-
+					
 				// Don't run the conditional if the conditional function doesn't exist or
 				// isn't in our whitelist
 				if ( !function_exists( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
@@ -514,6 +513,12 @@ class Ad_Code_Manager
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
 					$include = false;
+				
+				// Mimic OR
+				// If we have matching conditional just break from the loop and do not try to evaluate others
+				if ( $include )
+					break;
+			
 			}
 
 			// If we're supposed to include the ad code even after we've run the conditionals,
@@ -522,11 +527,11 @@ class Ad_Code_Manager
 				$display_codes[] = $ad_code;
 
 		}
-
+		
 		// Don't do anything if we've ended up with no ad codes
 		if ( empty( $display_codes ) )
 			return;
-
+		
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - priority against other ad codes
