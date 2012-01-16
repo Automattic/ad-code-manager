@@ -2,14 +2,14 @@ jQuery( document ).ready( function( $ ) {
 	var last_selected, subgrid_lastsel;
 	var base_url = acm_url;
 	var grid_selector = jQuery("#acm-codes-list"); //avoid unnecessary selector calls
-	var subgrid_selector = jQuery( '#acm-codes-conditions-list' );
+	var subgrid_selector = jQuery( '#acm-codes-conditionals-list' );
 	var actions = {
 			  codes_datasource: base_url + '&acm-action=datasource',
 			  codes_edit: base_url + '&acm-action=edit',
-			  conditions_datasource: base_url + '&acm-action=datasource-conditions',
-			  conditions_edit: base_url + '&acm-action=edit-conditions'
+			  conditionals_datasource: base_url + '&acm-action=datasource-conditionals',
+			  conditionals_edit: base_url + '&acm-action=edit-conditionals'
 	};
-	var conditions_options = acm_conditions;
+	var conditionals_options = acm_conditionals;
 
 	grid_selector.jqGrid({
 		datatype: "json",
@@ -47,13 +47,13 @@ jQuery( document ).ready( function( $ ) {
 				ids=0;
 				if(subgrid_selector.jqGrid( 'getGridParam','records' ) >0 )
 				{
-					subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditions_datasource + "&id="+ids, page:1, editurl: actions.conditions_edit + "&id="+ids } );
-					subgrid_selector.jqGrid( 'setCaption',"Conditions for Ad Code #: "+ids)
+					subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditionals_datasource + "&id="+ids, page:1, editurl: actions.conditionals_edit + "&id="+ids } );
+					subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code #: "+ids)
 					.trigger( 'reloadGrid' );
 				}
 			} else {
-				subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditions_datasource + "&id="+ids, page:1, editurl: actions.conditions_edit + "&id="+ids } );
-				subgrid_selector.jqGrid( 'setCaption',"Conditions for Ad Code # "+ids)
+				subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditionals_datasource + "&id="+ids, page:1, editurl: actions.conditionals_edit + "&id="+ids } );
+				subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code # "+ids)
 				.trigger( 'reloadGrid' );			
 			}
 		}	
@@ -63,15 +63,14 @@ jQuery( document ).ready( function( $ ) {
 
 	subgrid_selector.jqGrid({
 		height: 100,
-		url: actions.conditions_datasource,
-		editurl: actions.conditions_edit,
+		url: actions.conditionals_datasource,
+		editurl: actions.conditionals_edit,
 		prmNames:{ page: 'acm-grid-page' },
 		datatype: "json",
-		colNames:['Condition', 'Value', 'Priority'],
+		colNames:['Conditional', 'Value'],
 		colModel:[
-			{name:'condition',index:'condition', width:180, editable: true, edittype: 'select', editoptions: {value: conditions_options}},
+			{name:'conditional',index:'conditional', width:180, editable: true, edittype: 'select', editoptions: {value: conditionals_options}},
 			{name:'value',index:'value', width:80, align:"left", editable: true, edittype: 'text'},
-			{name:'priority',index:'priority', width:80, align:"left", editable: true, edittype: 'text'}
 		],
 		onSelectRow: function(id){
 		if(id && id!==subgrid_lastsel){
@@ -81,14 +80,14 @@ jQuery( document ).ready( function( $ ) {
 		}},
 		rowNum:5,
 		rowList:[5,10,20],
-		pager: '#acm-codes-conditions-pager',
+		pager: '#acm-codes-conditionals-pager',
 		sortname: 'item',
 		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
 		viewrecords: true,
 		sortorder: "asc",
 		multiselect: true,
-		caption:"Conditions for Ad Code"
-	}).navGrid( '#acm-codes-conditions-pager',{ add:true,edit:true,del:true } );
+		caption:"Conditionals for Ad Code"
+	}).navGrid( '#acm-codes-conditionals-pager',{ add:true,edit:true,del:true } );
 
 
 } );

@@ -35,6 +35,7 @@ class Ad_Code_Manager
 	var $ad_codes = array();
 	var $whitelisted_script_urls = array();
 	var $whitelisted_conditionals = array();
+	var $whitelisted_conditionals_titles = array();
 	var $output_html;
 	var $output_tokens = array();
 	var $title = 'Ad Code Manager';
@@ -56,8 +57,8 @@ class Ad_Code_Manager
 
 		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
 		add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
-		add_action( 'admin_init', array( &$this, 'conditions_edit_actions' ) );
-		add_action( 'admin_init', array( &$this, 'get_conditions' ) );
+		add_action( 'admin_init', array( &$this, 'conditionals_edit_actions' ) );
+		add_action( 'admin_init', array( &$this, 'get_conditionals' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 
@@ -83,9 +84,24 @@ class Ad_Code_Manager
 				'is_front_page',
 				'is_category',
 				'has_category',
+				'is_page',
+				'is_tag',
+				'has_tag',
 			);
+		// And titles for UI
+		$this->whitelisted_conditionals_titles = array(
+				'is_home' => 'Is Home Page',
+				'is_front_page' => 'Is Front Page',
+				'is_category' => 'Is Category',
+				'has_category' => 'Has Category',
+				'is_page' => 'Is Page',
+				'is_tag' => 'Is Tag',
+				'has_tag' => 'Has Tag',			
+		);
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
-
+		$this->whitelisted_conditionals_titles = apply_filters( 'acm_whitelisted_conditionals_titles', $this->whitelisted_conditionals_titles );
+		
+		
 		// Set our default output HTML
 		// This can be filtered in action_acm_tag()
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
@@ -176,11 +192,11 @@ class Ad_Code_Manager
 		return;
 	}
 
-	function get_conditions() {
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditions' & 0 !== intval( $_GET[ 'id' ] ) ) {
+	function get_conditionals() {
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditionals' & 0 !== intval( $_GET[ 'id' ] ) ) {
 			$response;
-			$conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
-			foreach ($conditions as $index => $item )
+			$conditionals = get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
+			foreach ($conditionals as $index => $item )
 				$response->rows[] = $item;
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
@@ -217,17 +233,17 @@ class Ad_Code_Manager
 		return;
 	}
 
-	function conditions_edit_actions() {
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit-conditions' && ! empty( $_POST ) ) {
+	function conditionals_edit_actions() {
+		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit-conditionals' && ! empty( $_POST ) ) {
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$this->create_condition();
+					$this->create_conditional();
 					break;
 				case 'edit':
-					$this->edit_condition();
+					$this->edit_conditional();
 					break;
 				case 'del':
-					$this->delete_condition();
+					$this->delete_conditional();
 					break;
 			}
 			exit;
@@ -271,47 +287,45 @@ class Ad_Code_Manager
 		return;
 	}
 
-	function create_condition() {
+	function create_conditional() {
 		if ( isset( $_GET['id'] ) && ! empty( $_POST ) ) {
-			$existing_conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
-			if ( ! is_array( $existing_conditions ) ) {
-				$existing_conditions = array();
+			$existing_conditionals = get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
+			if ( ! is_array( $existing_conditionals ) ) {
+				$existing_conditionals = array();
 			}
-			$existing_conditions[] = array(
-											'condition' => $_POST[ 'condition' ],
+			$existing_conditionals[] = array(
+											'conditional' => $_POST[ 'conditional' ],
 											'value' => $_POST[ 'value' ],
-											'priority' => intval( $_POST[ 'priority' ] ),
 										   );
-			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', $existing_conditions );
+			update_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', $existing_conditionals );
 		}
 		return;
 	}
 
-	function edit_condition() {
+	function edit_conditional() {
 		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditions = (array) get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
+			$existing_conditionals = (array) get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
 
-			foreach ( $existing_conditions as $index => $condition ) {
-				if ( $_POST[ 'condition' ] == $condition[ 'condition' ] ) {
-					$existing_conditions[ $index ] = array(
-								  'condition' => $_POST[ 'condition' ],
+			foreach ( $existing_conditionals as $index => $conditional ) {
+				if ( $_POST[ 'conditional' ] == $conditional[ 'conditional' ] ) {
+					$existing_conditionals[ $index ] = array(
+								  'condition' => $_POST[ 'conditional' ],
 								  'value' => $_POST[ 'value' ],
-								  'priority' => intval( $_POST[ 'priority' ] ),
 								  );
 				}
 			}
-			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', $existing_conditions );
+			update_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', $existing_conditions );
 		}
 		return;
 	}
 
-	function delete_condition() {
+	function delete_conditional() {
 		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditions = get_post_meta( intval( $_GET[ 'id' ] ), 'conditions', true );
+			$existing_conditionals = get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
 			$ids_to_delete = explode(',', $_POST[ 'id' ] ); //
 			foreach ($ids_to_delete as $index )
-				unset( $existing_conditions[ --$index ] ); // jqGrid starts with one, PHP starts with 0
-			update_post_meta( intval( $_GET[ 'id' ] ), 'conditions', array_values( $existing_conditions ) ); //array_values to keep indices consistent
+				unset( $existing_conditionals[ --$index ] ); // jqGrid starts with one, PHP starts with 0
+			update_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
 		}
 		return;
 	}
@@ -333,24 +347,16 @@ class Ad_Code_Manager
 		if ( !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
-		// @todo This needs to reflect $this->whitelisted_conditionals;
-		$conditions = apply_filters(
-									'acm_conditions',
-									array(
-										'is_category' => 'Is Category?',
-										'is_page' => 'Is Page?',
-										'has_category' => 'Has Category?',
-										'is_tag' => 'Is Tag?',
-										'has_tag' => 'Has Tag?',
-										)
-									);
-		$conditions_parsed = array();
-		foreach ( $conditions as $ck => $cv )
-			$conditions_parsed[] = "$ck:$cv";
+		$conditionals_parsed = array();
+		foreach ( $this->whitelisted_conditionals as $conditional )
+			if ( isset( $this->whitelisted_conditionals_titles[ $conditional ] ) ) {
+				$conditionals_parsed[] = $conditional . ':' . $this->whitelisted_conditionals_titles[ $conditional ];	
+			}
+			
 		?>
 		<script type="text/javascript">
 			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
-			var acm_conditions = '<?php echo esc_js( implode( ';', $conditions_parsed ) )?>';
+			var acm_conditionals = '<?php echo esc_js( implode( ';', $conditionals_parsed ) )?>';
 		</script>
 		<?php
 	}
@@ -371,8 +377,8 @@ class Ad_Code_Manager
 	<table id="acm-codes-list"></table>
 	<div id="acm-codes-pager"></div>
 
-	<table id="acm-codes-conditions-list"></table>
-	<div id="acm-codes-conditions-pager"></div>
+	<table id="acm-codes-conditionals-list"></table>
+	<div id="acm-codes-conditionals-pager"></div>
 	<?php
 	}
 
