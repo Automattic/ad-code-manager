@@ -42,6 +42,7 @@ class Ad_Code_Manager
 	var $post_type = 'acm-code';
 	var $plugin_slug = 'ad-code-manager';
 	var $post_type_labels ;
+	var $logical_operator;
 	/**
 	 * Instantiate the plugin
 	 *
@@ -100,7 +101,7 @@ class Ad_Code_Manager
 		);
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
 		$this->whitelisted_conditionals_titles = apply_filters( 'acm_whitelisted_conditionals_titles', $this->whitelisted_conditionals_titles );
-		
+		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR'); //allow users to filter default logical operator
 		
 		// Set our default output HTML
 		// This can be filtered in action_acm_tag()
@@ -520,9 +521,9 @@ class Ad_Code_Manager
 				if ( $cond_result !== $result )
 					$include = false;
 				
-				// Mimic OR
-				// If we have matching conditional just break from the loop and do not try to evaluate others
-				if ( $include )
+				// 
+				// If we have matching conditional and $this->logical_operator equals OR just break from the loop and do not try to evaluate others
+				if ( $include && $this->logical_operator == 'OR' )
 					break;
 			
 			}
