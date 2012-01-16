@@ -96,12 +96,15 @@ class Ad_Code_Manager
 				'%url%',
 			);
 
+		$this->register_acm_post_type();
+
 		// Ad tags are only run on the frontend
 		if ( !is_admin() ) {
 			require_once AD_CODE_MANAGER_ROOT . '/template-tags.php';
 			add_action( 'acm_tag', array( $this, 'action_acm_tag' ) );
+
+			// @todo get all of the ad codes and register them with register_ad_code()
 		}
-		$this->register_acm_post_type();
 
 	}
 
