@@ -56,10 +56,10 @@ class Ad_Code_Manager
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 
-		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
+		add_action( 'admin_init', array( &$this, 'get_ad_codes_ajax' ) );
 		add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
 		add_action( 'admin_init', array( &$this, 'conditionals_edit_actions' ) );
-		add_action( 'admin_init', array( &$this, 'get_conditionals' ) );
+		add_action( 'admin_init', array( &$this, 'get_conditionals_ajax' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 
@@ -157,7 +157,7 @@ class Ad_Code_Manager
 	 * @todo nonce?
 	 * @todo actual logic for getting ad codes from our custom post type
 	 */
-	function get_ad_codes() {
+	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
 		/**
 		 * NB!
@@ -169,7 +169,7 @@ class Ad_Code_Manager
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
-			$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
+			$ad_codes = $this->get_ad_codes() ;
 			// prepare data in jqGrid specific format
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
@@ -192,12 +192,16 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-
-	function get_conditionals() {
+	
+	function get_ad_codes() {
+		return get_posts( array( 'post_type' => $this->post_type ) );
+	}
+	
+	function get_conditionals_ajax() {
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditionals' & 0 !== intval( $_GET[ 'id' ] ) ) {
+			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
 			$response;
-			$conditionals = get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
-			foreach ($conditionals as $index => $item )
+		foreach ( (array) $conditionals as $index => $item )
 				$response->rows[] = $item;
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
@@ -205,13 +209,16 @@ class Ad_Code_Manager
 			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
-			$this->print_json( $response );
-		}
-		return;
+			$this->print_json( $response );	
+		}	
+	}
+
+	function get_conditionals( $ad_code_id ) {		
+		return  get_post_meta( intval( $ad_code_id ), 'conditionals', true );
 	}
 
 	/**
-	 * Handles Create, Update, Delete actions
+	 * Handles AJAX Create, Update, Delete actions for Ad Codes
 	 *
 	 * @todo nonce + jqGrid?
 	 */
@@ -220,13 +227,13 @@ class Ad_Code_Manager
 			 //this is jqGrid param
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$this->create_ad_code();
+					$this->create_ad_code( $_POST );
 					break;
 				case 'edit':
-					$this->edit_ad_code();
+					$this->edit_ad_code( $_GET[ 'id' ], $_POST );
 					break;
 				case 'del':
-					$this->delete_ad_code();
+					$this->delete_ad_code( $_GET[ 'id' ] );
 					break;
 			}
 			exit; // exit, jqGrid sends another request to fetch new data
@@ -238,13 +245,15 @@ class Ad_Code_Manager
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit-conditionals' && ! empty( $_POST ) ) {
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$this->create_conditional();
+					$this->create_conditional( $_GET['id'], $_POST );
 					break;
 				case 'edit':
-					$this->edit_conditional();
+					$this->edit_conditional( $_GET['id'], $_POST );
 					break;
 				case 'del':
-					$this->delete_conditional();
+					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
+					// removed from array of conditionals 
+					$this->delete_conditional( $_GET['id'], $_POST[ 'id' ], true );
 					break;
 			}
 			exit;
@@ -255,78 +264,107 @@ class Ad_Code_Manager
 	/**
 	 * @uses register_ad_code()
 	 * @todo validation / nonce
+	 *
+	 * @param array $ad_code 
 	 */
-	function create_ad_code() {
-		if ( $_POST['site_name'] && $_POST['zone1'] ) {
+	function create_ad_code( $ad_code = array() ) {
+		if ( $ad_code['site_name'] && $ad_code['zone1'] ) {
 			$acm_post = array(
-							  'post_title' => $_POST['site_name'] .'-' . $_POST['zone1'],
+							  'post_title' => $ad_code['site_name'] .'-' . $ad_code['zone1'],
 							  'post_status' => 'publish',
 							  'comment_status' => 'closed',
 							  'ping_status' => 'closed',
 							  'post_type' => $this->post_type,
 							  );
 			if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
-				update_post_meta( $acm_inserted_post_id, 'site_name', $_POST[ 'site_name' ] );
-				update_post_meta( $acm_inserted_post_id, 'zone1', $_POST[ 'zone1' ] );
+				update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code[ 'site_name' ] );
+				update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code[ 'zone1' ] );
 			}
 		}
 		return;
 	}
 
-	function edit_ad_code() {
-		if ( isset($_POST['id'] ) && $_POST['site_name'] && $_POST['zone1'] ) {
-			$acm_inserted_post_id = intval( $_POST[ 'id' ] );
+	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
+		if ( 0 !== intval( $ad_code_id ) && $ad_code['site_name'] && $ad_code['zone1'] ) {
+			$acm_inserted_post_id = intval( $ad_code_id );
 			update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
 			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
 		}
 		return;
 	}
 
-	function delete_ad_code() {
-		if ( isset( $_POST['id'] ) )
-			wp_delete_post( intval( $_POST[ 'id' ] ) , true ); //force delete post
+	function delete_ad_code( $ad_code_id ) {
+		if ( 0 !== intval( $ad_code_id ) )
+			wp_delete_post( intval( $ad_code_id ) , true ); //force delete post
 		return;
 	}
-
-	function create_conditional() {
-		if ( isset( $_GET['id'] ) && ! empty( $_POST ) ) {
-			$existing_conditionals = get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
+	/**
+	 * Create conditional
+	 *
+	 * @param int $ad_code_id id of our CPT post
+	 * @param array $conditional to add
+	 *
+	 * @return void ???
+	 */
+	function create_conditional( $ad_code_id, $conditional ) {
+		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
+			$ad_code_id = intval( $ad_code_id );
 			if ( ! is_array( $existing_conditionals ) ) {
 				$existing_conditionals = array();
 			}
 			$existing_conditionals[] = array(
-											'conditional' => $_POST[ 'conditional' ],
-											'value' => $_POST[ 'value' ],
+											'conditional' => $conditional[ 'conditional' ],
+											'value' => $conditional[ 'value' ],
 										   );
-			update_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', $existing_conditionals );
+			update_post_meta( intval( $ad_code_id ), 'conditionals', $existing_conditionals );
 		}
 		return;
 	}
+	
+	/**
+	 * Update conditional
+	 *
+	 * @param int $ad_code_id id of our CPT post
+	 * @param array $conditional
+	 *
+	 */
+	function edit_conditional( $ad_code_id, $conditional ) {
+		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
+			$ad_code_id = intval( $ad_code_id );
+			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
 
-	function edit_conditional() {
-		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditionals = (array) get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
-
-			foreach ( $existing_conditionals as $index => $conditional ) {
-				if ( $_POST[ 'conditional' ] == $conditional[ 'conditional' ] ) {
-					$existing_conditionals[ $index ] = array(
-								  'condition' => $_POST[ 'conditional' ],
-								  'value' => $_POST[ 'value' ],
+			foreach ( $existing_conditionals as $conditional_index => $existing_conditional ) {
+				if ( $conditional[ 'conditional' ] == $existing_conditional[ 'conditional' ] ) {
+					$existing_conditionals[ $conditional_index ] = array(
+								  'conditional' => $conditional[ 'conditional' ],
+								  'value' => $conditional[ 'value' ],
 								  );
 				}
 			}
-			update_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', $existing_conditions );
+			update_post_meta( $ad_code_id, 'conditionals', $existing_conditions );
 		}
 		return;
 	}
-
-	function delete_conditional() {
-		if ( isset( $_GET['id'] ) && !empty( $_POST ) ) {
-			$existing_conditionals = get_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', true );
-			$ids_to_delete = explode(',', $_POST[ 'id' ] ); //
-			foreach ($ids_to_delete as $index )
-				unset( $existing_conditionals[ --$index ] ); // jqGrid starts with one, PHP starts with 0
-			update_post_meta( intval( $_GET[ 'id' ] ), 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
+	
+	/**
+	 * This is a bit tricky as we really don't use any ID for conditionals
+	 * To remove conditional we need to specify array index
+	 *
+	 * @param int $ad_code_id
+	 * @param string $conditional_indices string of comma separated indices
+	 */
+	function delete_conditional( $ad_code_id, $conditional_indices = '', $from_ajax = false ) {
+		if ( 0 !== intval( $ad_code_id ) ) {
+			$ad_code_id = intval( $ad_code_id );
+			$existing_conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
+			$ids_to_delete = explode(',', $conditional_indices ); //
+			foreach ($ids_to_delete as $index_to_delete ) {
+				if ( $from_ajax ) { // jqGrid starts with one, PHP starts with 0
+					$index_to_delete--;
+				}
+				unset( $existing_conditionals[ $index_to_delete ] ); 
+			}	
+			update_post_meta( intval( $ad_code_id ), 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
 		}
 		return;
 	}
