@@ -33,7 +33,10 @@ class Ad_Code_Manager
 {
 
 	var $ad_codes = array();
-	var $script_url_whitelist = array();
+	var $whitelisted_script_urls = array();
+	var $whitelisted_conditionals = array();
+	var $output_html;
+	var $output_tokens = array();
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
 	var $plugin_slug = 'ad-code-manager';
@@ -72,12 +75,31 @@ class Ad_Code_Manager
 	function action_init() {
 
 		// Allow new domains to be whitelisted
+		$this->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->whitelisted_script_urls );
 
+		// Allow other conditionals to be used
+		$this->whitelisted_conditionals = array(
+				'is_home',
+				'is_front_page',
+				'is_category',
+				'has_category',
+			);
+		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
+
+		// Set our default output HTML
+		// This can be filtered in action_acm_tag()
+		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
+
+		// Set our default tokens to replace
+		// This can be filtered in action_acm_tag()
+		$this->output_tokens = array(
+				'%url%',
+			);
 
 		// Ad tags are only run on the frontend
 		if ( !is_admin() ) {
 			require_once AD_CODE_MANAGER_ROOT . '/template-tags.php';
-			add_action( 'acm_tag', array( &$this, 'action_acm_tag' ) );
+			add_action( 'acm_tag', array( $this, 'action_acm_tag' ) );
 		}
 		$this->register_acm_post_type();
 
@@ -308,6 +330,7 @@ class Ad_Code_Manager
 		if ( !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
+		// @todo This needs to reflect $this->whitelisted_conditionals;
 		$conditions = apply_filters(
 									'acm_conditions',
 									array(
@@ -375,18 +398,48 @@ class Ad_Code_Manager
 	 * @since ???
 	 *
 	 * @param string $tag Ad tag for this instance of code
-	 * @param string $script URL for ad code
-	 * @param array $where WordPress-style conditionals for where this code should be displayed
+	 * @param string $url Script URL for ad code
+	 * @param array $conditionals WordPress-style conditionals for where this code should be displayed
 	 * @param int $priority What priority this registration runs at
 	 * @param array $url_vars Replace tokens in $script with these values
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_code( $tag, $script, $where = array(), $priority = 10, $url_vars = array() ) {
+	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array() ) {
 
-		// @todo Run $script aganist a whitelist to make sure it's a safe URL
+		// @todo Run $url aganist a whitelist to make sure it's a safe URL
+
+		// @todo Sanitize the conditionals against our possible set of conditionals so that users
+		// can't just run arbitrary functions
+
 		// @todo Sanitize all of the other input
 
-		// @todo logic for saving the ad code to $this->ad_codes so it's available to $this->action_acm_tag()
+		// Save the ad code to our set of ad codes
+		$this->ad_codes[$tag][] = array(
+				'url' => $url,
+				'conditionals' => $conditionals,
+				'url_vars' => $url_vars,
+			);
+	}
+
+	/**
+	 * Register an array of ad tags with the plugin
+	 *
+	 * @since ???
+	 *
+	 * @param array $ad_codes An array of ad tags
+	 */
+	function register_ad_codes( $ad_codes = array() ) {
+
+		foreach( (array)$ad_codes as $key => $ad_code ) {
+			$default = array(
+					'tag' => '',
+					'url' => '',
+					'conditionals' => array(),
+					'url_vars' => array(),
+				);
+			$ad_code = array_merge( $default, $ad_code );
+			$this->register_ad_code( $ad_code['tag'], $ad_code['url'], $ad_code['conditionals'], $ad_code['url_vars'] );
+		}
 	}
 
 	/**
@@ -394,18 +447,109 @@ class Ad_Code_Manager
 	 * and complicated sorting logic
 	 *
 	 * @uses do_action( 'acm_tag, 'your_tag_id' )
+	 *
+	 * @todo implement prioritization. currently, we just pull the first registered ad meeting criteria
+	 *
+	 * @param string $tag_id Unique ID for the ad tag
 	 */
 	function action_acm_tag( $tag_id ) {
 
+		// If there aren't any ad codes, it's not worth it for us to do anything.
+		if ( !isset( $this->ad_codes[$tag_id] ) )
+			return;
+
+		// Run our ad codes through all of the conditionals to make sure we should
+		// be displaying it
+		$display_codes = array();
+		foreach( (array)$this->ad_codes[$tag_id] as $ad_code ) {
+			
+			// If the ad code doesn't have any conditionals,
+			// we should add it to the display list
+			if ( empty( $ad_code['conditionals'] ) ) {
+				$display_codes[] = $ad_code;
+				continue;
+			}
+				
+			$include = true;
+			foreach( $ad_code['conditionals'] as $conditional ) {
+
+				// If the conditional was passed as an array, then we have a complex rule
+				// Otherwise, we have a function name and expect rue
+				if ( is_array( $conditional ) ) {
+					$cond_func = $conditional['function'];
+					if ( !empty( $conditional['arguments'] ) )
+						$cond_args = $conditional['arguments'];
+					else
+						$cond_args = array();
+					if ( isset( $conditional['result'] ) )
+						$cond_result = $conditional['result'];
+					else
+						$cond_result = true;
+				} else {
+					$cond_func = $conditional;
+					$cond_args = array();
+					$cond_result = true;
+				}
+
+				// Special trick: include '!' in front of the function name to reverse the result
+				if ( 0 === strpos( $cond_func, '!' ) ) {
+					$cond_func = ltrim( $cond_func, '!' );
+					$cond_result = false;
+				}
+
+				// Don't run the conditional if the conditional function doesn't exist or
+				// isn't in our whitelist
+				if ( !function_exists( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
+					continue;
+
+				// Run our conditional and use any arguments that were passed
+				if ( !empty( $cond_args ) )
+					$result = call_user_func_array( $cond_func, (array)$cond_args );
+				else
+					$result = call_user_func( $cond_func );
+				
+				// If our results don't match what we need, don't include this ad code
+				if ( $cond_result !== $result )
+					$include = false;
+			}
+
+			// If we're supposed to include the ad code even after we've run the conditionals,
+			// let's do it
+			if ( $include )
+				$display_codes[] = $ad_code;
+
+		}
+
+		// Don't do anything if we've ended up with no ad codes
+		if ( empty( $display_codes ) )
+			return;
+
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
-		// - where it should be displayed
 		// - priority against other ad codes
 
-		// @todo Parse the script URL and replace with any $url_vars
+		$code_to_display = $display_codes[0];
 
-		echo '<script type="text/javascript" src="' . esc_url( $code_url ) . '"></script>';
+		// Allow the user to filter the basic output HTML, possibly based on tag_id
+		// This can be useful if they need different script tags based 
+		$output_html = apply_filters( 'acm_output_html', $this->output_html, $tag_id );
 
+		// Parse the output and replace any tokens we have left
+		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id );
+		foreach( (array)$output_tokens as $token ) {
+			// Strip away the token chars to get the key
+			$key = trim( $token, '%' );
+			if ( $key == 'url' ) {
+				$output_html = str_replace( $token, $code_to_display['url'], $output_html );
+				continue;
+			} else {
+				if ( !array_key_exists( $code_to_display['url_vars'][$key] ) )
+					continue;
+				$output_html = str_replace( $token, $code_to_display['url_vars'][$key], $output_html );	
+			}
+		}
+		// Print the ad code
+		echo $output_html;
 	}
 
 }
