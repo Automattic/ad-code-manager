@@ -36,7 +36,7 @@ class Ad_Code_Manager
 	var $script_url_whitelist = array();
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
-	var $plugin_slug = 'acm';
+	var $plugin_slug = 'ad-code-manager';
 	var $post_type_labels ;
 	/**
 	 * Instantiate the plugin
@@ -47,7 +47,10 @@ class Ad_Code_Manager
 		// @todo refactor TODO
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
-		add_action( 'admin_menu' , array( &$this, 'display_menu' )  );
+
+		// Incorporate the link to our admin menu
+		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
+
 		add_action( 'admin_init', array( &$this, 'get_ad_codes' ) );
 		add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
 		add_action( 'admin_init', array( &$this, 'conditions_edit_actions' ) );
@@ -93,6 +96,7 @@ class Ad_Code_Manager
 		// - Saving the data
 		// - Loading the ad codes in the database and registering them
 		// with the plugin using
+
 	}
 
 	/**
@@ -295,10 +299,15 @@ class Ad_Code_Manager
 		echo json_encode( $data );
 		exit;
 	}
+
 	/**
 	 * Print our vars as JS
 	 */
 	function post_admin_header() {
+
+		if ( !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
+			return;
+
 		$conditions = apply_filters(
 									'acm_conditions',
 									array(
@@ -320,11 +329,12 @@ class Ad_Code_Manager
 		<?php
 	}
 
-	function display_menu() {
-		add_menu_page( $this->title, $this->title, apply_filters( 'acm_manage_ads_cap', 'manage_options' ), $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
+	/**
+	 * Hook in our submenu page to the navigation
+	 */
+	function action_admin_menu() {
+		add_submenu_page( 'tools.php', $this->title, $this->title, apply_filters( 'acm_manage_ads_cap', 'manage_options' ), $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
 	}
-
-
 
 	/**
 	 * @todo remove html to views
@@ -346,13 +356,16 @@ class Ad_Code_Manager
 	 */
 	function register_scripts_and_styles() {
 		global $pagenow;
-		if ( 'admin.php' == $pagenow && isset( $_GET['page'] ) && $_GET['page'] == $this->plugin_slug ) {
-			wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css' );
-			wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css' );
-			wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array( 'jquery', 'jquery-ui-core' ) );
-			wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array( 'jquery', 'jquery-ui-core' ) );
-			wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
-		}
+
+		// Only load this on the proper page
+		if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
+			return;
+
+		wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css' );
+		wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css' );
+		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array( 'jquery', 'jquery-ui-core' ) );
+		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array( 'jquery', 'jquery-ui-core' ) );
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
 	}
 
 	/**
