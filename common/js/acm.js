@@ -4,10 +4,10 @@ jQuery( document ).ready( function( $ ) {
 	var grid_selector = jQuery("#acm-codes-list"); //avoid unnecessary selector calls
 	var subgrid_selector = jQuery( '#acm-codes-conditionals-list' );
 	var actions = {
-			  codes_datasource: base_url + '&acm-action=datasource',
-			  codes_edit: base_url + '&acm-action=edit',
-			  conditionals_datasource: base_url + '&acm-action=datasource-conditionals',
-			  conditionals_edit: base_url + '&acm-action=edit-conditionals'
+			  codes_datasource: ajaxurl + '?acm-action=datasource',
+			  codes_edit: ajaxurl + '?acm-action=edit',
+			  conditionals_datasource: ajaxurl + '?acm-action=datasource-conditionals',
+			  conditionals_edit: ajaxurl + '?acm-action=edit-conditionals'
 	};
 	var conditionals_options = acm_conditionals;
 
@@ -25,6 +25,7 @@ jQuery( document ).ready( function( $ ) {
 			{name:'act',index:'act', width:125,sortable:false, align: 'center'},
 		],
 		prmNames:{ page: 'acm-grid-page' },
+		postData: {nonce: acm_ajax_nonce, action: 'acm_ajax_handler'},
 		rowNum:10,
 		rowList:[10,20,30],
 		pager: '#acm-codes-pager',
@@ -66,6 +67,7 @@ jQuery( document ).ready( function( $ ) {
 		url: actions.conditionals_datasource,
 		editurl: actions.conditionals_edit,
 		prmNames:{ page: 'acm-grid-page' },
+		postData: {nonce: acm_ajax_nonce, action: 'acm_ajax_handler'},
 		datatype: "json",
 		colNames:['Conditional', 'Value'],
 		colModel:[

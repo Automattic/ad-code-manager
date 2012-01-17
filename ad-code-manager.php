@@ -50,16 +50,17 @@ class Ad_Code_Manager
 	 */
 	function __construct() {
 		// @todo refactor TODO
+		add_action('wp_ajax_acm_ajax_handler', array( &$this, 'ajax_handler' ) );
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 
-		add_action( 'admin_init', array( &$this, 'get_ad_codes_ajax' ) );
-		add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
-		add_action( 'admin_init', array( &$this, 'conditionals_edit_actions' ) );
-		add_action( 'admin_init', array( &$this, 'get_conditionals_ajax' ) );
+		//add_action( 'admin_init', array( &$this, 'get_ad_codes_ajax' ) );
+		//add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
+		//add_action( 'admin_init', array( &$this, 'conditionals_edit_actions' ) );
+		//add_action( 'admin_init', array( &$this, 'get_conditionals_ajax' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 
@@ -138,8 +139,8 @@ class Ad_Code_Manager
 		// - Saving the data
 		// - Loading the ad codes in the database and registering them
 		// with the plugin using
-
-	}
+		
+	}	
 
 	/**
 	 * Register our custom post type to store ad codes
@@ -148,6 +149,26 @@ class Ad_Code_Manager
 	 */
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
+	}
+
+	function ajax_handler() {
+		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
+			return;		
+		switch( $_GET['acm-action'] ) {
+			case 'datasource':
+				$this->get_ad_codes_ajax();
+				break;
+			case 'datasource-conditionals':
+				$this->get_conditionals_ajax();
+				break;
+			case 'edit':
+				$this->ad_code_edit_actions();
+				break;
+			case 'edit-conditionals':
+				$this->conditionals_edit_actions();
+				break;
+		}		
+		return;
 	}
 
 	/**
@@ -198,10 +219,10 @@ class Ad_Code_Manager
 	}
 	
 	function get_conditionals_ajax() {
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource-conditionals' & 0 !== intval( $_GET[ 'id' ] ) ) {
+		if (  0 !== intval( $_GET[ 'id' ] ) ) {
 			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
 			$response;
-		foreach ( (array) $conditionals as $index => $item )
+		foreach ( $conditionals as $index => $item )
 				$response->rows[] = $item;
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
@@ -223,7 +244,7 @@ class Ad_Code_Manager
 	 * @todo nonce + jqGrid?
 	 */
 	function ad_code_edit_actions() {
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit' && ! empty( $_POST ) ) {
+		if ( ! empty( $_POST ) ) {
 			 //this is jqGrid param
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
@@ -242,7 +263,7 @@ class Ad_Code_Manager
 	}
 
 	function conditionals_edit_actions() {
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'edit-conditionals' && ! empty( $_POST ) ) {
+		if (  ! empty( $_POST ) ) {
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
 					$this->create_conditional( $_GET['id'], $_POST );
@@ -396,6 +417,7 @@ class Ad_Code_Manager
 		<script type="text/javascript">
 			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
 			var acm_conditionals = '<?php echo esc_js( implode( ';', $conditionals_parsed ) )?>';
+			var acm_ajax_nonce = '<?php echo esc_js( wp_create_nonce('acm_nonce') ) ?>';
 		</script>
 		<?php
 	}
