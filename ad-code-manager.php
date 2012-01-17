@@ -58,8 +58,6 @@ class Ad_Code_Manager
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
-
-		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 	}
 
 	/**
@@ -140,7 +138,8 @@ class Ad_Code_Manager
 				)
 			)
 		);
-
+		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
+		
 		$this->register_acm_post_type();
 
 		// Ad tags are only run on the frontend
