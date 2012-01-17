@@ -253,7 +253,6 @@ class Ad_Code_Manager
 	function get_ad_codes() {
 		$ad_codes_formatted = array();
 		$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
-
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
 										  'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
@@ -264,6 +263,7 @@ class Ad_Code_Manager
 										  'post_id' => $ad_code_cpt->ID
 										  );
 		}
+		//print_r($ad_codes_formatted); die;
 		return $ad_codes_formatted;
 	}
 
@@ -379,14 +379,13 @@ class Ad_Code_Manager
 	function create_conditional( $ad_code_id, $conditional ) {
 		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
 			$ad_code_id = intval( $ad_code_id );
-			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
+			$existing_conditionals =  get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( ! is_array( $existing_conditionals ) ) {
 				$existing_conditionals = array();
 			}
 			$existing_conditionals[] = array(
 											'function' => $conditional[ 'function' ],
 											'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
-											'result' => true // kill me
 										   );
 			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
@@ -548,6 +547,7 @@ class Ad_Code_Manager
 	 */
 	function register_ad_codes( $ad_codes = array() ) {
 		foreach( (array)$ad_codes as $key => $ad_code ) {
+			
 			$default = array(
 						'tag' => '',
 						'url' => '',
@@ -557,10 +557,8 @@ class Ad_Code_Manager
 			$ad_code = array_merge( $default, $ad_code );
 
 			foreach ( (array)$this->ad_tag_ids as $default_tag ) {
-				$ad_code = array_merge( $ad_code, $default_tag );
-
 				// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
-				$this->register_ad_code( $ad_code['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
+				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ) );
 			}
 		}
 	}
@@ -665,6 +663,7 @@ class Ad_Code_Manager
 		// Parse the output and replace any tokens we have left. But first, load the script URL
 		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
 		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id, $code_to_display );
+		
 		foreach( (array)$output_tokens as $token => $val ) {
 			$output_html = str_replace( $token, $val, $output_html );
 		}
@@ -681,7 +680,6 @@ class Ad_Code_Manager
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
 	function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
-
 		if ( !isset( $code_to_display['url_vars'] ) || !is_array( $code_to_display['url_vars'] ) )
 			return $output_tokens;
 
