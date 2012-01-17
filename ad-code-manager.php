@@ -253,10 +253,10 @@ class Ad_Code_Manager
 	function get_ad_codes() {
 		$ad_codes_formatted = array();
 		$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
-		
+
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
-										  'conditionals' => $this->get_conditionals( intval( $ad_code_cpt->ID ) ),
+										  'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
 										  'url_vars' => array(
 															  'site_name' => get_post_meta( $ad_code_cpt->ID, 'site_name', true ),
 															  'zone1' => get_post_meta( $ad_code_cpt->ID, 'zone1', true ),
@@ -379,13 +379,14 @@ class Ad_Code_Manager
 	function create_conditional( $ad_code_id, $conditional ) {
 		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
 			$ad_code_id = intval( $ad_code_id );
-			$existing_conditionals = get_post_meta( $ad_code_id, 'conditionals', true ); // this can't be casted to array, if string is empty, breaks jqGrid
+			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( ! is_array( $existing_conditionals ) ) {
 				$existing_conditionals = array();
 			}
 			$existing_conditionals[] = array(
 											'function' => $conditional[ 'function' ],
 											'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
+											'result' => true // kill me
 										   );
 			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
@@ -559,8 +560,7 @@ class Ad_Code_Manager
 				$ad_code = array_merge( $ad_code, $default_tag );
 
 				// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
-				// messy
-				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
+				$this->register_ad_code( $ad_code['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
 			}
 		}
 	}
@@ -592,6 +592,7 @@ class Ad_Code_Manager
 				$display_codes[] = $ad_code;
 				continue;
 			}
+
 			$include = true;
 			foreach( $ad_code['conditionals'] as $conditional ) {
 				// If the conditional was passed as an array, then we have a complex rule
@@ -628,10 +629,11 @@ class Ad_Code_Manager
 					$result = call_user_func_array( $cond_func, (array)$cond_args );
 				else
 					$result = call_user_func( $cond_func );
-				
+
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
 					$include = false;
+
 				//
 				// If we have matching conditional and $this->logical_operator equals OR just break from the loop and do not try to evaluate others
 				if ( $include && $this->logical_operator == 'OR' )
