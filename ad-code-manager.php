@@ -635,6 +635,8 @@ class Ad_Code_Manager
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
 					$include = false;
+				else
+					$include = true;
 
 				//
 				// If we have matching conditional and $this->logical_operator equals OR just break from the loop and do not try to evaluate others
