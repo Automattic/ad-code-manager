@@ -38,10 +38,10 @@ jQuery( document ).ready( function( $ ) {
 			var ids = grid_selector.jqGrid( 'getDataIDs' );
 			for(var i=0;i < ids.length;i++){
 				var cl = ids[i];
-				be = "<input style='height:22px;width:50px;' type='button' value='Edit' onclick=\"jQuery( '#acm-codes-list' ).editRow( '"+cl+"' );\"  />"; 
-				se = "<input style='height:22px;width:50px;' type='button' value='Save' onclick=\"jQuery( '#acm-codes-list' ).saveRow( '"+cl+"' );\"  />";  
+				be = "<input style='height:22px;width:50px;' type='button' value='Edit' onclick=\"jQuery( '#acm-codes-list' ).editRow( '"+cl+"' );\"  />";
+				se = "<input style='height:22px;width:50px;' type='button' value='Save' onclick=\"jQuery( '#acm-codes-list' ).saveRow( '"+cl+"' );\"  />";
 				grid_selector.jqGrid( 'setRowData',ids[i],{act:be+se});
-			}	
+			}
 		},
 		onSelectRow: function(ids) {
 			if(ids == null) {
@@ -55,11 +55,11 @@ jQuery( document ).ready( function( $ ) {
 			} else {
 				subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditionals_datasource + "&id="+ids, page:1, editurl: actions.conditionals_edit + "&id="+ids } );
 				subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code # "+ids)
-				.trigger( 'reloadGrid' );			
+				.trigger( 'reloadGrid' );
 			}
-		}	
+		}
 	});
-	
+
 	grid_selector.jqGrid( 'navGrid','#acm-codes-pager',{edit:true,add:true,del:true});
 
 	subgrid_selector.jqGrid({

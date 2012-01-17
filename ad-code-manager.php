@@ -58,7 +58,7 @@ class Ad_Code_Manager
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
-		
+
 		// These are common DFP tags
 		$this->ad_tag_ids = array(
 			array(
@@ -96,9 +96,9 @@ class Ad_Code_Manager
 			//			'fold' => 'atf'
 			//	)
 			//)
-		);		
-				
-		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );		
+		);
+
+		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 	}
 
 	/**
@@ -127,10 +127,10 @@ class Ad_Code_Manager
 				'has_tag',
 			);
 		// And titles for UI
-		
+
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
 		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR'); //allow users to filter default logical operator
-		
+
 		// Set our default output HTML
 		// This can be filtered in action_acm_tag()
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
@@ -140,9 +140,9 @@ class Ad_Code_Manager
 		$this->output_tokens = array(
 				'%url%',
 			);
-		
 
-		
+
+
 		$this->register_acm_post_type();
 
 		// Ad tags are only run on the frontend
@@ -152,7 +152,7 @@ class Ad_Code_Manager
 
 			// @todo get all of the ad codes and register them with register_ad_code()
 		}
-		
+
 		$this->get_and_register_ad_codes();
 	}
 
@@ -169,8 +169,8 @@ class Ad_Code_Manager
 		// - Saving the data
 		// - Loading the ad codes in the database and registering them
 		// with the plugin using
-		
-	}	
+
+	}
 
 	/**
 	 * Register our custom post type to store ad codes
@@ -180,14 +180,14 @@ class Ad_Code_Manager
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
 	}
-	
+
 	function get_and_register_ad_codes() {
 		$this->register_ad_codes( $this->get_ad_codes() );
 	}
-	
+
 	function ajax_handler() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
-			return;		
+			return;
 		switch( $_GET['acm-action'] ) {
 			case 'datasource':
 				$this->get_ad_codes_ajax();
@@ -201,7 +201,7 @@ class Ad_Code_Manager
 			case 'edit-conditionals':
 				$this->conditionals_edit_actions();
 				break;
-		}		
+		}
 		return;
 	}
 
@@ -247,16 +247,16 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-	
-	
+
+
 	/**
-	 * @todo This is too DFP specific. Abstract it 
+	 * @todo This is too DFP specific. Abstract it
 	 *
 	 */
 	function get_ad_codes() {
 		$ad_codes_formatted = array();
 		$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
-		
+
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
 										  'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
@@ -269,7 +269,7 @@ class Ad_Code_Manager
 		}
 		return $ad_codes_formatted;
 	}
-	
+
 	function get_conditionals_ajax() {
 		if (  0 !== intval( $_GET[ 'id' ] ) ) {
 			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
@@ -282,11 +282,11 @@ class Ad_Code_Manager
 			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
-			$this->print_json( $response );	
-		}	
+			$this->print_json( $response );
+		}
 	}
 
-	function get_conditionals( $ad_code_id ) {		
+	function get_conditionals( $ad_code_id ) {
 		return  get_post_meta( intval( $ad_code_id ), 'conditionals', true );
 	}
 
@@ -325,7 +325,7 @@ class Ad_Code_Manager
 					break;
 				case 'del':
 					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
-					// removed from array of conditionals 
+					// removed from array of conditionals
 					$this->delete_conditional( $_GET['id'], $_POST[ 'id' ], true );
 					break;
 			}
@@ -338,7 +338,7 @@ class Ad_Code_Manager
 	 * @uses register_ad_code()
 	 * @todo validation / nonce
 	 *
-	 * @param array $ad_code 
+	 * @param array $ad_code
 	 */
 	function create_ad_code( $ad_code = array() ) {
 		if ( $ad_code['site_name'] && $ad_code['zone1'] ) {
@@ -395,7 +395,7 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-	
+
 	/**
 	 * Update conditional
 	 *
@@ -411,8 +411,8 @@ class Ad_Code_Manager
 			foreach ( $existing_conditionals as $conditional_index => $existing_conditional ) {
 				if ( $conditional[ 'conditional' ] == $existing_conditional[ 'conditional' ] ) {
 					$existing_conditionals[ $conditional_index ] = array(
-								  'function' => $conditional[ 'conditional' ],
-								  'arguments' => (array) $conditional[ 'value' ],
+								  'function' => $conditional[ 'function' ],
+								  'arguments' => (array) $conditional[ 'arguments' ],
 								  );
 				}
 			}
@@ -420,7 +420,7 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-	
+
 	/**
 	 * This is a bit tricky as we really don't use any ID for conditionals
 	 * To remove conditional we need to specify array index
@@ -437,8 +437,8 @@ class Ad_Code_Manager
 				if ( $from_ajax ) { // jqGrid starts with one, PHP starts with 0
 					$index_to_delete--;
 				}
-				unset( $existing_conditionals[ $index_to_delete ] ); 
-			}	
+				unset( $existing_conditionals[ $index_to_delete ] );
+			}
 			update_post_meta( intval( $ad_code_id ), 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
 		}
 		return;
@@ -463,7 +463,7 @@ class Ad_Code_Manager
 
 		$conditionals_parsed = array();
 		foreach ( $this->whitelisted_conditionals as $conditional )
-				$conditionals_parsed[] = $conditional . ':' . ucfirst( str_replace('_', ' ', $conditional ) );	
+				$conditionals_parsed[] = $conditional . ':' . ucfirst( str_replace('_', ' ', $conditional ) );
 		?>
 		<script type="text/javascript">
 			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
@@ -587,14 +587,14 @@ class Ad_Code_Manager
 		// be displaying it
 		$display_codes = array();
 		foreach( (array)$this->ad_codes[$tag_id] as $ad_code ) {
-			
+
 			// If the ad code doesn't have any conditionals,
 			// we should add it to the display list
 			if ( empty( $ad_code['conditionals'] ) ) {
 				$display_codes[] = $ad_code;
 				continue;
 			}
-			
+
 			$include = true;
 			foreach( $ad_code['conditionals'] as $conditional ) {
 				// If the conditional was passed as an array, then we have a complex rule
@@ -620,7 +620,7 @@ class Ad_Code_Manager
 					$cond_func = ltrim( $cond_func, '!' );
 					$cond_result = false;
 				}
-					
+
 				// Don't run the conditional if the conditional function doesn't exist or
 				// isn't in our whitelist
 				if ( !function_exists( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
@@ -631,16 +631,16 @@ class Ad_Code_Manager
 					$result = call_user_func_array( $cond_func, (array)$cond_args );
 				else
 					$result = call_user_func( $cond_func );
-				
+
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
 					$include = false;
-				
-				// 
+
+				//
 				// If we have matching conditional and $this->logical_operator equals OR just break from the loop and do not try to evaluate others
 				if ( $include && $this->logical_operator == 'OR' )
 					break;
-			
+
 			}
 
 			// If we're supposed to include the ad code even after we've run the conditionals,
@@ -649,11 +649,11 @@ class Ad_Code_Manager
 				$display_codes[] = $ad_code;
 
 		}
-		
+
 		// Don't do anything if we've ended up with no ad codes
 		if ( empty( $display_codes ) )
 			return;
-		
+
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - priority against other ad codes
@@ -661,7 +661,7 @@ class Ad_Code_Manager
 		$code_to_display = $display_codes[0];
 
 		// Allow the user to filter the basic output HTML, possibly based on tag_id
-		// This can be useful if they need different script tags based 
+		// This can be useful if they need different script tags based
 		$output_html = apply_filters( 'acm_output_html', $this->output_html, $tag_id );
 
 		// Parse the output and replace any tokens we have left
@@ -675,7 +675,7 @@ class Ad_Code_Manager
 			} else {
 				if ( !array_key_exists( $code_to_display['url_vars'][$key] ) )
 					continue;
-				$output_html = str_replace( $token, $code_to_display['url_vars'][$key], $output_html );	
+				$output_html = str_replace( $token, $code_to_display['url_vars'][$key], $output_html );
 			}
 		}
 		// Print the ad code
