@@ -146,7 +146,7 @@ class Ad_Code_Manager
 		if ( !is_admin() ) {
 			require_once AD_CODE_MANAGER_ROOT . '/template-tags.php';
 			add_action( 'acm_tag', array( $this, 'action_acm_tag' ) );
-
+			add_filter( 'acm_output_tokens', array( $this, 'filter_output_tokens' ), 5, 3 );
 			// @todo get all of the ad codes and register them with register_ad_code()
 		}
 
@@ -555,7 +555,7 @@ class Ad_Code_Manager
 						'url_vars' => array(),
 					);
 			$ad_code = array_merge( $default, $ad_code );
-			foreach ( $this->ad_tag_ids as $default_tag ) {
+			foreach ( (array)$this->ad_tag_ids as $default_tag ) {
 				$ad_code = array_merge( $ad_code, $default_tag );
 				// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
 				$this->register_ad_code( $ad_code['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
@@ -660,22 +660,34 @@ class Ad_Code_Manager
 		// This can be useful if they need different script tags based
 		$output_html = apply_filters( 'acm_output_html', $this->output_html, $tag_id );
 
-		// Parse the output and replace any tokens we have left
-		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id );
-		foreach( (array)$output_tokens as $token ) {
-			// Strip away the token chars to get the key
-			$key = trim( $token, '%' );
-			if ( $key == 'url' ) {
-				$output_html = str_replace( $token, $code_to_display['url'], $output_html );
-				continue;
-			} else {
-				if ( !array_key_exists( $code_to_display['url_vars'][$key] ) )
-					continue;
-				$output_html = str_replace( $token, $code_to_display['url_vars'][$key], $output_html );
-			}
+		// Parse the output and replace any tokens we have left. But first, load the script URL
+		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
+		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id, $code_to_display );
+		foreach( (array)$output_tokens as $token => $val ) {
+			$output_html = str_replace( $token, $val, $output_html );
 		}
 		// Print the ad code
 		echo $output_html;
+	}
+
+	/**
+	 * Filter the output tokens used in $this->action_acm_tag to include our URL vars
+	 *
+	 * @since ???
+	 *
+	 * @return array $output Placeholder tokens to be replaced with their values
+	 */
+	function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
+
+		if ( !isset( $code_to_display['url_vars'] ) || !is_array( $code_to_display['url_vars'] ) )
+			return $output_tokens;
+
+		foreach( $code_to_display['url_vars'] as $url_var => $val ) {
+			$new_key = '%' . $url_var . '%';
+			$output_tokens[$new_key] = $val;
+		}
+		
+		return $output_tokens;
 	}
 
 }
