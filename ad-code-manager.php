@@ -315,18 +315,18 @@ class Ad_Code_Manager
 		if (  ! empty( $_POST ) ) {
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$this->create_conditional( $_GET['id'], $_POST );
+					$result = $this->create_conditional( $_GET['id'], $_POST );
 					break;
 				case 'edit':
-					$this->edit_conditional( $_GET['id'], $_POST );
+					$result = $this->edit_conditional( $_GET['id'], $_POST, true );
 					break;
 				case 'del':
 					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
 					// removed from array of conditionals
-					$this->delete_conditional( $_GET['id'], $_POST[ 'id' ], true );
+					$result = $this->delete_conditional( $_GET['id'], $_POST[ 'id' ], true );
 					break;
 			}
-			exit;
+			exit($result);
 		}
 		return;
 	}
@@ -399,20 +399,23 @@ class Ad_Code_Manager
 	 * @param array $conditional
 	 *
 	 */
-	function edit_conditional( $ad_code_id, $conditional ) {
+	function edit_conditional( $ad_code_id, $conditional, $from_ajax = false ) {
 		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
 			$ad_code_id = intval( $ad_code_id );
 			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
-
+			if ( $from_ajax && isset( $conditional ['id'] ) ) { // jqGrid starts with one, PHP starts with 0
+					$conditional['id']--;
+			}
 			foreach ( $existing_conditionals as $conditional_index => $existing_conditional ) {
-				if ( $conditional[ 'conditional' ] == $existing_conditional[ 'conditional' ] ) {
+				// $id is not an actual unique ID, but rather index of conditional in array of them
+				if ( isset( $conditional['id'] ) && $conditional['id'] === $conditional_index ) {
 					$existing_conditionals[ $conditional_index ] = array(
 								  'function' => $conditional[ 'function' ],
 								  'arguments' => (array) $conditional[ 'arguments' ],
 								  );
 				}
 			}
-			update_post_meta( $ad_code_id, 'conditionals', $existing_conditions );
+			return update_post_meta( $ad_code_id, 'conditionals', array_values($existing_conditionals) );
 		}
 		return;
 	}
@@ -435,7 +438,7 @@ class Ad_Code_Manager
 				}
 				unset( $existing_conditionals[ $index_to_delete ] );
 			}
-			update_post_meta( intval( $ad_code_id ), 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
+			update_post_meta( $ad_code_id, 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
 		}
 		return;
 	}
@@ -623,10 +626,11 @@ class Ad_Code_Manager
 					continue;
 
 				// Run our conditional and use any arguments that were passed
-				if ( !empty( $cond_args ) )
-					$result = call_user_func_array( $cond_func, (array)$cond_args );
-				else
+				if ( !empty( $cond_args ) ) 
+					$result = call_user_func_array( $cond_func, apply_filters( 'acm_conditional_args', $cond_args, $cond_func  ) );
+				else 
 					$result = call_user_func( $cond_func );
+				
 
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
