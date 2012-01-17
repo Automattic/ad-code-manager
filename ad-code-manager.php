@@ -59,45 +59,6 @@ class Ad_Code_Manager
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
 
-		// These are common DFP tags
-		$this->ad_tag_ids = array(
-			array(
-					'tag' => '728x90-atf',
-					'url_vars' => array(
-						'sz' => '728x90',
-						'fold' => 'atf'
-				)
-			),
-			array(
-					'tag' => '728x90-btf',
-					'url_vars' => array(
-						'sz' => '728x90',
-						'fold' => 'btf'
-				)
-			) ,
-			array(
-					'tag' => '300x250-atf',
-					'url_vars' => array(
-						'sz' => '300x250',
-						'fold' => 'atf'
-				)
-			),
-			array(
-					'tag' => '300x250-btf',
-					'url_vars' => array(
-						'sz' => '300x250',
-						'fold' => 'atf'
-				)
-			),
-			array(
-					'tag' => '160x600-atf',
-					'url_vars' => array(
-						'sz' => '160x600',
-						'fold' => 'atf'
-				)
-			)
-		);
-
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 	}
 
@@ -141,7 +102,44 @@ class Ad_Code_Manager
 				'%url%',
 			);
 
-
+		// These are common DFP tags
+		$this->ad_tag_ids = array(
+			array(
+					'tag' => '728x90-atf',
+					'url_vars' => array(
+						'sz' => '728x90',
+						'fold' => 'atf'
+				)
+			),
+			array(
+					'tag' => '728x90-btf',
+					'url_vars' => array(
+						'sz' => '728x90',
+						'fold' => 'btf'
+				)
+			) ,
+			array(
+					'tag' => '300x250-atf',
+					'url_vars' => array(
+						'sz' => '300x250',
+						'fold' => 'atf'
+				)
+			),
+			array(
+					'tag' => '300x250-btf',
+					'url_vars' => array(
+						'sz' => '300x250',
+						'fold' => 'atf'
+				)
+			),
+			array(
+					'tag' => '160x600-atf',
+					'url_vars' => array(
+						'sz' => '160x600',
+						'fold' => 'atf'
+				)
+			)
+		);
 
 		$this->register_acm_post_type();
 
