@@ -43,31 +43,62 @@ class Ad_Code_Manager
 	var $plugin_slug = 'ad-code-manager';
 	var $post_type_labels ;
 	var $logical_operator;
+	var $ad_tag_ids;
 	/**
 	 * Instantiate the plugin
 	 *
 	 * @since ??
 	 */
 	function __construct() {
-		// @todo refactor TODO
 		add_action('wp_ajax_acm_ajax_handler', array( &$this, 'ajax_handler' ) );
 		add_action( 'init', array( &$this, 'action_init' ) );
 		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
-
-		//add_action( 'admin_init', array( &$this, 'get_ad_codes_ajax' ) );
-		//add_action( 'admin_init', array( &$this, 'ad_code_edit_actions' ) );
-		//add_action( 'admin_init', array( &$this, 'conditionals_edit_actions' ) );
-		//add_action( 'admin_init', array( &$this, 'get_conditionals_ajax' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
-
-		$this->post_type_labels = array(
-										'name' => __( 'DFP Ad Codes' ),
-										'singular_name' => __( 'DFP Ad Codes' ),
-										);
+		
+		// These are common DFP tags
+		$this->ad_tag_ids = array(
+			array(
+					'tag' => '728x90-atf',
+					'url_vars' => array(
+						'sz' => '728x90',
+						'fold' => 'atf'
+				)
+			),
+			//array(
+			//		'tag' => '728x90-btf',
+			//		'url_vars' => array(
+			//			'sz' => '728x90',
+			//			'fold' => 'btf'
+			//	)
+			//) ,
+			//array(
+			//		'tag' => '300x250-atf',
+			//		'url_vars' => array(
+			//			'sz' => '300x250',
+			//			'fold' => 'atf'
+			//	)
+			//),
+			//array(
+			//		'tag' => '300x250-btf',
+			//		'url_vars' => array(
+			//			'sz' => '300x250',
+			//			'fold' => 'atf'
+			//	)
+			//),
+			//array(
+			//		'tag' => '160x600-atf',
+			//		'url_vars' => array(
+			//			'sz' => '160x600',
+			//			'fold' => 'atf'
+			//	)
+			//)
+		);		
+				
+		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );		
 	}
 
 	/**
@@ -76,6 +107,11 @@ class Ad_Code_Manager
 	 * @since ??
 	 */
 	function action_init() {
+		$this->post_type_labels = array(
+										'name' => __( 'DFP Ad Codes' ),
+										'singular_name' => __( 'DFP Ad Codes' ),
+										);
+
 
 		// Allow new domains to be whitelisted
 		$this->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->whitelisted_script_urls );
@@ -91,17 +127,8 @@ class Ad_Code_Manager
 				'has_tag',
 			);
 		// And titles for UI
-		$this->whitelisted_conditionals_titles = array(
-				'is_home' => 'Is Home Page',
-				'is_front_page' => 'Is Front Page',
-				'is_category' => 'Is Category',
-				'has_category' => 'Has Category',
-				'is_page' => 'Is Page',
-				'is_tag' => 'Is Tag',
-				'has_tag' => 'Has Tag',			
-		);
+		
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
-		$this->whitelisted_conditionals_titles = apply_filters( 'acm_whitelisted_conditionals_titles', $this->whitelisted_conditionals_titles );
 		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR'); //allow users to filter default logical operator
 		
 		// Set our default output HTML
@@ -113,7 +140,9 @@ class Ad_Code_Manager
 		$this->output_tokens = array(
 				'%url%',
 			);
+		
 
+		
 		$this->register_acm_post_type();
 
 		// Ad tags are only run on the frontend
@@ -123,7 +152,8 @@ class Ad_Code_Manager
 
 			// @todo get all of the ad codes and register them with register_ad_code()
 		}
-
+		
+		$this->get_and_register_ad_codes();
 	}
 
 	/**
@@ -150,7 +180,11 @@ class Ad_Code_Manager
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
 	}
-
+	
+	function get_and_register_ad_codes() {
+		$this->register_ad_codes( $this->get_ad_codes() );
+	}
+	
 	function ajax_handler() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;		
@@ -195,9 +229,9 @@ class Ad_Code_Manager
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
 				$pass[] = array(
-					'id' => $ad_code->ID,
-					'site_name' => get_post_meta( $ad_code->ID, 'site_name', true ),
-					'zone1' => get_post_meta( $ad_code->ID, 'zone1', true ),
+					'id' => $ad_code[ 'post_id' ],
+					'site_name' => $ad_code[ 'url_vars' ][ 'site_name' ] ,
+					'zone1' => $ad_code[ 'url_vars' ][ 'zone1' ],
 					'act' => '',
 				);
 			}
@@ -214,8 +248,26 @@ class Ad_Code_Manager
 		return;
 	}
 	
+	
+	/**
+	 * @todo This is too DFP specific. Abstract it 
+	 *
+	 */
 	function get_ad_codes() {
-		return get_posts( array( 'post_type' => $this->post_type ) );
+		$ad_codes_formatted = array();
+		$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
+		
+		foreach ( $ad_codes as $ad_code_cpt ) {
+			$ad_codes_formatted[] = array(
+										  'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
+										  'url_vars' => array(
+															  'site_name' => get_post_meta( $ad_code_cpt->ID, 'site_name', true ),
+															  'zone1' => get_post_meta( $ad_code_cpt->ID, 'zone1', true ),
+															 ),
+										  'post_id' => $ad_code_cpt->ID
+										  );
+		}
+		return $ad_codes_formatted;
 	}
 	
 	function get_conditionals_ajax() {
@@ -254,7 +306,7 @@ class Ad_Code_Manager
 					$this->edit_ad_code( $_GET[ 'id' ], $_POST );
 					break;
 				case 'del':
-					$this->delete_ad_code( $_GET[ 'id' ] );
+					$this->delete_ad_code( $_POST[ 'id' ] );
 					break;
 			}
 			exit; // exit, jqGrid sends another request to fetch new data
@@ -330,14 +382,16 @@ class Ad_Code_Manager
 	function create_conditional( $ad_code_id, $conditional ) {
 		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
 			$ad_code_id = intval( $ad_code_id );
+			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( ! is_array( $existing_conditionals ) ) {
 				$existing_conditionals = array();
 			}
 			$existing_conditionals[] = array(
-											'conditional' => $conditional[ 'conditional' ],
-											'value' => $conditional[ 'value' ],
+											'function' => $conditional[ 'function' ],
+											'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
+											'result' => true // kill me
 										   );
-			update_post_meta( intval( $ad_code_id ), 'conditionals', $existing_conditionals );
+			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
 		return;
 	}
@@ -357,8 +411,8 @@ class Ad_Code_Manager
 			foreach ( $existing_conditionals as $conditional_index => $existing_conditional ) {
 				if ( $conditional[ 'conditional' ] == $existing_conditional[ 'conditional' ] ) {
 					$existing_conditionals[ $conditional_index ] = array(
-								  'conditional' => $conditional[ 'conditional' ],
-								  'value' => $conditional[ 'value' ],
+								  'function' => $conditional[ 'conditional' ],
+								  'arguments' => (array) $conditional[ 'value' ],
 								  );
 				}
 			}
@@ -409,10 +463,7 @@ class Ad_Code_Manager
 
 		$conditionals_parsed = array();
 		foreach ( $this->whitelisted_conditionals as $conditional )
-			if ( isset( $this->whitelisted_conditionals_titles[ $conditional ] ) ) {
-				$conditionals_parsed[] = $conditional . ':' . $this->whitelisted_conditionals_titles[ $conditional ];	
-			}
-			
+				$conditionals_parsed[] = $conditional . ':' . ucfirst( str_replace('_', ' ', $conditional ) );	
 		?>
 		<script type="text/javascript">
 			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
@@ -500,15 +551,19 @@ class Ad_Code_Manager
 	 */
 	function register_ad_codes( $ad_codes = array() ) {
 
-		foreach( (array)$ad_codes as $key => $ad_code ) {
-			$default = array(
-					'tag' => '',
-					'url' => '',
-					'conditionals' => array(),
-					'url_vars' => array(),
-				);
-			$ad_code = array_merge( $default, $ad_code );
-			$this->register_ad_code( $ad_code['tag'], $ad_code['url'], $ad_code['conditionals'], $ad_code['url_vars'] );
+	foreach( (array)$ad_codes as $key => $ad_code ) {
+		$default = array(
+						'tag' => '',
+						'url' => '',
+						'conditionals' => array(),
+						'url_vars' => array(),
+					);
+		$ad_code = array_merge( $default, $ad_code );
+		foreach ( $this->ad_tag_ids as $default_tag ) {
+		$ad_code = array_merge( $ad_code, $default_tag );
+		// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
+		$this->register_ad_code( $ad_code['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
+		}
 		}
 	}
 

@@ -3,11 +3,12 @@ jQuery( document ).ready( function( $ ) {
 	var base_url = acm_url;
 	var grid_selector = jQuery("#acm-codes-list"); //avoid unnecessary selector calls
 	var subgrid_selector = jQuery( '#acm-codes-conditionals-list' );
+	// this is ghetto
 	var actions = {
-			  codes_datasource: ajaxurl + '?acm-action=datasource',
-			  codes_edit: ajaxurl + '?acm-action=edit',
-			  conditionals_datasource: ajaxurl + '?acm-action=datasource-conditionals',
-			  conditionals_edit: ajaxurl + '?acm-action=edit-conditionals'
+			  codes_datasource: ajaxurl + '?acm-action=datasource&action=acm_ajax_handler&nonce=' + acm_ajax_nonce,
+			  codes_edit: ajaxurl + '?acm-action=edit&action=acm_ajax_handler&nonce=' + acm_ajax_nonce,
+			  conditionals_datasource: ajaxurl + '?acm-action=datasource-conditionals&action=acm_ajax_handler&nonce=' + acm_ajax_nonce,
+			  conditionals_edit: ajaxurl + '?acm-action=edit-conditionals&action=acm_ajax_handler&nonce=' + acm_ajax_nonce
 	};
 	var conditionals_options = acm_conditionals;
 
@@ -25,7 +26,6 @@ jQuery( document ).ready( function( $ ) {
 			{name:'act',index:'act', width:125,sortable:false, align: 'center'},
 		],
 		prmNames:{ page: 'acm-grid-page' },
-		postData: {nonce: acm_ajax_nonce, action: 'acm_ajax_handler'},
 		rowNum:10,
 		rowList:[10,20,30],
 		pager: '#acm-codes-pager',
@@ -67,12 +67,11 @@ jQuery( document ).ready( function( $ ) {
 		url: actions.conditionals_datasource,
 		editurl: actions.conditionals_edit,
 		prmNames:{ page: 'acm-grid-page' },
-		postData: {nonce: acm_ajax_nonce, action: 'acm_ajax_handler'},
 		datatype: "json",
 		colNames:['Conditional', 'Value'],
 		colModel:[
-			{name:'conditional',index:'conditional', width:180, editable: true, edittype: 'select', editoptions: {value: conditionals_options}},
-			{name:'value',index:'value', width:80, align:"left", editable: true, edittype: 'text'},
+			{name:'function',index:'function', width:180, editable: true, edittype: 'select', editoptions: {value: conditionals_options}},
+			{name:'arguments',index:'arguments', width:80, align:"left", editable: true, edittype: 'text'},
 		],
 		onSelectRow: function(id){
 		if(id && id!==subgrid_lastsel){
