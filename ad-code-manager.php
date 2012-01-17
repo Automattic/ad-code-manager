@@ -68,34 +68,34 @@ class Ad_Code_Manager
 						'fold' => 'atf'
 				)
 			),
-			//array(
-			//		'tag' => '728x90-btf',
-			//		'url_vars' => array(
-			//			'sz' => '728x90',
-			//			'fold' => 'btf'
-			//	)
-			//) ,
-			//array(
-			//		'tag' => '300x250-atf',
-			//		'url_vars' => array(
-			//			'sz' => '300x250',
-			//			'fold' => 'atf'
-			//	)
-			//),
-			//array(
-			//		'tag' => '300x250-btf',
-			//		'url_vars' => array(
-			//			'sz' => '300x250',
-			//			'fold' => 'atf'
-			//	)
-			//),
-			//array(
-			//		'tag' => '160x600-atf',
-			//		'url_vars' => array(
-			//			'sz' => '160x600',
-			//			'fold' => 'atf'
-			//	)
-			//)
+			array(
+					'tag' => '728x90-btf',
+					'url_vars' => array(
+						'sz' => '728x90',
+						'fold' => 'btf'
+				)
+			) ,
+			array(
+					'tag' => '300x250-atf',
+					'url_vars' => array(
+						'sz' => '300x250',
+						'fold' => 'atf'
+				)
+			),
+			array(
+					'tag' => '300x250-btf',
+					'url_vars' => array(
+						'sz' => '300x250',
+						'fold' => 'atf'
+				)
+			),
+			array(
+					'tag' => '160x600-atf',
+					'url_vars' => array(
+						'sz' => '160x600',
+						'fold' => 'atf'
+				)
+			)
 		);
 
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
@@ -550,20 +550,19 @@ class Ad_Code_Manager
 	 * @param array $ad_codes An array of ad tags
 	 */
 	function register_ad_codes( $ad_codes = array() ) {
-
-	foreach( (array)$ad_codes as $key => $ad_code ) {
-		$default = array(
+		foreach( (array)$ad_codes as $key => $ad_code ) {
+			$default = array(
 						'tag' => '',
 						'url' => '',
 						'conditionals' => array(),
 						'url_vars' => array(),
 					);
-		$ad_code = array_merge( $default, $ad_code );
-		foreach ( $this->ad_tag_ids as $default_tag ) {
-		$ad_code = array_merge( $ad_code, $default_tag );
-		// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
-		$this->register_ad_code( $ad_code['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
-		}
+			$ad_code = array_merge( $default, $ad_code );
+			foreach ( $this->ad_tag_ids as $default_tag ) {
+				$ad_code = array_merge( $ad_code, $default_tag );
+				// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
+				$this->register_ad_code( $ad_code['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], $ad_code['url_vars'] );
+			}
 		}
 	}
 
