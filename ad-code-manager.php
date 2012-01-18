@@ -149,7 +149,8 @@ class Ad_Code_Manager
 			// @todo get all of the ad codes and register them with register_ad_code()
 		}
 
-		$this->get_and_register_ad_codes();
+		// Load all of our registered ad codes
+		$this->register_ad_codes( $this->get_ad_codes() );
 	}
 
 	/**
@@ -175,10 +176,6 @@ class Ad_Code_Manager
 	 */
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
-	}
-
-	function get_and_register_ad_codes() {
-		$this->register_ad_codes( $this->get_ad_codes() );
 	}
 
 	function ajax_handler() {
