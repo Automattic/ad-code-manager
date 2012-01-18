@@ -526,10 +526,12 @@ class Ad_Code_Manager
 	 */
 	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array() ) {
 
-		// @todo Run $url aganist a whitelist to make sure it's a safe URL
+		// Run $url aganist a whitelist to make sure it's a safe URL
+		if ( !$this->validate_script_url( $url ) )
+			return;
 
 		// @todo Sanitize the conditionals against our possible set of conditionals so that users
-		// can't just run arbitrary functions
+		// can't just run arbitrary functions. These are whitelisted on execution of the ad code so we're fine for now
 
 		// @todo Sanitize all of the other input
 
@@ -662,6 +664,10 @@ class Ad_Code_Manager
 
 		$code_to_display = $display_codes[0];
 
+		// Run $url aganist a whitelist to make sure it's a safe URL
+		if ( !$this->validate_script_url( $code_to_display['url'] ) )
+			return;
+
 		// Allow the user to filter the basic output HTML, possibly based on tag_id
 		// This can be useful if they need different script tags based
 		$output_html = apply_filters( 'acm_output_html', $this->output_html, $tag_id );
@@ -669,7 +675,6 @@ class Ad_Code_Manager
 		// Parse the output and replace any tokens we have left. But first, load the script URL
 		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
 		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id, $code_to_display );
-		
 		foreach( (array)$output_tokens as $token => $val ) {
 			$output_html = str_replace( $token, $val, $output_html );
 		}
@@ -695,6 +700,31 @@ class Ad_Code_Manager
 		}
 		
 		return $output_tokens;
+	}
+
+	/**
+	 * Ensure the URL being used passes our whitelist check
+	 *
+	 * @since 0.1
+	 * @see https://gist.github.com/1623788
+	 */
+	function validate_script_url( $url ) {
+		$domain = parse_url( $url, PHP_URL_HOST );
+
+		// Check if we match the domain exactly
+		if ( in_array( $domain, $this->whitelisted_script_urls ) )
+			return true;
+
+		$valid = false;
+
+		foreach( $this->whitelisted_script_urls as $whitelisted_domain ) {
+			$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'
+			if( strpos( $domain, $whitelisted_domain ) === ( strlen( $domain ) - strlen( $whitelisted_domain ) ) ) {
+				$valid = true;
+				break;
+			}
+		}
+		return $valid;
 	}
 
 }
