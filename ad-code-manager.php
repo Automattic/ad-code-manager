@@ -44,10 +44,11 @@ class Ad_Code_Manager
 	var $post_type_labels ;
 	var $logical_operator;
 	var $ad_tag_ids;
+
 	/**
 	 * Instantiate the plugin
 	 *
-	 * @since ??
+	 * @since 0.1
 	 */
 	function __construct() {
 		add_action('wp_ajax_acm_ajax_handler', array( &$this, 'ajax_handler' ) );
@@ -97,7 +98,6 @@ class Ad_Code_Manager
 		// Set our default tokens to replace
 		// This can be filtered in action_acm_tag()
 		$this->output_tokens = array(
-				'%url%',
 			);
 
 		// These are common DFP tags
@@ -146,7 +146,6 @@ class Ad_Code_Manager
 		if ( !is_admin() ) {
 			add_action( 'acm_tag', array( $this, 'action_acm_tag' ) );
 			add_filter( 'acm_output_tokens', array( $this, 'filter_output_tokens' ), 5, 3 );
-			// @todo get all of the ad codes and register them with register_ad_code()
 		}
 
 		// Load all of our registered ad codes
@@ -203,7 +202,6 @@ class Ad_Code_Manager
 	 * This is the datasource for jqGRID
 	 *
 	 * @todo nonce?
-	 * @todo actual logic for getting ad codes from our custom post type
 	 */
 	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
@@ -233,7 +231,7 @@ class Ad_Code_Manager
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
-			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? $_GET[ 'acm-grid-page' ] : 1 ;
+			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
@@ -243,23 +241,23 @@ class Ad_Code_Manager
 
 
 	/**
-	 * @todo This is too DFP specific. Abstract it
+	 * Get the ad codes stored in our custom post type
 	 *
+	 * @todo This is too DFP specific. Abstract it
 	 */
 	function get_ad_codes() {
 		$ad_codes_formatted = array();
 		$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
-										  'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-										  'url_vars' => array(
-															  'site_name' => get_post_meta( $ad_code_cpt->ID, 'site_name', true ),
-															  'zone1' => get_post_meta( $ad_code_cpt->ID, 'zone1', true ),
-															 ),
-										  'post_id' => $ad_code_cpt->ID
-										  );
+				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
+				'url_vars' => array(
+					'site_name' => get_post_meta( $ad_code_cpt->ID, 'site_name', true ),
+					'zone1' => get_post_meta( $ad_code_cpt->ID, 'zone1', true ),
+				),
+				'post_id' => $ad_code_cpt->ID
+			);
 		}
-		//print_r($ad_codes_formatted); die;
 		return $ad_codes_formatted;
 	}
 
@@ -272,15 +270,18 @@ class Ad_Code_Manager
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
-			$response->page = isset( $_GET['acm-grid-page'] ) ? $_GET['acm-grid-page'] : 1 ;
+			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_key( $_GET['acm-grid-page'] ) : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
 		}
 	}
 
+	/**
+	 * Get the conditional values for an ad code
+	 */
 	function get_conditionals( $ad_code_id ) {
-		return  get_post_meta( intval( $ad_code_id ), 'conditionals', true );
+		return get_post_meta( intval( $ad_code_id ), 'conditionals', true );
 	}
 
 	/**
@@ -328,7 +329,10 @@ class Ad_Code_Manager
 	}
 
 	/**
+	 * Create a new ad code in the database
+	 *
 	 * @uses register_ad_code()
+	 *
 	 * @todo validation / nonce
 	 *
 	 * @param array $ad_code
@@ -336,12 +340,12 @@ class Ad_Code_Manager
 	function create_ad_code( $ad_code = array() ) {
 		if ( $ad_code['site_name'] && $ad_code['zone1'] ) {
 			$acm_post = array(
-							  'post_title' => $ad_code['site_name'] .'-' . $ad_code['zone1'],
-							  'post_status' => 'publish',
-							  'comment_status' => 'closed',
-							  'ping_status' => 'closed',
-							  'post_type' => $this->post_type,
-							  );
+				'post_title' => $ad_code['site_name'] .'-' . $ad_code['zone1'],
+				'post_status' => 'publish',
+				'comment_status' => 'closed',
+				'ping_status' => 'closed',
+				'post_type' => $this->post_type,
+			);
 			if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
 				update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code[ 'site_name' ] );
 				update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code[ 'zone1' ] );
@@ -350,15 +354,21 @@ class Ad_Code_Manager
 		return;
 	}
 
+	/**
+	 * Update an existing ad code
+	 */
 	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
 		if ( 0 !== intval( $ad_code_id ) && $ad_code['site_name'] && $ad_code['zone1'] ) {
 			$acm_inserted_post_id = intval( $ad_code_id );
-			update_post_meta( $acm_inserted_post_id, 'site_name', $_POST['site_name'] );
-			update_post_meta( $acm_inserted_post_id, 'zone1', $_POST['zone1'] );
+			update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code['site_name'] );
+			update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code['zone1'] );
 		}
 		return;
 	}
 
+	/**
+	 * Delete an existing ad code
+	 */
 	function delete_ad_code( $ad_code_id ) {
 		if ( 0 !== intval( $ad_code_id ) )
 			wp_delete_post( intval( $ad_code_id ) , true ); //force delete post
@@ -380,9 +390,9 @@ class Ad_Code_Manager
 				$existing_conditionals = array();
 			}
 			$existing_conditionals[] = array(
-											'function' => $conditional[ 'function' ],
-											'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
-										   );
+				'function' => $conditional[ 'function' ],
+				'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
+			);
 			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
 		return;
@@ -406,9 +416,9 @@ class Ad_Code_Manager
 				// $id is not an actual unique ID, but rather index of conditional in array of them
 				if ( isset( $conditional['id'] ) && $conditional['id'] === $conditional_index ) {
 					$existing_conditionals[ $conditional_index ] = array(
-								  'function' => $conditional[ 'function' ],
-								  'arguments' => (array) $conditional[ 'arguments' ],
-								  );
+						'function' => $conditional[ 'function' ],
+						'arguments' => (array) $conditional[ 'arguments' ],
+					);
 				}
 			}
 			return update_post_meta( $ad_code_id, 'conditionals', array_values($existing_conditionals) );
@@ -476,6 +486,8 @@ class Ad_Code_Manager
 	}
 
 	/**
+	 * Print the admin interface for managing the ad codes
+	 *
 	 * @todo remove html to views
 	 */
 	function admin_view_controller() {
@@ -540,7 +552,7 @@ class Ad_Code_Manager
 	/**
 	 * Register an array of ad tags with the plugin
 	 *
-	 * @since ???
+	 * @since 0.1
 	 *
 	 * @param array $ad_codes An array of ad tags
 	 */
@@ -677,7 +689,7 @@ class Ad_Code_Manager
 	/**
 	 * Filter the output tokens used in $this->action_acm_tag to include our URL vars
 	 *
-	 * @since ???
+	 * @since 0.1
 	 *
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
