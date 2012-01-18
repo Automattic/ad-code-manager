@@ -144,7 +144,6 @@ class Ad_Code_Manager
 
 		// Ad tags are only run on the frontend
 		if ( !is_admin() ) {
-			require_once AD_CODE_MANAGER_ROOT . '/template-tags.php';
 			add_action( 'acm_tag', array( $this, 'action_acm_tag' ) );
 			add_filter( 'acm_output_tokens', array( $this, 'filter_output_tokens' ), 5, 3 );
 			// @todo get all of the ad codes and register them with register_ad_code()
