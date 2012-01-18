@@ -252,7 +252,11 @@ class Ad_Code_Manager
 	 */
 	function get_ad_codes() {
 		$ad_codes_formatted = array();
-		$ad_codes = get_posts( array( 'post_type' => $this->post_type ) );
+		$args = array(
+			'post_type' => $this->post_type,
+			'numberposts' => apply_filters( 'acm_ad_code_count', 50 ),
+		);
+		$ad_codes = get_posts( $args );
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
 				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
