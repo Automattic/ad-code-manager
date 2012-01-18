@@ -153,25 +153,9 @@ class Ad_Code_Manager
 	}
 
 	/**
-	 * Code to run on WordPress' 'admin_init' hook
-	 *
-	 * @since ??
-	 */
-	function action_admin_init() {
-		// @todo conditionally load the admin interface if that's enabled
-		// The admin interface should be enabled by a filter and off by default
-		// We'll need additional methods for:
-		// - Displaying the interface
-		// - Saving the data
-		// - Loading the ad codes in the database and registering them
-		// with the plugin using
-
-	}
-
-	/**
 	 * Register our custom post type to store ad codes
 	 *
-	 * @since ??
+	 * @since 0.1
 	 */
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
