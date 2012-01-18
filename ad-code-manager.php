@@ -207,7 +207,14 @@ class Ad_Code_Manager
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
-			$ad_codes = $this->get_ad_codes() ;
+			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
+			$query_args = array();
+			
+			// We need to pass offset to get_ad_codes offset for jqGrid to work correctly
+			if ( 1 < $response->page )
+				$query_args['offset'] = ( $response->page - 1 ) * intval( $_GET['rows'] );
+			
+			$ad_codes = $this->get_ad_codes( $query_args ) ;
 			// prepare data in jqGrid specific format
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
@@ -219,13 +226,10 @@ class Ad_Code_Manager
 				);
 			}
 			$response->rows = $pass;
-
-			$count = count( $response->rows );
-			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
-
-			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
-			$response->total = $total_pages;
-			$response->records = $count;
+			$count_object = wp_count_posts( $this->post_type );
+			$total_pages = ceil ( $count_object->publish / $_GET['rows'] ); 
+			$response->total = $total_pages;			
+			$response->records = $count_object->publish;
 			$this->print_json( $response );
 		}
 		return;
@@ -237,12 +241,23 @@ class Ad_Code_Manager
 	 *
 	 * @todo This is too DFP specific. Abstract it
 	 */
-	function get_ad_codes() {
+	function get_ad_codes( $query_args = array() ) {
 		$ad_codes_formatted = array();
+		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
+		
 		$args = array(
 			'post_type' => $this->post_type,
 			'numberposts' => apply_filters( 'acm_ad_code_count', 50 ),
 		);
+		
+		foreach ( (array) $query_args as $query_key => $query_value ) {
+			if ( ! in_array( $query_key, $allowed_query_params ) ) {
+				unset( $query_args[$query_key] );
+			} else {
+				$args[$query_key] = sanitize_text_field( $query_value );
+			}
+		}
+		
 		$ad_codes = get_posts( $args );
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
@@ -266,7 +281,7 @@ class Ad_Code_Manager
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
-			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_key( $_GET['acm-grid-page'] ) : 1 ;
+			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_text( $_GET['acm-grid-page'] ) : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
