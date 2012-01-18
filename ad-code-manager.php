@@ -177,6 +177,11 @@ class Ad_Code_Manager
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
 	}
 
+	/**
+	 * Handles all admin ajax requests: getting, updating, creating and deleting
+	 *
+	 * @since 0.1
+	 */
 	function ajax_handler() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;
@@ -281,15 +286,14 @@ class Ad_Code_Manager
 	 * Get the conditional values for an ad code
 	 */
 	function get_conditionals( $ad_code_id ) {
-		return get_post_meta( intval( $ad_code_id ), 'conditionals', true );
+		return get_post_meta( $ad_code_id, 'conditionals', true );
 	}
 
 	/**
 	 * Handles AJAX Create, Update, Delete actions for Ad Codes
-	 *
-	 * @todo nonce + jqGrid?
 	 */
 	function ad_code_edit_actions() {
+		// Noncing happens in $this->ajax_handler()
 		if ( ! empty( $_POST ) ) {
 			 //this is jqGrid param
 			switch ( $_POST[ 'oper' ] ) {
@@ -297,10 +301,10 @@ class Ad_Code_Manager
 					$this->create_ad_code( $_POST );
 					break;
 				case 'edit':
-					$this->edit_ad_code( $_GET[ 'id' ], $_POST );
+					$this->edit_ad_code( intval( $_GET[ 'id' ] ), $_POST );
 					break;
 				case 'del':
-					$this->delete_ad_code( $_POST[ 'id' ] );
+					$this->delete_ad_code( intval( $_POST[ 'id' ] ) );
 					break;
 			}
 			exit; // exit, jqGrid sends another request to fetch new data
@@ -312,15 +316,15 @@ class Ad_Code_Manager
 		if (  ! empty( $_POST ) ) {
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$result = $this->create_conditional( $_GET['id'], $_POST );
+					$result = $this->create_conditional( intval( $_GET['id'] ), $_POST );
 					break;
 				case 'edit':
-					$result = $this->edit_conditional( $_GET['id'], $_POST, true );
+					$result = $this->edit_conditional( intval( $_GET['id'] ), $_POST, true );
 					break;
 				case 'del':
 					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
 					// removed from array of conditionals
-					$result = $this->delete_conditional( $_GET['id'], $_POST[ 'id' ], true );
+					$result = $this->delete_conditional( intval( $_GET['id'] ), $_POST[ 'id' ], true );
 					break;
 			}
 			exit($result);
@@ -358,10 +362,9 @@ class Ad_Code_Manager
 	 * Update an existing ad code
 	 */
 	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
-		if ( 0 !== intval( $ad_code_id ) && $ad_code['site_name'] && $ad_code['zone1'] ) {
-			$acm_inserted_post_id = intval( $ad_code_id );
-			update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code['site_name'] );
-			update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code['zone1'] );
+		if ( 0 !== $ad_code_id && $ad_code['site_name'] && $ad_code['zone1'] ) {
+			update_post_meta( $ad_code_id, 'site_name', $ad_code['site_name'] );
+			update_post_meta( $ad_code_id, 'zone1', $ad_code['zone1'] );
 		}
 		return;
 	}
@@ -370,8 +373,8 @@ class Ad_Code_Manager
 	 * Delete an existing ad code
 	 */
 	function delete_ad_code( $ad_code_id ) {
-		if ( 0 !== intval( $ad_code_id ) )
-			wp_delete_post( intval( $ad_code_id ) , true ); //force delete post
+		if ( 0 !== $ad_code_id )
+			wp_delete_post( $ad_code_id , true ); //force delete post
 		return;
 	}
 	/**
@@ -383,8 +386,7 @@ class Ad_Code_Manager
 	 * @return void ???
 	 */
 	function create_conditional( $ad_code_id, $conditional ) {
-		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
-			$ad_code_id = intval( $ad_code_id );
+		if ( 0 !== $ad_code_id && !empty( $conditional ) ) {
 			$existing_conditionals =  get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( ! is_array( $existing_conditionals ) ) {
 				$existing_conditionals = array();
@@ -406,8 +408,7 @@ class Ad_Code_Manager
 	 *
 	 */
 	function edit_conditional( $ad_code_id, $conditional, $from_ajax = false ) {
-		if ( 0 !== intval( $ad_code_id ) && !empty( $conditional ) ) {
-			$ad_code_id = intval( $ad_code_id );
+		if ( 0 !== $ad_code_id && !empty( $conditional ) ) {
 			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( $from_ajax && isset( $conditional ['id'] ) ) { // jqGrid starts with one, PHP starts with 0
 					$conditional['id']--;
@@ -434,8 +435,7 @@ class Ad_Code_Manager
 	 * @param string $conditional_indices string of comma separated indices
 	 */
 	function delete_conditional( $ad_code_id, $conditional_indices = '', $from_ajax = false ) {
-		if ( 0 !== intval( $ad_code_id ) ) {
-			$ad_code_id = intval( $ad_code_id );
+		if ( 0 !== $ad_code_id ) {
 			$existing_conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
 			$ids_to_delete = explode(',', $conditional_indices ); //
 			foreach ($ids_to_delete as $index_to_delete ) {
