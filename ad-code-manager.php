@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 define( 'AD_CODE_MANAGER_VERSION', '0.1' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
-define( 'AD_CODE_MANAGER_URL' , plugins_url( plugin_basename( dirname( __FILE__ ) ) . '/' ) );
+define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 
 class Ad_Code_Manager
 {
