@@ -165,10 +165,10 @@ class Ad_Code_Manager
 	 *
 	 * @since 0.1
 	 */
-	function ajax_handler() {
+	function ajax_handler() {		
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;
-
+		
 		if ( !current_user_can( $this->manage_ads_cap ) )
 			return;
 
@@ -275,13 +275,17 @@ class Ad_Code_Manager
 	function get_conditionals_ajax() {
 		if (  0 !== intval( $_GET[ 'id' ] ) ) {
 			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
-			$response;
-		foreach ( $conditionals as $index => $item )
+			$response;	
+			foreach ( $conditionals as $index => $item ) {
+				if ( is_array( $item['arguments'] ) ) {
+					$item['arguments'] = implode(";", $item['arguments'] );
+				}
 				$response->rows[] = $item;
+			}	
 			$count = count( $response->rows );
 			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
 
-			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_text( $_GET['acm-grid-page'] ) : 1 ;
+			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_text_field( $_GET['acm-grid-page'] ) : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
@@ -326,7 +330,8 @@ class Ad_Code_Manager
 		if (  ! empty( $_POST ) ) {
 			$conditional_vals = array(
 					'function' => sanitize_key( $_POST['function'] ),
-					'arguments' => array_map( 'sanitize_text_field', $_POST['arguments'] ),
+					//arguments from jqGrid are passed as string, need to check arguments type before choosing the way to sanitize the value
+					'arguments' => is_array( $_POST['arguments'] ) ? array_map( 'sanitize_text_field', $_POST['arguments'] ) : sanitize_text_field( $_POST['arguments'] ),
 				);
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
@@ -407,7 +412,7 @@ class Ad_Code_Manager
 			}
 			$existing_conditionals[] = array(
 				'function' => $conditional[ 'function' ],
-				'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
+				'arguments' => explode(';', $conditional[ 'arguments' ] ), // @todo filterize explode character?
 			);
 			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
