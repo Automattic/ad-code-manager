@@ -41,6 +41,7 @@ class Ad_Code_Manager
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
 	var $plugin_slug = 'ad-code-manager';
+	var $manage_ads_cap = 'manage_options';
 	var $post_type_labels ;
 	var $logical_operator;
 	var $ad_tag_ids;
@@ -90,6 +91,9 @@ class Ad_Code_Manager
 		// Set our default output HTML
 		// This can be filtered in action_acm_tag()
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
+
+		// Allow the ad management cap to be filtered if need be
+		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
 
 		// Set our default tokens to replace
 		// This can be filtered in action_acm_tag()
@@ -164,6 +168,10 @@ class Ad_Code_Manager
 	function ajax_handler() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;
+
+		if ( !current_user_can( $this->manage_ads_cap ) )
+			return;
+
 		switch( $_GET['acm-action'] ) {
 			case 'datasource':
 				$this->get_ad_codes_ajax();
@@ -473,7 +481,7 @@ class Ad_Code_Manager
 	 * Hook in our submenu page to the navigation
 	 */
 	function action_admin_menu() {
-		add_submenu_page( 'tools.php', $this->title, $this->title, apply_filters( 'acm_manage_ads_cap', 'manage_options' ), $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
+		add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
 	}
 
 	/**
