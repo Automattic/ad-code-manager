@@ -53,7 +53,6 @@ class Ad_Code_Manager
 	function __construct() {
 		add_action('wp_ajax_acm_ajax_handler', array( &$this, 'ajax_handler' ) );
 		add_action( 'init', array( &$this, 'action_init' ) );
-		add_action( 'admin_init', array( &$this, 'action_admin_init' ) );
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
@@ -135,7 +134,7 @@ class Ad_Code_Manager
 			)
 		);
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
-		
+
 		$this->register_acm_post_type();
 
 		// Ad tags are only run on the frontend
@@ -552,7 +551,7 @@ class Ad_Code_Manager
 	 */
 	function register_ad_codes( $ad_codes = array() ) {
 		foreach( (array)$ad_codes as $key => $ad_code ) {
-			
+
 			$default = array(
 						'tag' => '',
 						'url' => '',
@@ -628,11 +627,11 @@ class Ad_Code_Manager
 					continue;
 
 				// Run our conditional and use any arguments that were passed
-				if ( !empty( $cond_args ) ) 
+				if ( !empty( $cond_args ) )
 					$result = call_user_func_array( $cond_func, apply_filters( 'acm_conditional_args', $cond_args, $cond_func  ) );
-				else 
+				else
 					$result = call_user_func( $cond_func );
-				
+
 
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
@@ -698,7 +697,7 @@ class Ad_Code_Manager
 			$new_key = '%' . $url_var . '%';
 			$output_tokens[$new_key] = $val;
 		}
-		
+
 		return $output_tokens;
 	}
 
