@@ -64,14 +64,13 @@ class Ad_Code_Manager
 	/**
 	 * Code to run on WordPress' 'init' hook
 	 *
-	 * @since ??
+	 * @since 0.1
 	 */
 	function action_init() {
 		$this->post_type_labels = array(
 										'name' => __( 'DFP Ad Codes' ),
 										'singular_name' => __( 'DFP Ad Codes' ),
 										);
-
 
 		// Allow new domains to be whitelisted
 		$this->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->whitelisted_script_urls );
@@ -86,8 +85,6 @@ class Ad_Code_Manager
 				'is_tag',
 				'has_tag',
 			);
-		// And titles for UI
-
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
 		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR'); //allow users to filter default logical operator
 
@@ -97,8 +94,7 @@ class Ad_Code_Manager
 
 		// Set our default tokens to replace
 		// This can be filtered in action_acm_tag()
-		$this->output_tokens = array(
-			);
+		$this->output_tokens = array();
 
 		// These are common DFP tags
 		$this->ad_tag_ids = array(
@@ -511,7 +507,7 @@ class Ad_Code_Manager
 	 * Register an ad tag with the plugin so it can be used
 	 * on the frontend of the site
 	 *
-	 * @since ???
+	 * @since 0.1
 	 *
 	 * @param string $tag Ad tag for this instance of code
 	 * @param string $url Script URL for ad code
