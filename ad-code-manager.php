@@ -280,12 +280,16 @@ class Ad_Code_Manager
 		// Noncing happens in $this->ajax_handler()
 		if ( ! empty( $_POST ) ) {
 			 //this is jqGrid param
+			$ad_code_vals = array(
+					'site_name' => sanitize_text_field( $_POST['site_name'] ),
+					'zone1' => sanitize_text_field( $_POST['zone1'] ),
+				);
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$this->create_ad_code( $_POST );
+					$this->create_ad_code( $ad_code_vals );
 					break;
 				case 'edit':
-					$this->edit_ad_code( intval( $_GET[ 'id' ] ), $_POST );
+					$this->edit_ad_code( intval( $_GET[ 'id' ] ), $ad_code_vals );
 					break;
 				case 'del':
 					$this->delete_ad_code( intval( $_POST[ 'id' ] ) );
@@ -298,17 +302,21 @@ class Ad_Code_Manager
 
 	function conditionals_edit_actions() {
 		if (  ! empty( $_POST ) ) {
+			$conditional_vals = array(
+					'function' => sanitize_key( $_POST['function'] ),
+					'arguments' => array_map( 'sanitize_text_field', $_POST['arguments'] ),
+				);
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
-					$result = $this->create_conditional( intval( $_GET['id'] ), $_POST );
+					$result = $this->create_conditional( intval( $_GET['id'] ), $conditional_vals );
 					break;
 				case 'edit':
-					$result = $this->edit_conditional( intval( $_GET['id'] ), $_POST, true );
+					$result = $this->edit_conditional( intval( $_GET['id'] ), $conditional_vals, true );
 					break;
 				case 'del':
 					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
 					// removed from array of conditionals
-					$result = $this->delete_conditional( intval( $_GET['id'] ), $_POST[ 'id' ], true );
+					$result = $this->delete_conditional( intval( $_GET['id'] ), intval( $_POST[ 'id' ] ), true );
 					break;
 			}
 			exit($result);
