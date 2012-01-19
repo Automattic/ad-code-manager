@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Daniel Bachhuber, Rinat Khaziev, Automattic
-Version: 0.1
+Version: 0.1.1
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,10 +24,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.1' );
+define( 'AD_CODE_MANAGER_VERSION', '0.1.1' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
-define( 'AD_CODE_MANAGER_URL' , plugins_url( plugin_basename( dirname( __FILE__ ) ) . '/' ) );
+define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 
 class Ad_Code_Manager
 {
@@ -126,7 +126,7 @@ class Ad_Code_Manager
 					'tag' => '300x250-btf',
 					'url_vars' => array(
 						'sz' => '300x250',
-						'fold' => 'atf'
+						'fold' => 'btf'
 				)
 			),
 			array(
@@ -135,7 +135,7 @@ class Ad_Code_Manager
 						'sz' => '160x600',
 						'fold' => 'atf'
 				)
-			)
+			),
 		);
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 
@@ -165,10 +165,10 @@ class Ad_Code_Manager
 	 *
 	 * @since 0.1
 	 */
-	function ajax_handler() {
+	function ajax_handler() {		
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;
-
+		
 		if ( !current_user_can( $this->manage_ads_cap ) )
 			return;
 
@@ -192,8 +192,7 @@ class Ad_Code_Manager
 	/**
 	 * Returns json encoded ad code
 	 * This is the datasource for jqGRID
-	 *
-	 * @todo nonce?
+	 * 
 	 */
 	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
@@ -203,11 +202,18 @@ class Ad_Code_Manager
 		 * $response->page = current page
 		 * $response->total = total pages
 		 * $response->record = count of rows
-		 * $response->rows = nested array of assoc arrays @see $model
+		 * $response->rows = nested array of assoc arrays 
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
-			$ad_codes = $this->get_ad_codes() ;
+			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
+			$query_args = array();
+			
+			// We need to pass offset to get_ad_codes offset for jqGrid to work correctly
+			if ( 1 < $response->page )
+				$query_args['offset'] = ( $response->page - 1 ) * intval( $_GET['rows'] );
+			
+			$ad_codes = $this->get_ad_codes( $query_args ) ;
 			// prepare data in jqGrid specific format
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
@@ -219,13 +225,10 @@ class Ad_Code_Manager
 				);
 			}
 			$response->rows = $pass;
-
-			$count = count( $response->rows );
-			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
-
-			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
-			$response->total = $total_pages;
-			$response->records = $count;
+			$count_object = wp_count_posts( $this->post_type );
+			$total_pages = ceil ( $count_object->publish / $_GET['rows'] ); 
+			$response->total = $total_pages;			
+			$response->records = $count_object->publish;
 			$this->print_json( $response );
 		}
 		return;
@@ -237,12 +240,23 @@ class Ad_Code_Manager
 	 *
 	 * @todo This is too DFP specific. Abstract it
 	 */
-	function get_ad_codes() {
+	function get_ad_codes( $query_args = array() ) {
 		$ad_codes_formatted = array();
+		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
+		
 		$args = array(
 			'post_type' => $this->post_type,
 			'numberposts' => apply_filters( 'acm_ad_code_count', 50 ),
 		);
+		
+		foreach ( (array) $query_args as $query_key => $query_value ) {
+			if ( ! in_array( $query_key, $allowed_query_params ) ) {
+				unset( $query_args[$query_key] );
+			} else {
+				$args[$query_key] = $query_value;
+			}
+		}
+		
 		$ad_codes = get_posts( $args );
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
@@ -260,13 +274,17 @@ class Ad_Code_Manager
 	function get_conditionals_ajax() {
 		if (  0 !== intval( $_GET[ 'id' ] ) ) {
 			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
-			$response;
-		foreach ( $conditionals as $index => $item )
+			$response;	
+			foreach ( $conditionals as $index => $item ) {
+				if ( is_array( $item['arguments'] ) ) {
+					$item['arguments'] = implode(";", $item['arguments'] );
+				}
 				$response->rows[] = $item;
+			}	
 			$count = count( $response->rows );
-			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
+			$total_pages = ceil ( $count / $_GET['rows'] );
 
-			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_key( $_GET['acm-grid-page'] ) : 1 ;
+			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_text_field( $_GET['acm-grid-page'] ) : 1 ;
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
@@ -311,7 +329,8 @@ class Ad_Code_Manager
 		if (  ! empty( $_POST ) ) {
 			$conditional_vals = array(
 					'function' => sanitize_key( $_POST['function'] ),
-					'arguments' => array_map( 'sanitize_text_field', $_POST['arguments'] ),
+					//arguments from jqGrid are passed as string, need to check arguments type before choosing the way to sanitize the value
+					'arguments' => is_array( $_POST['arguments'] ) ? array_map( 'sanitize_text_field', $_POST['arguments'] ) : sanitize_text_field( $_POST['arguments'] ),
 				);
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
@@ -392,7 +411,7 @@ class Ad_Code_Manager
 			}
 			$existing_conditionals[] = array(
 				'function' => $conditional[ 'function' ],
-				'arguments' => (array) $conditional[ 'arguments' ], // @todo explode
+				'arguments' => explode(';', $conditional[ 'arguments' ] ), // @todo filterize explode character?
 			);
 			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
@@ -596,10 +615,12 @@ class Ad_Code_Manager
 		$display_codes = array();
 		foreach( (array)$this->ad_codes[$tag_id] as $ad_code ) {
 
-			// If the ad code doesn't have any conditionals,
+			// If the ad code doesn't have any conditionals and logical_operator set to "AND",
 			// we should add it to the display list
 			if ( empty( $ad_code['conditionals'] ) ) {
-				$display_codes[] = $ad_code;
+				if ( $this->logical_operator == 'AND' ) {
+					$display_codes[] = $ad_code;
+				}
 				continue;
 			}
 

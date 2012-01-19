@@ -80,7 +80,7 @@ jQuery( document ).ready( function( $ ) {
 			subgrid_lastsel=id;
 		}},
 		rowNum:5,
-		rowList:[5,10,20],
+		rowList:[5,10,20,50,100],
 		pager: '#acm-codes-conditionals-pager',
 		sortname: 'item',
 		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
