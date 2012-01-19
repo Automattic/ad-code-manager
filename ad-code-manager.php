@@ -253,7 +253,7 @@ class Ad_Code_Manager
 			if ( ! in_array( $query_key, $allowed_query_params ) ) {
 				unset( $query_args[$query_key] );
 			} else {
-				$args[$query_key] = sanitize_text_field( $query_value );
+				$args[$query_key] = $query_value;
 			}
 		}
 		
