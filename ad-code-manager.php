@@ -616,10 +616,12 @@ class Ad_Code_Manager
 		$display_codes = array();
 		foreach( (array)$this->ad_codes[$tag_id] as $ad_code ) {
 
-			// If the ad code doesn't have any conditionals,
+			// If the ad code doesn't have any conditionals and logical_operator set to "AND",
 			// we should add it to the display list
 			if ( empty( $ad_code['conditionals'] ) ) {
-				$display_codes[] = $ad_code;
+				if ( $this->logical_operator == 'AND' ) {
+					$display_codes[] = $ad_code;
+				}
 				continue;
 			}
 
