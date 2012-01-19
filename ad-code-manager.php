@@ -126,7 +126,7 @@ class Ad_Code_Manager
 					'tag' => '300x250-btf',
 					'url_vars' => array(
 						'sz' => '300x250',
-						'fold' => 'atf'
+						'fold' => 'btf'
 				)
 			),
 			array(
@@ -135,7 +135,7 @@ class Ad_Code_Manager
 						'sz' => '160x600',
 						'fold' => 'atf'
 				)
-			)
+			),
 		);
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 
@@ -192,8 +192,7 @@ class Ad_Code_Manager
 	/**
 	 * Returns json encoded ad code
 	 * This is the datasource for jqGRID
-	 *
-	 * @todo nonce?
+	 * 
 	 */
 	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
@@ -203,7 +202,7 @@ class Ad_Code_Manager
 		 * $response->page = current page
 		 * $response->total = total pages
 		 * $response->record = count of rows
-		 * $response->rows = nested array of assoc arrays @see $model
+		 * $response->rows = nested array of assoc arrays 
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
@@ -283,7 +282,7 @@ class Ad_Code_Manager
 				$response->rows[] = $item;
 			}	
 			$count = count( $response->rows );
-			$total_pages = 1; // this should be $count / $_GET[ 'rows' ] // 'rows' is per page limit
+			$total_pages = ceil ( $count / $_GET['rows'] );
 
 			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_text_field( $_GET['acm-grid-page'] ) : 1 ;
 			$response->total = $total_pages;
