@@ -589,7 +589,7 @@ class Ad_Code_Manager
 
 			foreach ( (array)$this->ad_tag_ids as $default_tag ) {
 				// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
-				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ) );
+				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ) );
 			}
 		}
 	}
