@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Daniel Bachhuber, Rinat Khaziev, Automattic
-Version: 0.1.1
+Version: 0.1.2
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.1.1' );
+define( 'AD_CODE_MANAGER_VERSION', '0.1.2' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -314,7 +314,7 @@ class Ad_Code_Manager
 					$this->create_ad_code( $ad_code_vals );
 					break;
 				case 'edit':
-					$this->edit_ad_code( intval( $_GET[ 'id' ] ), $ad_code_vals );
+					$this->edit_ad_code( intval( $_POST[ 'id' ] ), $ad_code_vals );
 					break;
 				case 'del':
 					$this->delete_ad_code( intval( $_POST[ 'id' ] ) );
@@ -337,6 +337,7 @@ class Ad_Code_Manager
 					$result = $this->create_conditional( intval( $_GET['id'] ), $conditional_vals );
 					break;
 				case 'edit':
+					$conditional_vals['id'] = intval( $_POST['id'] ); // we need this for edit action to work correctly
 					$result = $this->edit_conditional( intval( $_GET['id'] ), $conditional_vals, true );
 					break;
 				case 'del':
@@ -383,7 +384,7 @@ class Ad_Code_Manager
 		if ( 0 !== $ad_code_id && $ad_code['site_name'] && $ad_code['zone1'] ) {
 			update_post_meta( $ad_code_id, 'site_name', $ad_code['site_name'] );
 			update_post_meta( $ad_code_id, 'zone1', $ad_code['zone1'] );
-		}
+		} 
 		return;
 	}
 
@@ -661,7 +662,6 @@ class Ad_Code_Manager
 				else
 					$result = call_user_func( $cond_func );
 
-
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
 					$include = false;
@@ -689,7 +689,7 @@ class Ad_Code_Manager
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - priority against other ad codes
-
+		
 		$code_to_display = $display_codes[0];
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
