@@ -3,7 +3,7 @@ Contributors: danielbachhuber, rinatkhaziev, automattic
 Tags: advertising, ad codes
 Requires at least: 3.1
 Tested up to: 3.3.1
-Stable tag: 0.1.1
+Stable tag: 0.1.2
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
