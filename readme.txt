@@ -173,3 +173,15 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 	$whitelisted_urls = array( 'ad.doubleclick.net' );
 	return $whitelisted_urls;
 }`
+
+== Changelog ==
+
+= 0.1.2 (February 9, 2012) =
+* Readme with full description and examples
+* Bug fix: Save the proper value when editing actions
+
+= 0.1.1 =
+* Bug fix release
+
+= 0.1 =
+* Initial release
