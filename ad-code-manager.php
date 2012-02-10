@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Daniel Bachhuber, Rinat Khaziev, Automattic
-Version: 0.1.1
+Version: 0.1.2
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.1.1' );
+define( 'AD_CODE_MANAGER_VERSION', '0.1.2' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -72,7 +72,10 @@ class Ad_Code_Manager
 										'singular_name' => __( 'DFP Ad Codes' ),
 										);
 
-		// Allow new domains to be whitelisted
+		/**
+		 * Configuration filter: acm_whitelisted_script_urls
+		 * A security filter to whitelist which ad code script URLs can be added in the admin
+		 */
 		$this->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->whitelisted_script_urls );
 
 		// Allow other conditionals to be used
@@ -85,6 +88,10 @@ class Ad_Code_Manager
 				'is_tag',
 				'has_tag',
 			);
+		/**
+		 * Configuration filter: acm_whitelisted_conditionals
+		 * Extend the list of usable conditional functions with your own awesome ones.
+		 */
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
 		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR'); //allow users to filter default logical operator
 
@@ -137,6 +144,11 @@ class Ad_Code_Manager
 				)
 			),
 		);
+		/**
+		 * Configuration filter: acm_ad_tag_ids
+		 * Extend set of default tag ids. Ad tag ids are used as a parameter
+		 * for your template tag (e.g. do_action( 'acm_tag', 'my_top_leaderboard' ))
+		 */
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 
 		$this->register_acm_post_type();
@@ -314,7 +326,7 @@ class Ad_Code_Manager
 					$this->create_ad_code( $ad_code_vals );
 					break;
 				case 'edit':
-					$this->edit_ad_code( intval( $_GET[ 'id' ] ), $ad_code_vals );
+					$this->edit_ad_code( intval( $_POST[ 'id' ] ), $ad_code_vals );
 					break;
 				case 'del':
 					$this->delete_ad_code( intval( $_POST[ 'id' ] ) );
@@ -337,6 +349,7 @@ class Ad_Code_Manager
 					$result = $this->create_conditional( intval( $_GET['id'] ), $conditional_vals );
 					break;
 				case 'edit':
+					$conditional_vals['id'] = intval( $_POST['id'] ); // we need this for edit action to work correctly
 					$result = $this->edit_conditional( intval( $_GET['id'] ), $conditional_vals, true );
 					break;
 				case 'del':
@@ -383,7 +396,7 @@ class Ad_Code_Manager
 		if ( 0 !== $ad_code_id && $ad_code['site_name'] && $ad_code['zone1'] ) {
 			update_post_meta( $ad_code_id, 'site_name', $ad_code['site_name'] );
 			update_post_meta( $ad_code_id, 'zone1', $ad_code['zone1'] );
-		}
+		} 
 		return;
 	}
 
@@ -588,8 +601,13 @@ class Ad_Code_Manager
 			$ad_code = array_merge( $default, $ad_code );
 
 			foreach ( (array)$this->ad_tag_ids as $default_tag ) {
-				// May be we should add plugin setting for default url. For now just apply the filter which should return default url if $ad_code['url'] is empty
-				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_empty_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ) );
+				/**
+				 * Configuration filter: acm_default_url
+				 * If you don't specify a URL for your ad code when registering it in
+				 * the WordPress admin or at a code level, you can simply apply it with
+				 * a custom filter defined.
+				 */
+				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ) );
 			}
 		}
 	}
@@ -656,11 +674,16 @@ class Ad_Code_Manager
 					continue;
 
 				// Run our conditional and use any arguments that were passed
-				if ( !empty( $cond_args ) )
+				if ( !empty( $cond_args ) ) {
+					/**
+					 * Configuration filter: acm_conditional_args
+					 * For certain conditionals (has_tag, has_category), you might need to
+					 * pass additional arguments.
+					 */
 					$result = call_user_func_array( $cond_func, apply_filters( 'acm_conditional_args', $cond_args, $cond_func  ) );
-				else
+				} else {
 					$result = call_user_func( $cond_func );
-
+				}
 
 				// If our results don't match what we need, don't include this ad code
 				if ( $cond_result !== $result )
@@ -689,19 +712,27 @@ class Ad_Code_Manager
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - priority against other ad codes
-
+		
 		$code_to_display = $display_codes[0];
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $code_to_display['url'] ) )
 			return;
 
-		// Allow the user to filter the basic output HTML, possibly based on tag_id
-		// This can be useful if they need different script tags based
+		/**
+		 * Configuration filter: acm_output_html
+		 * Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags )
+		 * by adjusting the HTML rendered for a given ad tag.
+		 */
 		$output_html = apply_filters( 'acm_output_html', $this->output_html, $tag_id );
 
 		// Parse the output and replace any tokens we have left. But first, load the script URL
 		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
+		/**
+		 * Configuration filter: acm_output_tokens
+		 * Register output tokens depending on the needs of your setup. Tokens are the
+		 * keys to be replaced in your script URL.
+		 */
 		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id, $code_to_display );
 		foreach( (array)$output_tokens as $token => $val ) {
 			$output_html = str_replace( $token, $val, $output_html );
