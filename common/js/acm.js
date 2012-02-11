@@ -96,4 +96,9 @@ jQuery( document ).ready( function( $ ) {
 	}).navGrid( '#acm-codes-conditionals-pager',{ add:true,edit:true,del:true } );
 
 
+	jQuery('#conditionals-help-toggler').click( function( e ) {
+		var el = jQuery('#conditionals-help');
+		
+		el.toggleClass('hidden');
+	});
 } );

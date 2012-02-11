@@ -526,7 +526,31 @@ class Ad_Code_Manager
 	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
 	
-	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;">conditionals</a>.</p>
+	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;" id="conditionals-help-toggler">conditionals</a>.</p>
+	
+	<div id="conditionals-help" class="hidden">
+		<strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>. 
+		
+		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_home" class="external text" title="http://codex.wordpress.org/Function_Reference/is_home">is_home()</a></tt>&nbsp;</dt><dd> When the main blog page is being displayed. This is the page which shows the time based blog content of your site, so if you've set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <a href="/Administration_Panels" title="Administration Panels" class="mw-redirect">Administration</a> &gt; <a href="/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a>.
+</dd></dl>
+		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_front_page" class="external text" title="http://codex.wordpress.org/Function_Reference/is_front_page">is_front_page()</a></tt>&nbsp;</dt><dd> When the front of the site is displayed, whether it is posts or a <a href="/Pages" title="Pages">Page</a>.  Returns true when the main blog page is being displayed and the '<a href="/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "Your latest posts", <b>or</b> when '<a href="/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "A static page" and the "Front Page" value is the current <a href="/Pages" title="Pages">Page</a> being displayed. 
+</dd></dl>
+<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_category" class="external text" title="http://codex.wordpress.org/Function_Reference/is_category">is_category()</a></tt>&nbsp;</dt><dd> When any Category archive page is being displayed.
+</dd><dt> <tt>is_category( '9' )</tt>&nbsp;</dt><dd> When the archive page for Category 9 is being displayed.
+</dd><dt> <tt>is_category( 'Stinky Cheeses' )</tt>&nbsp;</dt><dd> When the archive page for the Category with Name "Stinky Cheeses" is being displayed.
+</dd><dt> <tt>is_category( 'blue-cheese' )</tt>&nbsp;</dt><dd> When the archive page for the Category with Category Slug "blue-cheese" is being displayed.
+</dd><dt> <tt>is_category( array( 9, 'blue-cheese', 'Stinky Cheeses' ) )</tt>&nbsp;</dt><dd> Returns true when the category of posts being displayed is either term_ID 9, or <i>slug</i> "blue-cheese", or <i>name</i> "Stinky Cheeses".  
+</dd><dt> <tt>in_category( '5' )</tt>&nbsp;</dt><dd> Returns true if the current post is <b>in</b> the specified category id. <a href="http://codex.wordpress.org/Template_Tags/in_category" class="external text" title="http://codex.wordpress.org/Template_Tags/in_category">read more</a>
+</dd></dl>		
+<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_tag" class="external text" title="http://codex.wordpress.org/Function_Reference/is_tag">is_tag()</a></tt>&nbsp;</dt><dd> When any Tag archive page is being displayed.
+</dd><dt> <tt>is_tag( 'mild' )</tt>&nbsp;</dt><dd> When the archive page for tag with the slug of 'mild' is being displayed.
+</dd><dt> <tt>is_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> Returns true when the tag archive being displayed has a slug of either "sharp", "mild", or "extreme".  
+</dd><dt> <tt>has_tag()</tt>&nbsp;</dt><dd> When the current post has a tag. Must be used inside The Loop. 
+</dd><dt> <tt>has_tag( 'mild' )</tt>&nbsp;</dt><dd> When the current post has the tag 'mild'.
+</dd><dt> <tt>has_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> When the current post has any of the tags in the array.
+</dd></dl>
+		
+	</div>	
 	
 	<table id="acm-codes-list"></table>
 	<div id="acm-codes-pager"></div>

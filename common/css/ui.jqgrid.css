@@ -146,3 +146,7 @@ tr.ui-search-toolbar select {margin: 1px 0px 0px 0px}
 .acm-ui-wrapper p {
   
 }
+
+#conditionals-help {
+  width: 600px;
+}
