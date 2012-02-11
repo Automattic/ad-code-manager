@@ -67,15 +67,16 @@ jQuery( document ).ready( function( $ ) {
 	grid_selector.jqGrid( 'navGrid','#acm-codes-pager',{edit:true,add:true,del:true});
 
 	subgrid_selector.jqGrid({
-		height: 100,
+		height: 200,
+		width: 600,
 		url: actions.conditionals_datasource,
 		editurl: actions.conditionals_edit,
 		prmNames:{ page: 'acm-grid-page' },
 		datatype: "json",
 		colNames:['Conditional', 'Value'],
 		colModel:[
-			{name:'function',index:'function', width:180, editable: true, edittype: 'select', editoptions: {value: conditionals_options}},
-			{name:'arguments',index:'arguments', width:80, align:"left", editable: true, edittype: 'text'},
+			{name:'function',index:'function', width:120, editable: true, edittype: 'select', editoptions: {value: conditionals_options}},
+			{name:'arguments',index:'arguments', width:180, align:"left", editable: true, edittype: 'text'},
 		],
 		onSelectRow: function(id){
 		if(id && id!==subgrid_lastsel){
