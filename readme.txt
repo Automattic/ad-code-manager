@@ -176,6 +176,9 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 
 == Changelog ==
 
+= 0.1.3 (February 10, 2012) =
+* UI cleanup
+
 = 0.1.2 (February 9, 2012) =
 * Readme with full description and examples
 * Bug fix: Save the proper value when editing actions
