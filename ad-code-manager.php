@@ -230,7 +230,7 @@ class Ad_Code_Manager
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
 				$pass[] = array(
-					'id' => $ad_code[ 'post_id' ],
+					'id' => $ad_code['post_id'],
 					'site_name' => $ad_code[ 'url_vars' ][ 'site_name' ] ,
 					'zone1' => $ad_code[ 'url_vars' ][ 'zone1' ],
 					'act' => '',
@@ -523,12 +523,19 @@ class Ad_Code_Manager
 	 */
 	function admin_view_controller() {
 	?>
+	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
+	
+	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;">conditionals</a>.</p>
+	
 	<table id="acm-codes-list"></table>
 	<div id="acm-codes-pager"></div>
 
-	<table id="acm-codes-conditionals-list"></table>
-	<div id="acm-codes-conditionals-pager"></div>
+	<div class="acm-conditionals-wrapper hidden">
+		<table id="acm-codes-conditionals-list"></table>
+		<div id="acm-codes-conditionals-pager"></div>
+	</div>
+	</div>
 	<?php
 	}
 

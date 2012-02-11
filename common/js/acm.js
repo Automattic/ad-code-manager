@@ -18,16 +18,18 @@ jQuery( document ).ready( function( $ ) {
 		editurl: actions.codes_edit,
 		height: 400,
 		width: 600,
-		colNames:['Id','Site Name', 'Zone1', 'Actions'],
+		multiselect: false,
+		// @todo remove hardcode, colNames and colModel should be set in provider config and printed in head section
+		colNames:['ID', 'Site Name', 'Zone1', 'Actions'],
 		colModel:[
-			{name:'id',index:'id', width:60, sorttype:"int"},
+			{name:'id',index:'id', width:40, align: 'center' },
 			{name:'site_name',index:'site_name', width:200, editable: true, edittype:'text'},
 			{name:'zone1',index:'zone1', width:100, editable: true},
 			{name:'act',index:'act', width:125,sortable:false, align: 'center'},
 		],
 		prmNames:{ page: 'acm-grid-page' },
-		rowNum:10,
-		rowList:[10,20,30],
+		rowNum:50,
+		rowList:[20,50,100],
 		pager: '#acm-codes-pager',
 		sortname: 'id',
 		viewrecords: true,
@@ -38,15 +40,16 @@ jQuery( document ).ready( function( $ ) {
 			var ids = grid_selector.jqGrid( 'getDataIDs' );
 			for(var i=0;i < ids.length;i++){
 				var cl = ids[i];
-				be = "<input style='height:22px;width:50px;' type='button' value='Edit' onclick=\"jQuery( '#acm-codes-list' ).editRow( '"+cl+"' );\"  />";
-				se = "<input style='height:22px;width:50px;' type='button' value='Save' onclick=\"jQuery( '#acm-codes-list' ).saveRow( '"+cl+"' );\"  />";
+				be = "<input type='button' value='Edit' onclick=\"grid_selector.editRow( '"+cl+"' );\" class='button'  />";
+				se = "<input type='button' value='Save' onclick=\"grid_selector.saveRow( '"+cl+"' );\" class='button button-primary'  />";
 				grid_selector.jqGrid( 'setRowData',ids[i],{act:be+se});
 			}
+			
 		},
 		onSelectRow: function(ids) {
-			if(ids == null) {
+			if (ids == null) {
 				ids=0;
-				if(subgrid_selector.jqGrid( 'getGridParam','records' ) >0 )
+				if (subgrid_selector.jqGrid( 'getGridParam','records' ) > 0 )
 				{
 					subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditionals_datasource + "&id="+ids, page:1, editurl: actions.conditionals_edit + "&id="+ids } );
 					subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code #: "+ids)
@@ -57,6 +60,7 @@ jQuery( document ).ready( function( $ ) {
 				subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code # "+ids)
 				.trigger( 'reloadGrid' );
 			}
+			jQuery('.acm-conditionals-wrapper').removeClass( 'hidden' );
 		}
 	});
 
@@ -79,8 +83,8 @@ jQuery( document ).ready( function( $ ) {
 			subgrid_selector.jqGrid('editRow',id,true);
 			subgrid_lastsel=id;
 		}},
-		rowNum:5,
-		rowList:[5,10,20,50,100],
+		rowNum:10,
+		rowList:[10,20,50],
 		pager: '#acm-codes-conditionals-pager',
 		sortname: 'item',
 		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
