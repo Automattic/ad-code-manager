@@ -40,8 +40,8 @@ jQuery( document ).ready( function( $ ) {
 			var ids = grid_selector.jqGrid( 'getDataIDs' );
 			for(var i=0;i < ids.length;i++){
 				var cl = ids[i];
-				be = "<input type='button' value='Edit' onclick=\"grid_selector.editRow( '"+cl+"' );\" class='button'  />";
-				se = "<input type='button' value='Save' onclick=\"grid_selector.saveRow( '"+cl+"' );\" class='button button-primary'  />";
+				be = "<input type='button' value='Edit' onclick=\"jQuery('#acm-codes-list').editRow( '"+cl+"' );\" class='button'  />";
+				se = "<input type='button' value='Save' onclick=\"jQuery('#acm-codes-list').saveRow( '"+cl+"' );\" class='button button-primary'  />";
 				grid_selector.jqGrid( 'setRowData',ids[i],{act:be+se});
 			}
 			
