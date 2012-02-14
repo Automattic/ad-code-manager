@@ -3,7 +3,7 @@ Contributors: danielbachhuber, rinatkhaziev, automattic
 Tags: advertising, ad codes
 Requires at least: 3.1
 Tested up to: 3.3.1
-Stable tag: 0.1.2
+Stable tag: 0.1.3
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
@@ -176,8 +176,8 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 
 == Changelog ==
 
-= 0.1.3 (February 10, 2012) =
-* UI cleanup
+= 0.1.3 (February 13, 2012) =
+* UI cleanup for the admin, including styling and information on applying conditionals
 
 = 0.1.2 (February 9, 2012) =
 * Readme with full description and examples
