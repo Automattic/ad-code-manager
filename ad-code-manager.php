@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.1.2' );
+define( 'AD_CODE_MANAGER_VERSION', '0.1.3' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
