@@ -233,6 +233,7 @@ class Ad_Code_Manager
 					'id' => $ad_code['post_id'],
 					'site_name' => $ad_code[ 'url_vars' ][ 'site_name' ] ,
 					'zone1' => $ad_code[ 'url_vars' ][ 'zone1' ],
+					'priority' => $ad_code[ 'priority' ],
 					'act' => '',
 				);
 			}
@@ -277,6 +278,7 @@ class Ad_Code_Manager
 					'site_name' => get_post_meta( $ad_code_cpt->ID, 'site_name', true ),
 					'zone1' => get_post_meta( $ad_code_cpt->ID, 'zone1', true ),
 				),
+				'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
 				'post_id' => $ad_code_cpt->ID
 			);
 		}
@@ -320,6 +322,7 @@ class Ad_Code_Manager
 			$ad_code_vals = array(
 					'site_name' => sanitize_text_field( $_POST['site_name'] ),
 					'zone1' => sanitize_text_field( $_POST['zone1'] ),
+					'priority' => intval( $_POST['priority'] ),
 				);
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
@@ -384,6 +387,7 @@ class Ad_Code_Manager
 			if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
 				update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code[ 'site_name' ] );
 				update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code[ 'zone1' ] );
+				update_post_meta( $acm_inserted_post_id, 'priority', $ad_code[ 'priority' ] );
 			}
 		}
 		return;
@@ -396,6 +400,7 @@ class Ad_Code_Manager
 		if ( 0 !== $ad_code_id && $ad_code['site_name'] && $ad_code['zone1'] ) {
 			update_post_meta( $ad_code_id, 'site_name', $ad_code['site_name'] );
 			update_post_meta( $ad_code_id, 'zone1', $ad_code['zone1'] );
+			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
 		} 
 		return;
 	}
@@ -591,9 +596,10 @@ class Ad_Code_Manager
 	 * @param array $conditionals WordPress-style conditionals for where this code should be displayed
 	 * @param int $priority What priority this registration runs at
 	 * @param array $url_vars Replace tokens in $script with these values
+	 * @param int $priority Priority of the ad code in comparison to others
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array() ) {
+	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10 ) {
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $url ) )
@@ -604,9 +610,14 @@ class Ad_Code_Manager
 
 		// @todo Sanitize all of the other input
 
+		// Make sure our priority is an integer
+		if ( !is_int( $priority ) )
+			$priority = 10;
+
 		// Save the ad code to our set of ad codes
 		$this->ad_codes[$tag][] = array(
 				'url' => $url,
+				'priority' => $priority,
 				'conditionals' => $conditionals,
 				'url_vars' => $url_vars,
 			);
@@ -627,6 +638,7 @@ class Ad_Code_Manager
 						'url' => '',
 						'conditionals' => array(),
 						'url_vars' => array(),
+						'priority' => 10,
 					);
 			$ad_code = array_merge( $default, $ad_code );
 
@@ -637,7 +649,7 @@ class Ad_Code_Manager
 				 * the WordPress admin or at a code level, you can simply apply it with
 				 * a custom filter defined.
 				 */
-				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ) );
+				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ), $ad_code['priority'] );
 			}
 		}
 	}
@@ -647,8 +659,6 @@ class Ad_Code_Manager
 	 * and complicated sorting logic
 	 *
 	 * @uses do_action( 'acm_tag, 'your_tag_id' )
-	 *
-	 * @todo implement prioritization. currently, we just pull the first registered ad meeting criteria
 	 *
 	 * @param string $tag_id Unique ID for the ad tag
 	 */
@@ -739,11 +749,17 @@ class Ad_Code_Manager
 		if ( empty( $display_codes ) )
 			return;
 
-		// @todo possibly complicated logic for determining which
-		// script is executed while factoring in:
-		// - priority against other ad codes
-		
-		$code_to_display = $display_codes[0];
+		error_log( var_export( $display_codes, true ) );
+
+		// Prioritize the display of the ad codes based on
+		// the priority argument for the ad code
+		$prioritized_display_codes = array();
+		foreach( $display_codes as $display_code ) {
+			$priority = $display_code['priority'];
+			$prioritized_display_codes[$priority][] = $display_code;
+		}
+		ksort( $prioritized_display_codes, SORT_NUMERIC );
+		$code_to_display = array_shift( array_shift( $prioritized_display_codes ) );
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $code_to_display['url'] ) )

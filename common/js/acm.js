@@ -20,11 +20,12 @@ jQuery( document ).ready( function( $ ) {
 		width: 600,
 		multiselect: false,
 		// @todo remove hardcode, colNames and colModel should be set in provider config and printed in head section
-		colNames:['ID', 'Site Name', 'Zone1', 'Actions'],
+		colNames:['ID', 'Site Name', 'Zone1', 'Priority', 'Actions'],
 		colModel:[
 			{name:'id',index:'id', width:40, align: 'center' },
 			{name:'site_name',index:'site_name', width:200, editable: true, edittype:'text'},
 			{name:'zone1',index:'zone1', width:100, editable: true},
+			{name:'priority',index:'priority', width:100, editable: true},
 			{name:'act',index:'act', width:125,sortable:false, align: 'center'},
 		],
 		prmNames:{ page: 'acm-grid-page' },
