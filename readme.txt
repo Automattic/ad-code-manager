@@ -174,6 +174,8 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 	return $whitelisted_urls;
 }`
 
+Hello WordPress Users Group!
+
 == Changelog ==
 
 = 0.1.3 (February 13, 2012) =
