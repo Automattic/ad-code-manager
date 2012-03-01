@@ -611,7 +611,7 @@ class Ad_Code_Manager
 		// @todo Sanitize all of the other input
 
 		// Make sure our priority is an integer
-		if ( !is_int( $priority ) )
+		if ( !is_int( $priority ) ) 
 			$priority = 10;
 
 		// Save the ad code to our set of ad codes
@@ -649,6 +649,7 @@ class Ad_Code_Manager
 				 * the WordPress admin or at a code level, you can simply apply it with
 				 * a custom filter defined.
 				 */
+				$ad_code['priority'] = strlen( $ad_code['priority'] ) == 0 ? 10 : intval( $ad_code['priority'] ); //make sure priority is int, if it's unset, we set it to 10
 				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ), $ad_code['priority'] );
 			}
 		}
@@ -673,12 +674,10 @@ class Ad_Code_Manager
 		$display_codes = array();
 		foreach( (array)$this->ad_codes[$tag_id] as $ad_code ) {
 
-			// If the ad code doesn't have any conditionals and logical_operator set to "AND",
+			// If the ad code doesn't have any conditionals
 			// we should add it to the display list
 			if ( empty( $ad_code['conditionals'] ) ) {
-				if ( $this->logical_operator == 'AND' ) {
-					$display_codes[] = $ad_code;
-				}
+				$display_codes[] = $ad_code;
 				continue;
 			}
 
