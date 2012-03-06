@@ -31,18 +31,18 @@ define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 
 class Ad_Code_Manager
 {
-	var $ad_codes = array();
-	var $whitelisted_conditionals = array();
-	var $title = 'Ad Code Manager';
-	var $post_type = 'acm-code';
-	var $plugin_slug = 'ad-code-manager';
-	var $manage_ads_cap = 'manage_options';
-	var $post_type_labels;
-	var $logical_operator;
-	var $ad_tag_ids;
-	var $providers;
-	var $current_provider_slug  = 'doubleclick_for_publishers'; // @todo this should be an option set via UI, probably.
-	var $current_provider;
+	public $ad_codes = array();
+	public $whitelisted_conditionals = array();
+	public $title = 'Ad Code Manager';
+	public $post_type = 'acm-code';
+	public $plugin_slug = 'ad-code-manager';
+	public $manage_ads_cap = 'manage_options';
+	public $post_type_labels;
+	public $logical_operator;
+	public $ad_tag_ids;
+	public $providers;
+	public $current_provider_slug  = 'doubleclick_for_publishers'; // @todo this should be an option set via UI, probably.
+	public $current_provider;
 
 	/**
 	 * Instantiate the plugin
@@ -50,15 +50,15 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function __construct() {
-		add_action('wp_ajax_acm_ajax_handler', array( &$this, 'ajax_handler' ) );
-		add_action( 'init', array( &$this, 'action_load_providers' ) );
-		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action('wp_ajax_acm_ajax_handler', array( $this, 'ajax_handler' ) );
+		add_action( 'init', array( $this, 'action_load_providers' ) );
+		add_action( 'init', array( $this, 'action_init' ) );
 		
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
-		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
-		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
+		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 	}
 	
 	function action_load_providers() {
@@ -837,7 +837,7 @@ class Ad_Code_Manager
  *
  * @since v0.1.3
  */
-abstract class ACM_Provider
+class ACM_Provider
 {
 	public $whitelisted_script_urls = array();
 	public $output_html;
