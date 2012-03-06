@@ -31,20 +31,18 @@ define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 
 class Ad_Code_Manager
 {
-
 	var $ad_codes = array();
-	var $whitelisted_script_urls = array();
 	var $whitelisted_conditionals = array();
-	var $whitelisted_conditionals_titles = array();
-	var $output_html;
-	var $output_tokens = array();
 	var $title = 'Ad Code Manager';
 	var $post_type = 'acm-code';
 	var $plugin_slug = 'ad-code-manager';
 	var $manage_ads_cap = 'manage_options';
-	var $post_type_labels ;
+	var $post_type_labels;
 	var $logical_operator;
 	var $ad_tag_ids;
+	var $providers;
+	var $current_provider_slug  = 'doubleclick_for_publishers'; // @todo this should be an option set via UI, probably.
+	var $current_provider;
 
 	/**
 	 * Instantiate the plugin
@@ -53,12 +51,53 @@ class Ad_Code_Manager
 	 */
 	function __construct() {
 		add_action('wp_ajax_acm_ajax_handler', array( &$this, 'ajax_handler' ) );
+		add_action( 'init', array( &$this, 'action_load_providers' ) );
 		add_action( 'init', array( &$this, 'action_init' ) );
+		
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+	}
+	
+	function action_load_providers() {
+		$module_dirs = array_diff( scandir( AD_CODE_MANAGER_ROOT . '/providers/' ), array( '..', '.' ) );
+		foreach( $module_dirs as $module_dir ) {
+			$module_dir = str_replace( '.php', '', $module_dir );
+			if ( file_exists( AD_CODE_MANAGER_ROOT . "/providers/$module_dir.php" ) ) {
+				include_once( AD_CODE_MANAGER_ROOT . "/providers/$module_dir.php" );
+			}
+			
+			$tmp = explode( '-', $module_dir );
+			$class_name = '';
+			$slug_name = '';
+			foreach( $tmp as $word ) {
+				$class_name .= ucfirst( $word ) . '_';
+				$slug_name .= $word . '_';
+			}
+			$class_name .= 'ACM_Provider';
+			$slug_name = rtrim( $slug_name, '_' );
+			
+			// Store class names, but don't instantiate
+			// We don't need them all at once
+			if ( class_exists( $class_name ) )
+				$this->providers->$slug_name = $class_name; 
+				
+		}
+		// Instantiate one that we need 
+		if ( isset( $this->providers->{$this->current_provider_slug} ) )
+				$this->current_provider = new $this->providers->{$this->current_provider_slug};
+		// Nothing to do without a provider		
+		if ( !is_object( $this->current_provider ) )
+			return ; 
+		
+		/**
+		 * Configuration filter: acm_whitelisted_script_urls
+		 * A security filter to whitelist which ad code script URLs can be added in the admin
+		 */
+		$this->current_provider->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->current_provider->whitelisted_script_urls );				
+				
 	}
 
 	/**
@@ -67,16 +106,11 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function action_init() {
+		
 		$this->post_type_labels = array(
 										'name' => __( 'DFP Ad Codes' ),
 										'singular_name' => __( 'DFP Ad Codes' ),
 										);
-
-		/**
-		 * Configuration filter: acm_whitelisted_script_urls
-		 * A security filter to whitelist which ad code script URLs can be added in the admin
-		 */
-		$this->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->whitelisted_script_urls );
 
 		// Allow other conditionals to be used
 		$this->whitelisted_conditionals = array(
@@ -97,53 +131,17 @@ class Ad_Code_Manager
 
 		// Set our default output HTML
 		// This can be filtered in action_acm_tag()
-		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
+		$this->output_html = $this->current_provider->output_html;
 
 		// Allow the ad management cap to be filtered if need be
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
 
 		// Set our default tokens to replace
 		// This can be filtered in action_acm_tag()
-		$this->output_tokens = array();
+		//$this->output_tokens = $this->current_provider->output_tokens;
 
-		// These are common DFP tags
-		$this->ad_tag_ids = array(
-			array(
-					'tag' => '728x90-atf',
-					'url_vars' => array(
-						'sz' => '728x90',
-						'fold' => 'atf'
-				)
-			),
-			array(
-					'tag' => '728x90-btf',
-					'url_vars' => array(
-						'sz' => '728x90',
-						'fold' => 'btf'
-				)
-			) ,
-			array(
-					'tag' => '300x250-atf',
-					'url_vars' => array(
-						'sz' => '300x250',
-						'fold' => 'atf'
-				)
-			),
-			array(
-					'tag' => '300x250-btf',
-					'url_vars' => array(
-						'sz' => '300x250',
-						'fold' => 'btf'
-				)
-			),
-			array(
-					'tag' => '160x600-atf',
-					'url_vars' => array(
-						'sz' => '160x600',
-						'fold' => 'atf'
-				)
-			),
-		);
+		// Load default ad tags for provider
+		$this->ad_tag_ids = $this->current_provider->ad_tag_ids;
 		/**
 		 * Configuration filter: acm_ad_tag_ids
 		 * Extend set of default tag ids. Ad tag ids are used as a parameter
@@ -385,6 +383,7 @@ class Ad_Code_Manager
 				'post_type' => $this->post_type,
 			);
 			if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
+				//@todo abstract it
 				update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code[ 'site_name' ] );
 				update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code[ 'zone1' ] );
 				update_post_meta( $acm_inserted_post_id, 'priority', $ad_code[ 'priority' ] );
@@ -769,7 +768,7 @@ class Ad_Code_Manager
 		 * Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags )
 		 * by adjusting the HTML rendered for a given ad tag.
 		 */
-		$output_html = apply_filters( 'acm_output_html', $this->output_html, $tag_id );
+		$output_html = apply_filters( 'acm_output_html', $this->current_provider->output_html, $tag_id );
 
 		// Parse the output and replace any tokens we have left. But first, load the script URL
 		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
@@ -778,7 +777,7 @@ class Ad_Code_Manager
 		 * Register output tokens depending on the needs of your setup. Tokens are the
 		 * keys to be replaced in your script URL.
 		 */
-		$output_tokens = apply_filters( 'acm_output_tokens', $this->output_tokens, $tag_id, $code_to_display );
+		$output_tokens = apply_filters( 'acm_output_tokens', $this->current_provider->output_tokens, $tag_id, $code_to_display );
 		foreach( (array)$output_tokens as $token => $val ) {
 			$output_html = str_replace( $token, $val, $output_html );
 		}
@@ -816,12 +815,12 @@ class Ad_Code_Manager
 		$domain = parse_url( $url, PHP_URL_HOST );
 
 		// Check if we match the domain exactly
-		if ( in_array( $domain, $this->whitelisted_script_urls ) )
+		if ( in_array( $domain, $this->current_provider->whitelisted_script_urls ) )
 			return true;
 
 		$valid = false;
 
-		foreach( $this->whitelisted_script_urls as $whitelisted_domain ) {
+		foreach( $this->current_provider->whitelisted_script_urls as $whitelisted_domain ) {
 			$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'
 			if( strpos( $domain, $whitelisted_domain ) === ( strlen( $domain ) - strlen( $whitelisted_domain ) ) ) {
 				$valid = true;
@@ -830,7 +829,32 @@ class Ad_Code_Manager
 		}
 		return $valid;
 	}
-
 }
+/**
+ * Skeleton Ad Provider class
+ *
+ * Each of those properties should be correctly set in a child class
+ *
+ * @since v0.1.3
+ */
+abstract class ACM_Provider
+{
+	public $whitelisted_script_urls = array();
+	public $output_html;
+	public $output_tokens = array();
+	public $ad_tag_ids;
+	public $columns = array();
+	
+	function __construct() {
+		if ( empty( $this->columns ) ) {
+			$this->columns = array('name' => 'Name');
+		}
+		
+		if ( empty( $this->output_html ) ) {
+			$this->output_html = '<script type="text/javascript" src="%url%"></script>';
+		}
+	}
+}
+
 global $ad_code_manager;
 $ad_code_manager = new Ad_Code_Manager();
