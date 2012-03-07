@@ -61,6 +61,11 @@ class Ad_Code_Manager
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 	}
 	
+	/**
+	 * Load all available ad providers
+	 * and set selected as ACM_Provider $current_provider
+	 * which holds all necessary configuration properties
+	 */
 	function action_load_providers() {
 		$module_dirs = array_diff( scandir( AD_CODE_MANAGER_ROOT . '/providers/' ), array( '..', '.' ) );
 		foreach( $module_dirs as $module_dir ) {
@@ -127,18 +132,11 @@ class Ad_Code_Manager
 		 * Extend the list of usable conditional functions with your own awesome ones.
 		 */
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
-		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR'); //allow users to filter default logical operator
-
-		// Set our default output HTML
-		// This can be filtered in action_acm_tag()
-		//$this->output_html = $this->current_provider->output_html;
+		// Allow users to filter default logical operator
+		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR' ); 
 
 		// Allow the ad management cap to be filtered if need be
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
-
-		// Set our default tokens to replace
-		// This can be filtered in action_acm_tag()
-		//$this->output_tokens = $this->current_provider->output_tokens;
 
 		// Load default ad tags for provider
 		$this->ad_tag_ids = $this->current_provider->ad_tag_ids;
@@ -202,6 +200,8 @@ class Ad_Code_Manager
 	/**
 	 * Returns json encoded ad code
 	 * This is the datasource for jqGRID
+	 * 
+	 * @todo refactor, jqGrid won't be used in v0.2
 	 */
 	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
@@ -214,8 +214,8 @@ class Ad_Code_Manager
 		 * $response->rows = nested array of assoc arrays 
 		 */
 		$response;
-		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
-			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
+		if ( isset( $_GET['acm-action'] ) && $_GET['acm-action'] == 'datasource' ) {
+			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_key( $_GET['acm-grid-page'] ) : 1 ;
 			$query_args = array();
 			
 			// We need to pass offset to get_ad_codes offset for jqGrid to work correctly
@@ -228,11 +228,11 @@ class Ad_Code_Manager
 			foreach ( $ad_codes as $ad_code ) {
 				$to_pass = array(
 					'id' => $ad_code['post_id'],
-					'priority' => $ad_code[ 'priority' ],
+					'priority' => $ad_code['priority'],
 					'act' => '',
 				);
 				foreach ( $this->current_provider->columns as $slug => $title ) {
-					$to_pass[$slug] = $ad_code[ 'url_vars' ][ $slug ];
+					$to_pass[$slug] = $ad_code['url_vars'][$slug];
 				}
 				$pass[] = $to_pass;
 			}
@@ -288,8 +288,8 @@ class Ad_Code_Manager
 	}
 
 	function get_conditionals_ajax() {
-		if (  0 !== intval( $_GET[ 'id' ] ) ) {
-			$conditionals = (array) $this->get_conditionals( intval( $_GET[ 'id' ] ) );
+		if (  0 !== intval( $_GET['id'] ) ) {
+			$conditionals = (array) $this->get_conditionals( intval( $_GET['id'] ) );
 			$response;
 			if ( !empty($conditionals ) ) {
 				foreach ( $conditionals as $index => $item ) {
@@ -329,15 +329,15 @@ class Ad_Code_Manager
 			foreach ( $this->current_provider->columns as $slug => $title ) {
 				$ad_code_vals[$slug] = sanitize_text_field( $_POST[$slug] );
 			}
-			switch ( $_POST[ 'oper' ] ) {
+			switch ( $_POST['oper'] ) {
 				case 'add':
 					$this->create_ad_code( $ad_code_vals );
 					break;
 				case 'edit':
-					$this->edit_ad_code( intval( $_POST[ 'id' ] ), $ad_code_vals );
+					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals );
 					break;
 				case 'del':
-					$this->delete_ad_code( intval( $_POST[ 'id' ] ) );
+					$this->delete_ad_code( intval( $_POST['id'] ) );
 					break;
 			}
 			exit; // exit, jqGrid sends another request to fetch new data
@@ -352,7 +352,7 @@ class Ad_Code_Manager
 					//arguments from jqGrid are passed as string, need to check arguments type before choosing the way to sanitize the value
 					'arguments' => is_array( $_POST['arguments'] ) ? array_map( 'sanitize_text_field', $_POST['arguments'] ) : sanitize_text_field( $_POST['arguments'] ),
 				);
-			switch ( $_POST[ 'oper' ] ) {
+			switch ( $_POST['oper'] ) {
 				case 'add':
 					$result = $this->create_conditional( intval( $_GET['id'] ), $conditional_vals );
 					break;
@@ -363,7 +363,7 @@ class Ad_Code_Manager
 				case 'del':
 					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
 					// removed from array of conditionals
-					$result = $this->delete_conditional( intval( $_GET['id'] ), intval( $_POST[ 'id' ] ), true );
+					$result = $this->delete_conditional( intval( $_GET['id'] ), intval( $_POST['id'] ), true );
 					break;
 			}
 			exit($result);
@@ -400,9 +400,9 @@ class Ad_Code_Manager
 		
 		if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
 			foreach ( $this->current_provider->columns as $slug => $title ) {
-				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[ $slug ] );
+				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[$slug] );
 			}
-			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code[ 'priority' ] );
+			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code['priority'] );
 		}
 		return;
 	}
@@ -420,7 +420,7 @@ class Ad_Code_Manager
 		}
 		if ( 0 !== $ad_code_id ) {
 			foreach ( $this->current_provider->columns as $slug => $title ) {
-				update_post_meta( $ad_code_id, $slug, $ad_code[ $slug ] );
+				update_post_meta( $ad_code_id, $slug, $ad_code[$slug] );
 			}
 			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
 		} 
@@ -441,7 +441,7 @@ class Ad_Code_Manager
 	 * @param int $ad_code_id id of our CPT post
 	 * @param array $conditional to add
 	 *
-	 * @return void ???
+	 * @return bool
 	 */
 	function create_conditional( $ad_code_id, $conditional ) {
 		if ( 0 !== $ad_code_id && !empty( $conditional ) ) {
@@ -450,12 +450,12 @@ class Ad_Code_Manager
 				$existing_conditionals = array();
 			}
 			$existing_conditionals[] = array(
-				'function' => $conditional[ 'function' ],
-				'arguments' => explode(';', $conditional[ 'arguments' ] ), 
+				'function' => $conditional['function'],
+				'arguments' => explode(';', $conditional['arguments'] ), 
 			);
-			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
+			return update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
-		return;
+		return false;
 	}
 
 	/**
@@ -474,15 +474,15 @@ class Ad_Code_Manager
 			foreach ( $existing_conditionals as $conditional_index => $existing_conditional ) {
 				// $id is not an actual unique ID, but rather index of conditional in array of them
 				if ( isset( $conditional['id'] ) && $conditional['id'] === $conditional_index ) {
-					$existing_conditionals[ $conditional_index ] = array(
-						'function' => $conditional[ 'function' ],
-						'arguments' => (array) $conditional[ 'arguments' ],
+					$existing_conditionals[$conditional_index] = array(
+						'function' => $conditional['function'],
+						'arguments' => (array) $conditional['arguments'],
 					);
 				}
 			}
 			return update_post_meta( $ad_code_id, 'conditionals', array_values($existing_conditionals) );
 		}
-		return;
+		return false;
 	}
 
 	/**
@@ -500,11 +500,11 @@ class Ad_Code_Manager
 				if ( $from_ajax ) { // jqGrid starts with one, PHP starts with 0
 					$index_to_delete--;
 				}
-				unset( $existing_conditionals[ $index_to_delete ] );
+				unset( $existing_conditionals[$index_to_delete] );
 			}
-			update_post_meta( $ad_code_id, 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
+			return update_post_meta( $ad_code_id, 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
 		}
-		return;
+		return false;
 	}
 
 	/**
@@ -857,7 +857,13 @@ class Ad_Code_Manager
  * Skeleton Ad Provider class
  *
  * Each of those properties should be correctly set in a child class
- *
+ * 
+ * @property array $whitelisted_script_urls Array of whitelisted remote urls
+ * @property string $output_html Html of an ad tag
+ * @property array $output_tokens Array of tokens that will be replaced in %url%
+ * @property array $ad_tag_ids Set of default ad tags (e.g. 2 leaderboards, 300x250, etc)
+ * @property array $columns array of properties of an ad code in format "slug" => 'Column title'
+ * 
  * @since v0.1.3
  */
 class ACM_Provider
@@ -875,6 +881,8 @@ class ACM_Provider
 			$this->columns = array('name' => 'Name');
 		}
 		
+		// Could be filtered via acm_output_html filter
+		// @see Ad_Code_Manager::action_acm_tag()
 		if ( empty( $this->output_html ) ) {
 			$this->output_html = '<script type="text/javascript" src="%url%"></script>';
 		}
