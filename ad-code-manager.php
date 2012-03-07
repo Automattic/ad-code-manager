@@ -131,7 +131,7 @@ class Ad_Code_Manager
 
 		// Set our default output HTML
 		// This can be filtered in action_acm_tag()
-		$this->output_html = $this->current_provider->output_html;
+		//$this->output_html = $this->current_provider->output_html;
 
 		// Allow the ad management cap to be filtered if need be
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
@@ -202,7 +202,6 @@ class Ad_Code_Manager
 	/**
 	 * Returns json encoded ad code
 	 * This is the datasource for jqGRID
-	 * 
 	 */
 	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
@@ -227,13 +226,15 @@ class Ad_Code_Manager
 			// prepare data in jqGrid specific format
 			$pass = array();
 			foreach ( $ad_codes as $ad_code ) {
-				$pass[] = array(
+				$to_pass = array(
 					'id' => $ad_code['post_id'],
-					'site_name' => $ad_code[ 'url_vars' ][ 'site_name' ] ,
-					'zone1' => $ad_code[ 'url_vars' ][ 'zone1' ],
 					'priority' => $ad_code[ 'priority' ],
 					'act' => '',
 				);
+				foreach ( $this->current_provider->columns as $slug => $title ) {
+					$to_pass[$slug] = $ad_code[ 'url_vars' ][ $slug ];
+				}
+				$pass[] = $to_pass;
 			}
 			$response->rows = $pass;
 			$count_object = wp_count_posts( $this->post_type );
@@ -270,12 +271,15 @@ class Ad_Code_Manager
 		
 		$ad_codes = get_posts( $args );
 		foreach ( $ad_codes as $ad_code_cpt ) {
+			
+			$provider_url_vars = array();
+			foreach ( $this->current_provider->columns as $slug => $title ) {
+				$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
+			}
+			
 			$ad_codes_formatted[] = array(
 				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-				'url_vars' => array(
-					'site_name' => get_post_meta( $ad_code_cpt->ID, 'site_name', true ),
-					'zone1' => get_post_meta( $ad_code_cpt->ID, 'zone1', true ),
-				),
+				'url_vars' => $provider_url_vars,
 				'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
 				'post_id' => $ad_code_cpt->ID
 			);
@@ -285,14 +289,16 @@ class Ad_Code_Manager
 
 	function get_conditionals_ajax() {
 		if (  0 !== intval( $_GET[ 'id' ] ) ) {
-			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
-			$response;	
-			foreach ( $conditionals as $index => $item ) {
-				if ( is_array( $item['arguments'] ) ) {
-					$item['arguments'] = implode(";", $item['arguments'] );
+			$conditionals = (array) $this->get_conditionals( intval( $_GET[ 'id' ] ) );
+			$response;
+			if ( !empty($conditionals ) ) {
+				foreach ( $conditionals as $index => $item ) {
+					if ( isset( $item['arguments'] ) && is_array( $item['arguments'] ) ) {
+						$item['arguments'] = implode(";", $item['arguments'] );
+					}
+					$response->rows[] = $item;
 				}
-				$response->rows[] = $item;
-			}	
+			}
 			$count = count( $response->rows );
 			$total_pages = ceil ( $count / $_GET['rows'] );
 
@@ -318,10 +324,11 @@ class Ad_Code_Manager
 		if ( ! empty( $_POST ) ) {
 			 //this is jqGrid param
 			$ad_code_vals = array(
-					'site_name' => sanitize_text_field( $_POST['site_name'] ),
-					'zone1' => sanitize_text_field( $_POST['zone1'] ),
 					'priority' => intval( $_POST['priority'] ),
 				);
+			foreach ( $this->current_provider->columns as $slug => $title ) {
+				$ad_code_vals[$slug] = sanitize_text_field( $_POST[$slug] );
+			}
 			switch ( $_POST[ 'oper' ] ) {
 				case 'add':
 					$this->create_ad_code( $ad_code_vals );
@@ -374,20 +381,28 @@ class Ad_Code_Manager
 	 * @param array $ad_code
 	 */
 	function create_ad_code( $ad_code = array() ) {
-		if ( $ad_code['site_name'] && $ad_code['zone1'] ) {
-			$acm_post = array(
-				'post_title' => $ad_code['site_name'] .'-' . $ad_code['zone1'],
-				'post_status' => 'publish',
-				'comment_status' => 'closed',
-				'ping_status' => 'closed',
-				'post_type' => $this->post_type,
-			);
-			if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
-				//@todo abstract it
-				update_post_meta( $acm_inserted_post_id, 'site_name', $ad_code[ 'site_name' ] );
-				update_post_meta( $acm_inserted_post_id, 'zone1', $ad_code[ 'zone1' ] );
-				update_post_meta( $acm_inserted_post_id, 'priority', $ad_code[ 'priority' ] );
+		$titles = array();
+		foreach ( $this->current_provider->columns as $slug => $col_title ) {
+			// We shouldn't create an ad code,
+			// If any of required fields is not set
+			if ( ! $ad_code[$slug] ) {
+				return;
 			}
+			$titles[] = $ad_code[$slug];
+		}
+		$acm_post = array(
+			'post_title' => implode( '-', $titles ),
+			'post_status' => 'publish',
+			'comment_status' => 'closed',
+			'ping_status' => 'closed',
+			'post_type' => $this->post_type,
+		);
+		
+		if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
+			foreach ( $this->current_provider->columns as $slug => $title ) {
+				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[ $slug ] );
+			}
+			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code[ 'priority' ] );
 		}
 		return;
 	}
@@ -396,9 +411,17 @@ class Ad_Code_Manager
 	 * Update an existing ad code
 	 */
 	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
-		if ( 0 !== $ad_code_id && $ad_code['site_name'] && $ad_code['zone1'] ) {
-			update_post_meta( $ad_code_id, 'site_name', $ad_code['site_name'] );
-			update_post_meta( $ad_code_id, 'zone1', $ad_code['zone1'] );
+		foreach ( $this->current_provider->columns as $slug => $title ) {
+			// We shouldn't update an ad code,
+			// If any of required fields is not set
+			if ( ! $ad_code[$slug] ) {
+				return;
+			}
+		}
+		if ( 0 !== $ad_code_id ) {
+			foreach ( $this->current_provider->columns as $slug => $title ) {
+				update_post_meta( $ad_code_id, $slug, $ad_code[ $slug ] );
+			}
 			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
 		} 
 		return;
@@ -428,7 +451,7 @@ class Ad_Code_Manager
 			}
 			$existing_conditionals[] = array(
 				'function' => $conditional[ 'function' ],
-				'arguments' => explode(';', $conditional[ 'arguments' ] ), // @todo filterize explode character?
+				'arguments' => explode(';', $conditional[ 'arguments' ] ), 
 			);
 			update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
@@ -847,6 +870,8 @@ class ACM_Provider
 	
 	function __construct() {
 		if ( empty( $this->columns ) ) {
+			// This is not actual data, but rather format:
+			// slug => Title
 			$this->columns = array('name' => 'Name');
 		}
 		
