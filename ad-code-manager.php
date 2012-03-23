@@ -29,6 +29,10 @@ define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 
+// Bootsrap
+require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-provider.php' );
+require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-wp-list-table.php' );
+
 class Ad_Code_Manager
 {
 	public $ad_codes = array();
@@ -43,6 +47,7 @@ class Ad_Code_Manager
 	public $providers;
 	public $current_provider_slug  = 'doubleclick_for_publishers'; // @todo this should be an option set via UI, probably.
 	public $current_provider;
+	public $wp_list_table;
 
 	/**
 	 * Instantiate the plugin
@@ -53,12 +58,24 @@ class Ad_Code_Manager
 		add_action('wp_ajax_acm_ajax_handler', array( $this, 'ajax_handler' ) );
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
+		add_action( 'current_screen', array( $this, 'action_admin_init' ) );
 		
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
+	}
+	
+	/**
+	 * Initialize our subclass of WP_List_Table and set $items 
+	 * Hooked to current_screen
+	 */
+	function action_admin_init() {
+		if ( is_admin() ) {
+			$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
+			$this->wp_list_table->items = $this->get_ad_codes();
+		}
 	}
 	
 	/**
@@ -77,22 +94,30 @@ class Ad_Code_Manager
 			$tmp = explode( '-', $module_dir );
 			$class_name = '';
 			$slug_name = '';
+			$table_class_name = '';
 			foreach( $tmp as $word ) {
 				$class_name .= ucfirst( $word ) . '_';
 				$slug_name .= $word . '_';
 			}
+			$table_class_name = $class_name . 'ACM_WP_List_Table';
 			$class_name .= 'ACM_Provider';
 			$slug_name = rtrim( $slug_name, '_' );
 			
 			// Store class names, but don't instantiate
 			// We don't need them all at once
-			if ( class_exists( $class_name ) )
-				$this->providers->$slug_name = $class_name; 
+			if ( class_exists( $class_name ) ) {
+				$this->providers->$slug_name = array( 'provider' => $class_name,
+													  'table' => $table_class_name,
+													);
+			}	
 				
 		}
+		
 		// Instantiate one that we need 
-		if ( isset( $this->providers->{$this->current_provider_slug} ) )
-				$this->current_provider = new $this->providers->{$this->current_provider_slug};
+		if ( isset( $this->providers->{$this->current_provider_slug} ) ) {
+			$this->current_provider = new $this->providers->{$this->current_provider_slug}['provider'];
+		}		
+				
 		// Nothing to do without a provider		
 		if ( !is_object( $this->current_provider ) )
 			return ; 
@@ -587,6 +612,10 @@ class Ad_Code_Manager
 	</div>
 	</div>
 	<?php
+	
+	$this->wp_list_table->prepare_items();
+	$this->wp_list_table->display();
+	
 	}
 
 	/**
@@ -851,41 +880,6 @@ class Ad_Code_Manager
 			}
 		}
 		return $valid;
-	}
-}
-/**
- * Skeleton Ad Provider class
- *
- * Each of those properties should be correctly set in a child class
- * 
- * @property array $whitelisted_script_urls Array of whitelisted remote urls
- * @property string $output_html Html of an ad tag
- * @property array $output_tokens Array of tokens that will be replaced in %url%
- * @property array $ad_tag_ids Set of default ad tags (e.g. 2 leaderboards, 300x250, etc)
- * @property array $columns array of properties of an ad code in format "slug" => 'Column title'
- * 
- * @since v0.1.3
- */
-class ACM_Provider
-{
-	public $whitelisted_script_urls = array();
-	public $output_html;
-	public $output_tokens = array();
-	public $ad_tag_ids;
-	public $columns = array();
-	
-	function __construct() {
-		if ( empty( $this->columns ) ) {
-			// This is not actual data, but rather format:
-			// slug => Title
-			$this->columns = array('name' => 'Name');
-		}
-		
-		// Could be filtered via acm_output_html filter
-		// @see Ad_Code_Manager::action_acm_tag()
-		if ( empty( $this->output_html ) ) {
-			$this->output_html = '<script type="text/javascript" src="%url%"></script>';
-		}
 	}
 }
 
