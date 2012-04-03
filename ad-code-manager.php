@@ -613,8 +613,7 @@ class Ad_Code_Manager
 	</div>
 	<?php
 	
-	$this->wp_list_table->prepare_items();
-	$this->wp_list_table->display();
+require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	
 	}
 
