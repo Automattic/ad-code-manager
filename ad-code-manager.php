@@ -214,9 +214,11 @@ class Ad_Code_Manager
 				break;
 			case 'edit':
 				$this->ad_code_edit_actions();
+				$this->flush_cache();
 				break;
 			case 'edit-conditionals':
 				$this->conditionals_edit_actions();
+				$this->flush_cache();
 				break;
 		}
 		return;
@@ -275,9 +277,9 @@ class Ad_Code_Manager
 	/**
 	 * Get the ad codes stored in our custom post type
 	 *
-	 * @todo This is too DFP specific. Abstract it
 	 */
 	function get_ad_codes( $query_args = array() ) {
+		
 		$ad_codes_formatted = array();
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
 		
@@ -293,21 +295,24 @@ class Ad_Code_Manager
 				$args[$query_key] = $query_value;
 			}
 		}
-		
-		$ad_codes = get_posts( $args );
-		foreach ( $ad_codes as $ad_code_cpt ) {
-			
-			$provider_url_vars = array();
-			foreach ( $this->current_provider->columns as $slug => $title ) {
-				$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
+		$cache_key = 'ad_codes_' . implode('_', $query_args );
+		if ( false === ($ad_codes_formatted = wp_cache_get( $cache_key , 'acm' ) ) ) {		
+			$ad_codes = get_posts( $args );
+			foreach ( $ad_codes as $ad_code_cpt ) {
+				
+				$provider_url_vars = array();
+				foreach ( $this->current_provider->columns as $slug => $title ) {
+					$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
+				}
+				
+				$ad_codes_formatted[] = array(
+					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
+					'url_vars' => $provider_url_vars,
+					'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
+					'post_id' => $ad_code_cpt->ID
+				);
 			}
-			
-			$ad_codes_formatted[] = array(
-				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-				'url_vars' => $provider_url_vars,
-				'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
-				'post_id' => $ad_code_cpt->ID
-			);
+			wp_cache_add( $cache_key, $ad_codes_formatted, 'acm',  3600 );
 		}
 		return $ad_codes_formatted;
 	}
@@ -331,6 +336,30 @@ class Ad_Code_Manager
 			$response->total = $total_pages;
 			$response->records = $count;
 			$this->print_json( $response );
+		}
+	}
+	/**
+	 * Temporary workaround for flush cache dilemma:
+	 * Add $key to site options
+	 */
+	function add_cache_key_to_index( $key = '' ) {
+		if ( '' == $key )
+			return;
+		$cache_keys = (array) get_option( 'acm_cache_keys' );
+		$cache_keys[] = $key;
+		update_option( 'acm_cache_keys', $cache_keys );
+	}
+	
+	/**
+	 * Temporary workaround for flush cache dilemma:
+	 * Flush cache 
+	 */
+	function flush_cache() {
+		$cache_keys = (array) get_option( 'acm_cache_keys' );
+		if ( !empty($cache_keys ) ) {
+			foreach ($cache_keys as $key ) {
+				wp_cache_delete($key, 'acm' );
+			}
 		}
 	}
 
