@@ -185,8 +185,6 @@ Example usage:
 
 `add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
 
-Hello WordPress Users Group!
-
 == Changelog ==
 
 = 0.1.3 (February 13, 2012) =
