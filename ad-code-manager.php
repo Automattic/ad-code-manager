@@ -831,8 +831,6 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		if ( empty( $display_codes ) )
 			return;
 
-		error_log( var_export( $display_codes, true ) );
-
 		// Prioritize the display of the ad codes based on
 		// the priority argument for the ad code
 		$prioritized_display_codes = array();
