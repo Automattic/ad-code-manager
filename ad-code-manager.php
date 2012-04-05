@@ -759,7 +759,7 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 
 			// If the ad code doesn't have any conditionals
 			// we should add it to the display list
-			if ( empty( $ad_code['conditionals'] ) ) {
+			if ( empty( $ad_code['conditionals'] ) && apply_filters( 'acm_display_ad_codes_without_conditionals', false ) ) {
 				$display_codes[] = $ad_code;
 				continue;
 			}

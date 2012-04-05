@@ -174,6 +174,17 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 	return $whitelisted_urls;
 }`
 
+= acm_display_ad_codes_without_conditionals =
+
+Change the behavior of Ad Code Manager so that ad codes without conditionals display on the frontend. The default behavior is that each ad code requires a conditional to be included in the presentation logic.
+
+Arguments:
+* bool $behavior Whether or not to display the ad codes that don't have conditionals
+
+Example usage:
+
+`add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
+
 Hello WordPress Users Group!
 
 == Changelog ==
