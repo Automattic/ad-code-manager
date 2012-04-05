@@ -711,6 +711,9 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	 * @param array $ad_codes An array of ad tags
 	 */
 	function register_ad_codes( $ad_codes = array() ) {
+		if ( empty( $ad_codes ) )
+			return;
+
 		foreach( (array)$ad_codes as $key => $ad_code ) {
 
 			$default = array(
