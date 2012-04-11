@@ -97,6 +97,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 		//Open the line
         echo '<tr id="record_'.$rec['post_id'].'">';
+		$i = 0;
 		foreach ( $columns as $column_name => $column_display_name ) {
 
 			//Style attributes for each col
@@ -106,7 +107,13 @@ class ACM_WP_List_Table extends WP_List_Table {
 			$attributes = $class . $style;
 
 			//edit link
-			$editlink  = '/wp-admin/tools.php?page=ad-code-manager&acm-action=edit&id='.(int)$rec['post_id'];
+			$edit_link  = add_query_arg( array(
+				'acm-request' => true,
+				'acm-action' => 'edit',
+				'acm_id' => (int) $rec['post_id']
+				), home_url() );
+										
+
 
 			$key = str_replace('col_acm_', '', $column_name );
 			
@@ -114,8 +121,12 @@ class ACM_WP_List_Table extends WP_List_Table {
 				continue;
 			
 			$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
+			$extra = '';
+			if ( 2 == $i++ ) {
+			// @todo echo row actions	
+			}
 			
-			echo '<td '.$attributes.'>'.stripslashes( $value ).'</td>';
+			echo '<td '.$attributes.'>'.stripslashes( $value ). $extra . '</td>';
 			
 		}
 

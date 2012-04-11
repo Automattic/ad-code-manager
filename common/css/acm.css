@@ -13,3 +13,7 @@
 #conditionals-help {
   width: 600px;
 }
+
+#the-list:hover .row-actions {
+	visibility: visible;
+}
