@@ -55,7 +55,13 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function __construct() {
+		// This is 0.1.3 way of handling ajax
 		add_action('wp_ajax_acm_ajax_handler', array( $this, 'ajax_handler' ) );
+		
+		// This is 0.2 way
+		add_action( 'parse_request', array( $this, 'action_parse_request' ) );
+		add_filter( 'query_vars', array( $this, 'filter_query_vars' ) );
+		
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'current_screen', array( $this, 'action_admin_init' ) );
@@ -202,8 +208,7 @@ class Ad_Code_Manager
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;
 		
-		if ( !current_user_can( $this->manage_ads_cap ) )
-			return;
+
 
 		switch( $_GET['acm-action'] ) {
 			case 'datasource':
@@ -222,6 +227,47 @@ class Ad_Code_Manager
 				break;
 		}
 		return;
+	}
+	
+	/**
+	 * Parse requests
+	 *
+	 * @since 0.2
+	 */
+	function action_parse_request( $wp ) {
+		if ( isset( $wp->query_vars['acm-request'] ) && isset( $wp->query_vars['acm-action'] ) ) {
+			// Check if we're good
+			if ( ! isset( $_POST['acm-nonce'] ) || ! wp_verify_nonce( $_POST['acm-nonce'], 'acm_nonce' ) || !current_user_can( $this->manage_ads_cap ) ) {
+				exit( 'You shall not pass' );
+			}
+			switch( $wp->query_vars['acm-action'] ) {
+				//case 'datasource-conditionals':
+				//	$this->get_conditionals_ajax();
+				//	break;
+				case 'edit':
+					$this->ad_code_edit_actions();
+					$this->flush_cache();
+					wp_redirect( wp_get_referer() );
+					break;
+				case 'edit-conditionals':
+					$this->conditionals_edit_actions();
+					$this->flush_cache();
+					break;
+			}
+
+			
+			exit;
+		}
+	}
+	
+	/**
+	 *
+	 * @since 0.2
+	 */
+	function filter_query_vars( $vars ) {
+		$vars[] = 'acm-request';
+		$vars[] = 'acm-action';
+		return $vars;
 	}
 
 	/**
@@ -312,7 +358,8 @@ class Ad_Code_Manager
 					'post_id' => $ad_code_cpt->ID
 				);
 			}
-			wp_cache_add( $cache_key, $ad_codes_formatted, 'acm',  3600 );
+			// dev value
+			wp_cache_add( $cache_key, $ad_codes_formatted, 'acm',  1 );
 			$this->add_cache_key_to_index( $cache_key );			
 		}
 		return $ad_codes_formatted;
@@ -382,11 +429,18 @@ class Ad_Code_Manager
 					'priority' => intval( $_POST['priority'] ),
 				);
 			foreach ( $this->current_provider->columns as $slug => $title ) {
-				$ad_code_vals[$slug] = sanitize_text_field( $_POST[$slug] );
+				$ad_code_vals[$slug] = sanitize_text_field( $_POST[ $slug] );
 			}
+			
 			switch ( $_POST['oper'] ) {
 				case 'add':
-					$this->create_ad_code( $ad_code_vals );
+					$result = $this->create_ad_code( $ad_code_vals );
+					if ( $result && !empty( $_POST['conditionals'] ) ) {
+						foreach ( $_POST['conditionals'] as $conditional ) {
+							$this->create_conditional( $result, $conditional );
+						}
+					}
+					return $result;
 					break;
 				case 'edit':
 					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals );
@@ -431,9 +485,9 @@ class Ad_Code_Manager
 	 *
 	 * @uses register_ad_code()
 	 *
-	 * @todo validation / nonce
-	 *
 	 * @param array $ad_code
+	 *
+	 * @return int|false post_id or false 
 	 */
 	function create_ad_code( $ad_code = array() ) {
 		$titles = array();
@@ -458,8 +512,9 @@ class Ad_Code_Manager
 				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[$slug] );
 			}
 			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code['priority'] );
+			return $acm_inserted_post_id;
 		}
-		return;
+		return false;
 	}
 
 	/**
@@ -587,6 +642,7 @@ class Ad_Code_Manager
 			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
 			var acm_conditionals = '<?php echo esc_js( implode( ';', $conditionals_parsed ) )?>';
 			var acm_ajax_nonce = '<?php echo esc_js( wp_create_nonce('acm_nonce') ) ?>';
+			var acm_conditionals_index = 0;
 		</script>
 		<?php
 	}
@@ -914,6 +970,8 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		}
 		return $valid;
 	}
+	
+
 }
 
 global $ad_code_manager;

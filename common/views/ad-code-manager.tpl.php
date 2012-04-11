@@ -24,20 +24,41 @@
 
 <div class="form-wrap">
 <h3>Add New Ad Code</h3>
-<form id="add-adcode" method="post" action="<?php echo $_SERVER['REQUEST_URI'] ?>" class="validate">
-<input type="hidden" name="action" value="add-adcode">
-<input type="hidden" id="_wpnonce_add-tag" name="_wpnonce_add-tag" value="82a319d7b2"><input type="hidden" name="_wp_http_referer" value="/wp-admin/edit-tags.php?taxonomy=category">
+<form id="add-adcode" method="post" action="<?php echo home_url( '?acm-request=true&acm-action=edit' ) ?>" class="validate">
+<input type="hidden" name="oper" value="add" />
+<input type="hidden" name="priority" value="10" />
+<input type="hidden" name="conditionals" />
+<?php wp_nonce_field('acm_nonce', 'acm-nonce') ?>
 
 <?php
 foreach ( $this->current_provider->columns as $slug => $title ):
 ?>
 <div class="form-field form-required">
 	<label for="acm-<?php echo esc_attr( $slug ) ?>"><?php echo esc_html( $title ) ?></label>
-	<input name="acm-<?php echo esc_attr( $slug ) ?>" id="acm-<?php echo esc_attr( $slug ) ?>" type="text" value="" size="40" aria-required="true">
+	<input name="<?php echo esc_attr( $slug ) ?>" id="acm-<?php echo esc_attr( $slug ) ?>" type="text" value="" size="40" aria-required="true">
 </div>
 <?php
 endforeach;
 ?>
+<div class="form-field" id="conditional-tpl">
+	<div class="form-half" style="float: left; width: 50%">
+	<label for="acm-conditionals">Conditional</label>
+	<select name="conditionals[0][function]" id="acm-conditional-0">
+<option value="">Select conditional</option>	  
+<?php
+foreach ( $this->whitelisted_conditionals as $key ):
+?>
+<option value="<?php echo esc_attr($key) ?>"><?php echo esc_html( ucfirst( str_replace('_', ' ', $key ) ) ) ?></option>
+<?php endforeach; ?>
+	</select>
+	</div>
+	<div class="form-half" style="float: left; width: 45%">
+		<label></label>
+		<input name="conditionals[0][arguments]" id="acm-argument-0" type="text" value="" size="20">
+	</div>  
+</div>
+<a href="javascript:;" id="add-more-conditionals">Add more</a>
+<p class="clear"></p>
 
 <p class="submit"><input type="submit" name="submit" id="submit" class="button" value="Add New Ad Code"></p></form></div>
 
