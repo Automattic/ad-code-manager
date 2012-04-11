@@ -41,7 +41,7 @@ foreach ( $this->current_provider->columns as $slug => $title ):
 endforeach;
 ?>
 <div class="form-field" id="conditional-tpl">
-	<div class="form-half" style="float: left; width: 50%">
+	<div class="form-new-row">
 	<label for="acm-conditionals">Conditional</label>
 	<select name="conditionals[0][function]" id="acm-conditional-0">
 <option value="">Select conditional</option>	  
@@ -52,12 +52,14 @@ foreach ( $this->whitelisted_conditionals as $key ):
 <?php endforeach; ?>
 	</select>
 	</div>
-	<div class="form-half" style="float: left; width: 45%">
-		<label></label>
+	<div class="form-half">
+		<label>&nbsp;</label>
 		<input name="conditionals[0][arguments]" id="acm-argument-0" type="text" value="" size="20">
 	</div>  
 </div>
-<a href="javascript:;" id="add-more-conditionals">Add more</a>
+<div class="form-field form-add-more">
+	<a href="javascript:;" id="add-more-conditionals">Add more</a>
+</div>
 <p class="clear"></p>
 
 <p class="submit"><input type="submit" name="submit" id="submit" class="button" value="Add New Ad Code"></p></form></div>
