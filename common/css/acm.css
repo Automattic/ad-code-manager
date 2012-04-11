@@ -17,3 +17,21 @@
 #the-list:hover .row-actions {
 	visibility: visible;
 }
+
+.form-new-row {
+    clear: left;
+    float: left;
+    width: 50%;
+}
+
+.form-half {
+    float: left;
+    width: 45%;
+    margin-bottom: 5px;
+}
+
+.form-add-more {
+    clear:left;
+    width: 90%;
+    text-align: right;
+}
