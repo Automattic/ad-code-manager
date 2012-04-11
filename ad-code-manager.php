@@ -688,14 +688,6 @@ class Ad_Code_Manager
 </dd><dt> <tt>has_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> When the current post has any of the tags in the array.
 </dd></dl>
 	</div>	
-	
-	<table id="acm-codes-list"></table>
-	<div id="acm-codes-pager"></div>
-
-	<div class="acm-conditionals-wrapper hidden">
-		<table id="acm-codes-conditionals-list"></table>
-		<div id="acm-codes-conditionals-pager"></div>
-	</div>
 	</div>
 	<?php
 	
@@ -714,10 +706,7 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
-		wp_enqueue_style( 'acm-jquery-ui-theme', AD_CODE_MANAGER_URL . '/common/css/jquery-ui-1.8.17.custom.css' );
-		wp_enqueue_style( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/css/ui.jqgrid.css' );
-		wp_enqueue_script( 'acm-jqgrid-locale-en', AD_CODE_MANAGER_URL . '/common/js/grid.locale-en.js', array( 'jquery', 'jquery-ui-core' ) );
-		wp_enqueue_script( 'acm-jqgrid', AD_CODE_MANAGER_URL . '/common/js/jquery.jqGrid.min.js', array( 'jquery', 'jquery-ui-core' ) );
+		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . '/common/css/acm.css' );
 		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
 	}
 
