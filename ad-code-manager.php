@@ -533,8 +533,10 @@ class Ad_Code_Manager
 				update_post_meta( $ad_code_id, $slug, $ad_code[$slug] );
 			}
 			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
-		} 
-		return;
+		}
+		$this->flush_cache();
+		wp_redirect( wp_get_referer() );
+		exit();
 	}
 
 	/**
