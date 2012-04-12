@@ -342,7 +342,7 @@ class Ad_Code_Manager
 			}
 		}
 		$cache_key = 'ad_codes_' . implode('_', $query_args );
-		if ( false === ($ad_codes_formatted = wp_cache_get( $cache_key , 'acm' ) ) ) {
+		//if ( false === ($ad_codes_formatted = wp_cache_get( $cache_key , 'acm' ) ) ) {
 			$ad_codes = get_posts( $args );
 			foreach ( $ad_codes as $ad_code_cpt ) {
 				
@@ -359,9 +359,9 @@ class Ad_Code_Manager
 				);
 			}
 			// dev value
-			wp_cache_add( $cache_key, $ad_codes_formatted, 'acm',  1 );
-			$this->add_cache_key_to_index( $cache_key );			
-		}
+			//wp_cache_add( $cache_key, $ad_codes_formatted, 'acm',  1 );
+			//$this->add_cache_key_to_index( $cache_key );			
+		//}
 		return $ad_codes_formatted;
 	}
 
