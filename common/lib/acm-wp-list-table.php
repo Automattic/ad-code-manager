@@ -84,55 +84,109 @@ class ACM_WP_List_Table extends WP_List_Table {
      * @return string, echo the markup of the rows
      */
 	function display_rows() {
+		// Alternate the table row classes for color swapping
+		$alternate = '';
 
-	//Get the records registered in the prepare_items method
-	$records = $this->items;
+		//Get the records registered in the prepare_items method
+		$records = $this->items;
 
-	//Get the columns registered in the get_columns and get_sortable_columns methods
-	list( $columns, $hidden ) = $this->get_column_info();
-	
+		//Get the columns registered in the get_columns and get_sortable_columns methods
+		list( $columns, $hidden ) = $this->get_column_info();
 
-	//Loop for each record
-	if( ! empty( $records ) ) { foreach( $records as $rec )  {
-
-		//Open the line
-        echo '<tr id="record_'.$rec['post_id'].'">';
-		$i = 0;
-		foreach ( $columns as $column_name => $column_display_name ) {
-
-			//Style attributes for each col
-			$class = "class='$column_name column-$column_name'";
-			$style = "";
-			if ( in_array( $column_name, $hidden ) ) $style = ' style="display:none;"';
-			$attributes = $class . $style;
+		//Loop for each record
+		if( ! empty( $records ) ) { foreach( $records as $rec )  {
 
 			//edit link
 			$edit_link  = add_query_arg( array(
 				'acm-request' => true,
 				'acm-action' => 'edit',
 				'acm_id' => (int) $rec['post_id']
-				), home_url() );
-										
+			), home_url( '/' ) );
 
+			$alternate = 'alternate' == $alternate ? '' : 'alternate';
 
-			$key = str_replace('col_acm_', '', $column_name );
+			// Gather a new set of inputs for the inline editor on each loop
+			$inline_edit_inputs = '';
+
+			//Open the line
+	        echo '<tr id="record_'.$rec['post_id'].'" class="' . $alternate . ' acm-record-display">';
+			$i = 0;
+			foreach ( $columns as $column_name => $column_display_name ) {
+
+				//Style attributes for each col
+				$class = "class='$column_name column-$column_name'";
+				$style = "";
+
+				if ( in_array( $column_name, $hidden ) )
+					$style = ' style="display:none;"';
+				else
+					$i++; // Only increment on visible columns to help display row actions and ajax
+
+				$attributes = $class . $style;
+
+				$key = str_replace('col_acm_', '', $column_name );
 			
-			if ( ! isset( $rec[$key] ) && ! isset( $rec['url_vars'][$key] ) )
-				continue;
+				if ( ! isset( $rec[$key] ) && ! isset( $rec['url_vars'][$key] ) )
+					continue;
 			
-			$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
-			$extra = '';
-			if ( 2 == $i++ ) {
-			// @todo echo row actions	
+				$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
+				$extra = '';
+				if ( 1 == $i ) {
+					// @todo Only Edit is hooked up via JS right now
+					$extra .= $this->row_actions( array(
+						'View Conditionals' => '<a class="acm-ajax-view" id="acmview-' . $rec[ 'post_id' ] . '" href="#">View Conditionals</a>',
+						'Edit' => '<a class="acm-ajax-edit" id="acmedit-' . $rec[ 'post_id' ] . '" href="#">Edit</a>',
+						'Delete' => '<a class="acm-ajax-delete" id="acmdelete-' . $rec[ 'post_id' ] . '" href="#">Delete</a>',
+					));
+				}
+
+				echo '<td '.$attributes.'>'.stripslashes( $value ). $extra . '</td>';
+
+				if ( in_array( $column_name, $hidden ) )
+					continue;
+
+				// If this is *not* a hidden field, we also want to include it in the inline editor
+				$inline_edit_inputs .= '<div class="acm-edit-field"><label for="col_edit_' . $key . '_' . $rec[ 'post_id' ] . '">' . $column_display_name . '</label>';
+				$inline_edit_inputs .= '<input type="text" name="' . $key . '" id="col_edit_' . $key . '_' . $rec[ 'post_id' ] . '" value="' . esc_attr( $value ) . '" /></div>';
 			}
-			
-			echo '<td '.$attributes.'>'.stripslashes( $value ). $extra . '</td>';
-			
-		}
 
-		//Close the line
-		echo'</tr>';
-	}}
-}
+			//Close the line
+			echo'</tr>';
+
+			// Gather the conditional functions/arguments
+			$conditionals = get_post_meta( $rec[ 'post_id' ], 'conditionals', true );
+			$inline_edit_conditionals = '';
+			if ( ! empty( $conditionals ) ) {
+				for( $j=0, $total = sizeof( $conditionals ); $j < $total; $j++ ) {
+					$inline_edit_conditionals .= '<div class="acm-edit-cond"><select name="conditionals[' . $j . '][function]" class="cond_' . $rec[ 'post_id' ] . '"><option value="' . esc_attr( $conditionals[$j][ 'function' ] ) . '">' . $conditionals[$j][ 'function' ] . '</option></select>';
+
+					if ( ! empty( $conditionals[$j][ 'arguments' ][0] ) ) {
+						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][argument]" type="text" size="20" value="' . esc_attr( $conditionals[$j][ 'arguments' ][0] ) . '" />';
+					} else {
+						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][argument]" type="text" size="20" value="" />';
+					}
+
+					$inline_edit_conditionals .= '</div>';
+				}
+			}
+
+			// Display the hidden row for inline editing
+			?>
+			<tr class="<?php echo $alternate; ?> acm-edit-display" id="record_display_<?php echo $rec[ 'post_id' ]; ?>" style="display:none;" >
+				<td colspan="<?php echo $i; ?>">
+					<form id="acm-edit-form-<?php echo $rec[ 'post_id' ]; ?>" method="POST" action="<?php echo $edit_link; ?>">
+						<input type="hidden" name="id" value="<?php echo esc_attr( $rec[ 'post_id' ] ); ?>">
+						<input type="hidden" name="oper" value="edit">
+						<?php wp_nonce_field( 'acm_nonce', 'acm-nonce' ); ?>
+						<?php echo $inline_edit_inputs; ?>
+						<label class="acm-conditional-label" for="acm-conditionals">Conditionals:</label>
+						<?php echo $inline_edit_conditionals; ?>
+						<input type="button" id="acm-cancel-edit-<?php echo $rec[ 'post_id' ]; ?>" class="acm-cancel-button" value="Cancel"> <input type="submit" class="acm-edit-button" value="Update">
+					</form>
+				</td>
+			</tr>
+			<?php
+		}}
+	}
 
 }
