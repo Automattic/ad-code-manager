@@ -25,9 +25,9 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 1. Upload `ad-code-manager` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Incorporate ad tags in your theme template 
+1. Incorporate ad tags in your theme template with <?php do_action( 'acm_tag', 'slot' ) ?>.
 1. Implement filters to make the plugin work with your provider
-1. Configure your ad codes in the WordPress admin
+1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
 
 == Configuration Filters ==
 
