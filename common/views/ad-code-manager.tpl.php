@@ -61,8 +61,8 @@ foreach ( $this->whitelisted_conditionals as $key ):
 	<a href="javascript:;" id="add-more-conditionals">Add more</a>
 </div>
 <p class="clear"></p>
-
-<p class="submit"><input type="submit" name="submit" id="submit" class="button" value="Add New Ad Code"></p></form></div>
+<?php submit_button( __( 'Add New Ad Code', 'ad-code-manager' ) ); ?>
+</form></div>
 
 </div>
 </div><!-- /col-left -->

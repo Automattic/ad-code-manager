@@ -175,13 +175,18 @@ class ACM_WP_List_Table extends WP_List_Table {
 			<tr class="<?php echo $alternate; ?> acm-edit-display" id="record_display_<?php echo $rec[ 'post_id' ]; ?>" style="display:none;" >
 				<td colspan="<?php echo $i; ?>">
 					<form id="acm-edit-form-<?php echo $rec[ 'post_id' ]; ?>" method="POST" action="<?php echo $edit_link; ?>">
-						<input type="hidden" name="id" value="<?php echo esc_attr( $rec[ 'post_id' ] ); ?>">
-						<input type="hidden" name="oper" value="edit">
-						<?php wp_nonce_field( 'acm_nonce', 'acm-nonce' ); ?>
-						<?php echo $inline_edit_inputs; ?>
-						<label class="acm-conditional-label" for="acm-conditionals">Conditionals:</label>
-						<?php echo $inline_edit_conditionals; ?>
-						<input type="button" id="acm-cancel-edit-<?php echo $rec[ 'post_id' ]; ?>" class="acm-cancel-button" value="Cancel"> <input type="submit" class="acm-edit-button" value="Update">
+						<fieldset><div class="inline-edit-col">
+							<input type="hidden" name="id" value="<?php echo esc_attr( $rec[ 'post_id' ] ); ?>">
+							<input type="hidden" name="oper" value="edit">
+							<?php wp_nonce_field( 'acm_nonce', 'acm-nonce' ); ?>
+							<?php echo $inline_edit_inputs; ?>
+							<label class="acm-conditional-label" for="acm-conditionals">Conditionals:</label>
+							<?php echo $inline_edit_conditionals; ?>
+						</div></fieldset>
+						<p class="inline-edit-save submit">
+							<?php submit_button( __( 'Cancel', 'ad-code-manager' ), 'secondary', 'acm-cancel-edit-' . $rec[ 'post_id' ], false ); ?> 
+							<?php submit_button( __( 'Update', 'ad-code-manager' ), 'primary', 'acm-edit-button', false ); ?>
+						</p>
 					</form>
 				</td>
 			</tr>
