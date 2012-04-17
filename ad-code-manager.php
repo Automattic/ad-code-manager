@@ -443,7 +443,10 @@ class Ad_Code_Manager
 					return $result;
 					break;
 				case 'edit':
-					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals );
+					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals, false );
+					$this->edit_conditionals( intval( $_POST['id'] ), $_POST['conditionals'] );
+					wp_redirect( wp_get_referer() );
+					exit;
 					break;
 				case 'del':
 					$this->delete_ad_code( intval( $_POST['id'] ) );
@@ -463,11 +466,11 @@ class Ad_Code_Manager
 				);
 			switch ( $_POST['oper'] ) {
 				case 'add':
-					$result = $this->create_conditional( intval( $_GET['id'] ), $conditional_vals );
+					$result = $this->create_conditional( intval( $_GET['acm_id'] ), $conditional_vals );
 					break;
 				case 'edit':
 					$conditional_vals['id'] = intval( $_POST['id'] ); // we need this for edit action to work correctly
-					$result = $this->edit_conditional( intval( $_GET['id'] ), $conditional_vals, true );
+					$result = $this->edit_conditional( intval( $_GET['acm_id'] ), $conditional_vals, true );
 					break;
 				case 'del':
 					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
@@ -520,7 +523,7 @@ class Ad_Code_Manager
 	/**
 	 * Update an existing ad code
 	 */
-	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
+	function edit_ad_code( $ad_code_id, $ad_code = array(), $redirect = true ) {
 		foreach ( $this->current_provider->columns as $slug => $title ) {
 			// We shouldn't update an ad code,
 			// If any of required fields is not set
@@ -535,8 +538,10 @@ class Ad_Code_Manager
 			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
 		}
 		$this->flush_cache();
-		wp_redirect( wp_get_referer() );
-		exit();
+		if ( $redirect ) {
+			wp_redirect( wp_get_referer() );
+			exit();
+		}
 	}
 
 	/**
@@ -569,32 +574,26 @@ class Ad_Code_Manager
 		}
 		return false;
 	}
-
+	
 	/**
-	 * Update conditional
+	 * Update all conditionals for ad code
 	 *
 	 * @param int $ad_code_id id of our CPT post
-	 * @param array $conditional
-	 *
+	 * @param array of $conditionals
+	 * 
+	 * @since v0.2
+	 * @return bool
 	 */
-	function edit_conditional( $ad_code_id, $conditional, $from_ajax = false ) {
-		if ( 0 !== $ad_code_id && !empty( $conditional ) ) {
-			$existing_conditionals = (array) get_post_meta( $ad_code_id, 'conditionals', true );
-			if ( $from_ajax && isset( $conditional ['id'] ) ) { // jqGrid starts with one, PHP starts with 0
-					$conditional['id']--;
-			}
-			foreach ( $existing_conditionals as $conditional_index => $existing_conditional ) {
-				// $id is not an actual unique ID, but rather index of conditional in array of them
-				if ( isset( $conditional['id'] ) && $conditional['id'] === $conditional_index ) {
-					$existing_conditionals[$conditional_index] = array(
+	function edit_conditionals( $ad_code_id, $conditionals = array() ) {
+		if ( 0 !== $ad_code_id && !empty( $conditionals ) ) {
+			foreach( $conditionals as $index => $conditional ) {
+					$conditionals[$index] = array(
 						'function' => $conditional['function'],
 						'arguments' => (array) $conditional['arguments'],
 					);
-				}
 			}
-			return update_post_meta( $ad_code_id, 'conditionals', array_values($existing_conditionals) );
-		}
-		return false;
+			return update_post_meta( $ad_code_id, 'conditionals', $conditionals );
+		}	
 	}
 
 	/**

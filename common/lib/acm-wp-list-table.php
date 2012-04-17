@@ -161,9 +161,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 					$inline_edit_conditionals .= '<div class="acm-edit-cond"><select name="conditionals[' . $j . '][function]" class="cond_' . $rec[ 'post_id' ] . '"><option value="' . esc_attr( $conditionals[$j][ 'function' ] ) . '">' . $conditionals[$j][ 'function' ] . '</option></select>';
 
 					if ( ! empty( $conditionals[$j][ 'arguments' ][0] ) ) {
-						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][argument]" type="text" size="20" value="' . esc_attr( $conditionals[$j][ 'arguments' ][0] ) . '" />';
+						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="' . esc_attr( $conditionals[$j][ 'arguments' ][0] ) . '" />';
 					} else {
-						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][argument]" type="text" size="20" value="" />';
+						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="" />';
 					}
 
 					$inline_edit_conditionals .= '</div>';
