@@ -71,6 +71,8 @@ class Ad_Code_Manager
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
+		
+		add_action('current_screen', array( $this, 'contextual_help' ));
 	}
 	
 	/**
@@ -665,9 +667,21 @@ class Ad_Code_Manager
 	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
 	
-	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;" id="conditionals-help-toggler">conditionals</a>.</p>
+	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;" id="conditionals-help-toggler">conditionals</a>. Refer to help section for more information</p>
 	
-	<div id="conditionals-help" class="hidden">
+	</div>
+	<?php
+	
+require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
+	
+	}
+	
+	function contextual_help() {
+
+	if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) {
+		ob_start();
+		?>
+			<div id="conditionals-help">
 		<strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>. 
 		
 		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_home" class="external text" title="http://codex.wordpress.org/Function_Reference/is_home">is_home()</a></tt>&nbsp;</dt><dd> When the main blog page is being displayed. This is the page which shows the time based blog content of your site, so if you've set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <a href="http://codex.wordpress.org/Administration_Panels" title="Administration Panels" class="mw-redirect">Administration</a> &gt; <a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a>.
@@ -689,12 +703,27 @@ class Ad_Code_Manager
 </dd><dt> <tt>has_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> When the current post has any of the tags in the array.
 </dd></dl>
 	</div>	
-	</div>
-	<?php
-	
-require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
-	
+<?php
+		$contextual_help = ob_get_clean();
+		get_current_screen()->add_help_tab(
+			array(
+				'id' => 'acm-overview',
+				'title' => 'Overview',
+				'content' => 'Some overview',
+			)	
+		);
+		get_current_screen()->add_help_tab(
+			array(
+				'id' => 'acm-conditionals',
+				'title' => 'Conditionals',
+				'content' => $contextual_help,
+			)	
+		);		
 	}
+	
+}
+
+
 
 	/**
 	 * Register scripts and styles
