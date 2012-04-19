@@ -1,5 +1,5 @@
 === Ad Code Manager ===
-Contributors: danielbachhuber, rinatkhaziev, automattic
+Contributors: danielbachhuber, rinatkhaziev, zztimur, jeremyfelt, automattic, doejo
 Tags: advertising, ad codes
 Requires at least: 3.1
 Tested up to: 3.3.1
@@ -25,9 +25,9 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 1. Upload `ad-code-manager` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Incorporate ad tags in your theme template 
+1. Incorporate ad tags in your theme template with <?php do_action( 'acm_tag', 'slot' ) ?>.
 1. Implement filters to make the plugin work with your provider
-1. Configure your ad codes in the WordPress admin
+1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
 
 == Configuration Filters ==
 
@@ -173,6 +173,17 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 	$whitelisted_urls = array( 'ad.doubleclick.net' );
 	return $whitelisted_urls;
 }`
+
+= acm_display_ad_codes_without_conditionals =
+
+Change the behavior of Ad Code Manager so that ad codes without conditionals display on the frontend. The default behavior is that each ad code requires a conditional to be included in the presentation logic.
+
+Arguments:
+* bool $behavior Whether or not to display the ad codes that don't have conditionals
+
+Example usage:
+
+`add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
 
 == Changelog ==
 

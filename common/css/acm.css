@@ -1,0 +1,84 @@
+.acm-conditionals-wrapper {
+  margin-top: 20px;
+}
+
+.acm-ui-wrapper .button {
+  margin-right: 10px;
+}
+
+.acm-ui-wrapper p {
+  
+}
+
+#conditionals-help {
+  width: 600px;
+}
+
+tr:hover .row-actions {
+	visibility: visible;
+}
+
+.form-new-row {
+    clear: left;
+    float: left;
+    width: 50%;
+}
+
+.form-half {
+    float: left;
+    width: 45%;
+    margin-bottom: 5px;
+}
+
+.form-add-more {
+    clear:left;
+    width: 90%;
+    text-align: right;
+}
+
+.acm-edit-field {
+    position: relative;
+    max-width: 200px;
+    float: left;
+    margin: 15px 0 0 15px;
+}
+
+.acm-edit-field label {
+    position: relative;
+    float: left;
+    font-weight: 700;
+    color: #333;
+}
+
+.acm-edit-cond,
+.acm-cancel-button,
+.acm-edit-field input,
+.acm-conditional-label {
+    position: relative;
+    float: left;
+    clear: left;
+}
+
+.acm-edit-cond {
+    margin: 5px 0 0 15px;
+}
+
+.acm-edit-cond input {
+    margin-left: 15px;
+}
+
+.acm-conditional-label {
+    width: 100%;
+    font-weight: 700;
+    color: #333;
+    margin: 10px 0 0 15px;
+}
+
+.acm-cancel-button {
+    margin: 10px 0 30px 15px;
+}
+
+.acm-edit-button {
+    float: left;
+    margin: 10px 0 30px 15px;
+}
