@@ -68,9 +68,9 @@ class Ad_Code_Manager
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 
-		add_action('current_screen', array( $this, 'contextual_help' ));
-		add_action( 'widgets_init', array( &$this, 'register_widget' ) );
-
+		add_action('current_screen', array( $this, 'contextual_help' ) );
+		add_action( 'widgets_init', array( $this, 'register_widget' ) );
+		add_shortcode( 'acm-tag' , array( $this, 'shortcode' ) );
 	}
 
 	/**
@@ -888,7 +888,20 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		}
 		return $valid;
 	}
-
+	
+	/**
+	 * Shortcode function
+	 */
+	function shortcode( $atts ) {
+		extract( shortcode_atts(
+			array(
+				'id' => '',
+			), $atts ) );
+		if ( empty( $id ) )
+			return;
+		
+		$this->action_acm_tag( $id );
+	}
 
 }
 
