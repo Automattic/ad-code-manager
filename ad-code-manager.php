@@ -252,48 +252,33 @@ class Ad_Code_Manager
 				$args[$query_key] = $query_value;
 			}
 		}
-		$cache_key = 'ad_codes_' . implode('_', $query_args );
-		$ad_codes = get_posts( $args );
-		foreach ( $ad_codes as $ad_code_cpt ) {
 
-			$provider_url_vars = array();
-			foreach ( $this->current_provider->columns as $slug => $title ) {
-				$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
+		if ( false === ( $ad_codes_formatted = wp_cache_get( 'ad_codes' , 'acm' ) ) ) {
+			$ad_codes = get_posts( $args );
+			foreach ( $ad_codes as $ad_code_cpt ) {
+				$provider_url_vars = array();
+				
+				foreach ( $this->current_provider->columns as $slug => $title ) {
+					$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
+				}
+	
+				$ad_codes_formatted[] = array(
+					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
+					'url_vars' => $provider_url_vars,
+					'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
+					'post_id' => $ad_code_cpt->ID
+				);
 			}
-
-			$ad_codes_formatted[] = array(
-				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-				'url_vars' => $provider_url_vars,
-				'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
-				'post_id' => $ad_code_cpt->ID
-			);
-		}
+			wp_cache_add( 'ad_codes', $ad_codes_formatted, 'acm',  3600 );
+		}	
 		return $ad_codes_formatted;
 	}
 
 	/**
-	 * Temporary workaround for flush cache dilemma:
-	 * Add $key to site options
-	 */
-	function add_cache_key_to_index( $key = '' ) {
-		if ( '' == $key )
-			return;
-		$cache_keys = (array) get_option( 'acm_cache_keys' );
-		$cache_keys[] = $key;
-		update_option( 'acm_cache_keys', $cache_keys );
-	}
-
-	/**
-	 * Temporary workaround for flush cache dilemma:
 	 * Flush cache
 	 */
 	function flush_cache() {
-		$cache_keys = (array) get_option( 'acm_cache_keys' );
-		if ( !empty($cache_keys ) ) {
-			foreach ($cache_keys as $key ) {
-				wp_cache_delete($key, 'acm' );
-			}
-		}
+		wp_cache_delete('ad_codes', 'acm' );
 	}
 
 	/**
