@@ -243,17 +243,10 @@ class Ad_Code_Manager
 				exit( 'You shall not pass' );
 			}
 			switch( $wp->query_vars['acm-action'] ) {
-				//case 'datasource-conditionals':
-				//	$this->get_conditionals_ajax();
-				//	break;
 				case 'edit':
 					$this->ad_code_edit_actions();
 					$this->flush_cache();
 					wp_redirect( wp_get_referer() );
-					break;
-				case 'edit-conditionals':
-					$this->conditionals_edit_actions();
-					$this->flush_cache();
 					break;
 			}
 
@@ -271,56 +264,6 @@ class Ad_Code_Manager
 		$vars[] = 'acm-action';
 		return $vars;
 	}
-
-	/**
-	 * Returns json encoded ad code
-	 * This is the datasource for jqGRID
-	 * 
-	 * @todo refactor, jqGrid won't be used in v0.2
-	 */
-	function get_ad_codes_ajax() {
-		// These are params that should be managed via UI
-		/**
-		 * NB!
-		 * $response is an object with following properties
-		 * $response->page = current page
-		 * $response->total = total pages
-		 * $response->record = count of rows
-		 * $response->rows = nested array of assoc arrays 
-		 */
-		$response;
-		if ( isset( $_GET['acm-action'] ) && $_GET['acm-action'] == 'datasource' ) {
-			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_key( $_GET['acm-grid-page'] ) : 1 ;
-			$query_args = array();
-			
-			// We need to pass offset to get_ad_codes offset for jqGrid to work correctly
-			if ( 1 < $response->page )
-				$query_args['offset'] = ( $response->page - 1 ) * intval( $_GET['rows'] );
-			
-			$ad_codes = $this->get_ad_codes( $query_args ) ;
-			// prepare data in jqGrid specific format
-			$pass = array();
-			foreach ( $ad_codes as $ad_code ) {
-				$to_pass = array(
-					'id' => $ad_code['post_id'],
-					'priority' => $ad_code['priority'],
-					'act' => '',
-				);
-				foreach ( $this->current_provider->columns as $slug => $title ) {
-					$to_pass[$slug] = $ad_code['url_vars'][$slug];
-				}
-				$pass[] = $to_pass;
-			}
-			$response->rows = $pass;
-			$count_object = wp_count_posts( $this->post_type );
-			$total_pages = ceil ( $count_object->publish / $_GET['rows'] ); 
-			$response->total = $total_pages;			
-			$response->records = $count_object->publish;
-			$this->print_json( $response );
-		}
-		return;
-	}
-
 
 	/**
 	 * Get the ad codes stored in our custom post type
@@ -344,50 +287,24 @@ class Ad_Code_Manager
 			}
 		}
 		$cache_key = 'ad_codes_' . implode('_', $query_args );
-		//if ( false === ($ad_codes_formatted = wp_cache_get( $cache_key , 'acm' ) ) ) {
-			$ad_codes = get_posts( $args );
-			foreach ( $ad_codes as $ad_code_cpt ) {
-				
-				$provider_url_vars = array();
-				foreach ( $this->current_provider->columns as $slug => $title ) {
-					$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
-				}
-				
-				$ad_codes_formatted[] = array(
-					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-					'url_vars' => $provider_url_vars,
-					'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
-					'post_id' => $ad_code_cpt->ID
-				);
+		$ad_codes = get_posts( $args );
+		foreach ( $ad_codes as $ad_code_cpt ) {
+			
+			$provider_url_vars = array();
+			foreach ( $this->current_provider->columns as $slug => $title ) {
+				$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
 			}
-			// dev value
-			//wp_cache_add( $cache_key, $ad_codes_formatted, 'acm',  1 );
-			//$this->add_cache_key_to_index( $cache_key );			
-		//}
+			
+			$ad_codes_formatted[] = array(
+				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
+				'url_vars' => $provider_url_vars,
+				'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
+				'post_id' => $ad_code_cpt->ID
+			);
+		}		
 		return $ad_codes_formatted;
 	}
 
-	function get_conditionals_ajax() {
-		if (  0 !== intval( $_GET['id'] ) ) {
-			$conditionals = (array) $this->get_conditionals( intval( $_GET['id'] ) );
-			$response;
-			if ( !empty($conditionals ) ) {
-				foreach ( $conditionals as $index => $item ) {
-					if ( isset( $item['arguments'] ) && is_array( $item['arguments'] ) ) {
-						$item['arguments'] = implode(";", $item['arguments'] );
-					}
-					$response->rows[] = $item;
-				}
-			}
-			$count = count( $response->rows );
-			$total_pages = ceil ( $count / $_GET['rows'] );
-
-			$response->page = isset( $_GET['acm-grid-page'] ) ? sanitize_text_field( $_GET['acm-grid-page'] ) : 1 ;
-			$response->total = $total_pages;
-			$response->records = $count;
-			$this->print_json( $response );
-		}
-	}
 	/**
 	 * Temporary workaround for flush cache dilemma:
 	 * Add $key to site options
@@ -667,7 +584,7 @@ class Ad_Code_Manager
 	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
 	
-	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;" id="conditionals-help-toggler">conditionals</a>. Refer to help section for more information</p>
+	<p> Refer to help section for more information</p>
 	
 	</div>
 	<?php
@@ -721,9 +638,7 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		);		
 	}
 	
-}
-
-
+	}
 
 	/**
 	 * Register scripts and styles
