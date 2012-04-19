@@ -55,10 +55,6 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function __construct() {
-		// This is 0.1.3 way of handling ajax
-		add_action('wp_ajax_acm_ajax_handler', array( $this, 'ajax_handler' ) );
-		
-		// This is 0.2 way
 		add_action( 'parse_request', array( $this, 'action_parse_request' ) );
 		add_filter( 'query_vars', array( $this, 'filter_query_vars' ) );
 		
@@ -66,13 +62,13 @@ class Ad_Code_Manager
 		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'current_screen', array( $this, 'action_admin_init' ) );
 		
-
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 		
 		add_action('current_screen', array( $this, 'contextual_help' ));
+
 	}
 	
 	/**
@@ -200,36 +196,6 @@ class Ad_Code_Manager
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
 	}
-
-	/**
-	 * Handles all admin ajax requests: getting, updating, creating and deleting
-	 *
-	 * @since 0.1
-	 */
-	function ajax_handler() {		
-		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
-			return;
-		
-
-
-		switch( $_GET['acm-action'] ) {
-			case 'datasource':
-				$this->get_ad_codes_ajax();
-				break;
-			case 'datasource-conditionals':
-				$this->get_conditionals_ajax();
-				break;
-			case 'edit':
-				$this->ad_code_edit_actions();
-				$this->flush_cache();
-				break;
-			case 'edit-conditionals':
-				$this->conditionals_edit_actions();
-				$this->flush_cache();
-				break;
-		}
-		return;
-	}
 	
 	/**
 	 * Parse requests
@@ -249,8 +215,6 @@ class Ad_Code_Manager
 					wp_redirect( wp_get_referer() );
 					break;
 			}
-
-			
 			exit;
 		}
 	}
@@ -594,12 +558,14 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	}
 	
 	function contextual_help() {
-
-	if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) {
+		global $pagenow;
+	if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
+		return;
+	
 		ob_start();
 		?>
 			<div id="conditionals-help">
-		<strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>. 
+		<p><strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>.</p> 
 		
 		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_home" class="external text" title="http://codex.wordpress.org/Function_Reference/is_home">is_home()</a></tt>&nbsp;</dt><dd> When the main blog page is being displayed. This is the page which shows the time based blog content of your site, so if you've set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <a href="http://codex.wordpress.org/Administration_Panels" title="Administration Panels" class="mw-redirect">Administration</a> &gt; <a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a>.
 </dd></dl>
@@ -622,11 +588,12 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	</div>	
 <?php
 		$contextual_help = ob_get_clean();
+		$overview = '<p>Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.</p>';
 		get_current_screen()->add_help_tab(
 			array(
 				'id' => 'acm-overview',
 				'title' => 'Overview',
-				'content' => 'Some overview',
+				'content' => $overview,
 			)	
 		);
 		get_current_screen()->add_help_tab(
@@ -636,7 +603,6 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 				'content' => $contextual_help,
 			)	
 		);		
-	}
 	
 	}
 
