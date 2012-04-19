@@ -32,6 +32,7 @@ define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 // Bootsrap
 require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-provider.php' );
 require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-wp-list-table.php' );
+require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-widget.php' );
 
 class Ad_Code_Manager
 {
@@ -57,22 +58,23 @@ class Ad_Code_Manager
 	function __construct() {
 		add_action( 'parse_request', array( $this, 'action_parse_request' ) );
 		add_filter( 'query_vars', array( $this, 'filter_query_vars' ) );
-		
+
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'current_screen', array( $this, 'action_admin_init' ) );
-		
+
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
-		
+
 		add_action('current_screen', array( $this, 'contextual_help' ));
+		add_action( 'widgets_init', array( &$this, 'register_widget' ) );
 
 	}
-	
+
 	/**
-	 * Initialize our subclass of WP_List_Table and set $items 
+	 * Initialize our subclass of WP_List_Table and set $items
 	 * Hooked to current_screen
 	 */
 	function action_admin_init() {
@@ -81,7 +83,7 @@ class Ad_Code_Manager
 			$this->wp_list_table->items = $this->get_ad_codes();
 		}
 	}
-	
+
 	/**
 	 * Load all available ad providers
 	 * and set selected as ACM_Provider $current_provider
@@ -94,7 +96,7 @@ class Ad_Code_Manager
 			if ( file_exists( AD_CODE_MANAGER_ROOT . "/providers/$module_dir.php" ) ) {
 				include_once( AD_CODE_MANAGER_ROOT . "/providers/$module_dir.php" );
 			}
-			
+
 			$tmp = explode( '-', $module_dir );
 			$class_name = '';
 			$slug_name = '';
@@ -106,32 +108,32 @@ class Ad_Code_Manager
 			$table_class_name = $class_name . 'ACM_WP_List_Table';
 			$class_name .= 'ACM_Provider';
 			$slug_name = rtrim( $slug_name, '_' );
-			
+
 			// Store class names, but don't instantiate
 			// We don't need them all at once
 			if ( class_exists( $class_name ) ) {
 				$this->providers->$slug_name = array( 'provider' => $class_name,
 													  'table' => $table_class_name,
 													);
-			}	
-				
+			}
+
 		}
-		
-		// Instantiate one that we need 
+
+		// Instantiate one that we need
 		if ( isset( $this->providers->{$this->current_provider_slug} ) ) {
 			$this->current_provider = new $this->providers->{$this->current_provider_slug}['provider'];
-		}		
-				
-		// Nothing to do without a provider		
+		}
+
+		// Nothing to do without a provider
 		if ( !is_object( $this->current_provider ) )
-			return ; 
-		
+			return ;
+
 		/**
 		 * Configuration filter: acm_whitelisted_script_urls
 		 * A security filter to whitelist which ad code script URLs can be added in the admin
 		 */
-		$this->current_provider->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->current_provider->whitelisted_script_urls );				
-				
+		$this->current_provider->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->current_provider->whitelisted_script_urls );
+
 	}
 
 	/**
@@ -140,7 +142,7 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function action_init() {
-		
+
 		$this->post_type_labels = array(
 										'name' => __( 'DFP Ad Codes' ),
 										'singular_name' => __( 'DFP Ad Codes' ),
@@ -162,7 +164,7 @@ class Ad_Code_Manager
 		 */
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
 		// Allow users to filter default logical operator
-		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR' ); 
+		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR' );
 
 		// Allow the ad management cap to be filtered if need be
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
@@ -196,7 +198,7 @@ class Ad_Code_Manager
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
 	}
-	
+
 	/**
 	 * Parse requests
 	 *
@@ -218,7 +220,7 @@ class Ad_Code_Manager
 			exit;
 		}
 	}
-	
+
 	/**
 	 *
 	 * @since 0.2
@@ -234,15 +236,15 @@ class Ad_Code_Manager
 	 *
 	 */
 	function get_ad_codes( $query_args = array() ) {
-		
+
 		$ad_codes_formatted = array();
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
-		
+
 		$args = array(
 			'post_type' => $this->post_type,
 			'numberposts' => apply_filters( 'acm_ad_code_count', 50 ),
 		);
-		
+
 		foreach ( (array) $query_args as $query_key => $query_value ) {
 			if ( ! in_array( $query_key, $allowed_query_params ) ) {
 				unset( $query_args[$query_key] );
@@ -253,19 +255,19 @@ class Ad_Code_Manager
 		$cache_key = 'ad_codes_' . implode('_', $query_args );
 		$ad_codes = get_posts( $args );
 		foreach ( $ad_codes as $ad_code_cpt ) {
-			
+
 			$provider_url_vars = array();
 			foreach ( $this->current_provider->columns as $slug => $title ) {
 				$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
 			}
-			
+
 			$ad_codes_formatted[] = array(
 				'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
 				'url_vars' => $provider_url_vars,
 				'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
 				'post_id' => $ad_code_cpt->ID
 			);
-		}		
+		}
 		return $ad_codes_formatted;
 	}
 
@@ -280,10 +282,10 @@ class Ad_Code_Manager
 		$cache_keys[] = $key;
 		update_option( 'acm_cache_keys', $cache_keys );
 	}
-	
+
 	/**
 	 * Temporary workaround for flush cache dilemma:
-	 * Flush cache 
+	 * Flush cache
 	 */
 	function flush_cache() {
 		$cache_keys = (array) get_option( 'acm_cache_keys' );
@@ -314,7 +316,7 @@ class Ad_Code_Manager
 			foreach ( $this->current_provider->columns as $slug => $title ) {
 				$ad_code_vals[$slug] = sanitize_text_field( $_POST[ $slug] );
 			}
-			
+
 			switch ( $_POST['oper'] ) {
 				case 'add':
 					$result = $this->create_ad_code( $ad_code_vals );
@@ -373,7 +375,7 @@ class Ad_Code_Manager
 	 *
 	 * @param array $ad_code
 	 *
-	 * @return int|false post_id or false 
+	 * @return int|false post_id or false
 	 */
 	function create_ad_code( $ad_code = array() ) {
 		$titles = array();
@@ -392,7 +394,7 @@ class Ad_Code_Manager
 			'ping_status' => 'closed',
 			'post_type' => $this->post_type,
 		);
-		
+
 		if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
 			foreach ( $this->current_provider->columns as $slug => $title ) {
 				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[$slug] );
@@ -451,19 +453,19 @@ class Ad_Code_Manager
 			}
 			$existing_conditionals[] = array(
 				'function' => $conditional['function'],
-				'arguments' => explode(';', $conditional['arguments'] ), 
+				'arguments' => explode(';', $conditional['arguments'] ),
 			);
 			return update_post_meta( $ad_code_id, 'conditionals', $existing_conditionals );
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Update all conditionals for ad code
 	 *
 	 * @param int $ad_code_id id of our CPT post
 	 * @param array of $conditionals
-	 * 
+	 *
 	 * @since v0.2
 	 * @return bool
 	 */
@@ -476,7 +478,7 @@ class Ad_Code_Manager
 					);
 			}
 			return update_post_meta( $ad_code_id, 'conditionals', $conditionals );
-		}	
+		}
 	}
 
 	/**
@@ -547,45 +549,45 @@ class Ad_Code_Manager
 	?>
 	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
-	
+
 	<p> Refer to help section for more information</p>
-	
+
 	</div>
 	<?php
-	
+
 require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
-	
+
 	}
-	
+
 	function contextual_help() {
 		global $pagenow;
 	if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 		return;
-	
+
 		ob_start();
 		?>
 			<div id="conditionals-help">
-		<p><strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>.</p> 
-		
+		<p><strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>.</p>
+
 		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_home" class="external text" title="http://codex.wordpress.org/Function_Reference/is_home">is_home()</a></tt>&nbsp;</dt><dd> When the main blog page is being displayed. This is the page which shows the time based blog content of your site, so if you've set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <a href="http://codex.wordpress.org/Administration_Panels" title="Administration Panels" class="mw-redirect">Administration</a> &gt; <a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a>.
 </dd></dl>
-		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_front_page" class="external text" title="http://codex.wordpress.org/Function_Reference/is_front_page">is_front_page()</a></tt>&nbsp;</dt><dd> When the front of the site is displayed, whether it is posts or a <a href="http://codex.wordpress.org/Pages" title="Pages">Page</a>.  Returns true when the main blog page is being displayed and the '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "Your latest posts", <b>or</b> when '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "A static page" and the "Front Page" value is the current <a href="/Pages" title="Pages">Page</a> being displayed. 
+		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_front_page" class="external text" title="http://codex.wordpress.org/Function_Reference/is_front_page">is_front_page()</a></tt>&nbsp;</dt><dd> When the front of the site is displayed, whether it is posts or a <a href="http://codex.wordpress.org/Pages" title="Pages">Page</a>.  Returns true when the main blog page is being displayed and the '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "Your latest posts", <b>or</b> when '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "A static page" and the "Front Page" value is the current <a href="/Pages" title="Pages">Page</a> being displayed.
 </dd></dl>
 <dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_category" class="external text" title="http://codex.wordpress.org/Function_Reference/is_category">is_category()</a></tt>&nbsp;</dt><dd> When any Category archive page is being displayed.
 </dd><dt> <tt>is_category( '9' )</tt>&nbsp;</dt><dd> When the archive page for Category 9 is being displayed.
 </dd><dt> <tt>is_category( 'Stinky Cheeses' )</tt>&nbsp;</dt><dd> When the archive page for the Category with Name "Stinky Cheeses" is being displayed.
 </dd><dt> <tt>is_category( 'blue-cheese' )</tt>&nbsp;</dt><dd> When the archive page for the Category with Category Slug "blue-cheese" is being displayed.
-</dd><dt> <tt>is_category( array( 9, 'blue-cheese', 'Stinky Cheeses' ) )</tt>&nbsp;</dt><dd> Returns true when the category of posts being displayed is either term_ID 9, or <i>slug</i> "blue-cheese", or <i>name</i> "Stinky Cheeses".  
+</dd><dt> <tt>is_category( array( 9, 'blue-cheese', 'Stinky Cheeses' ) )</tt>&nbsp;</dt><dd> Returns true when the category of posts being displayed is either term_ID 9, or <i>slug</i> "blue-cheese", or <i>name</i> "Stinky Cheeses".
 </dd><dt> <tt>in_category( '5' )</tt>&nbsp;</dt><dd> Returns true if the current post is <b>in</b> the specified category id. <a href="http://codex.wordpress.org/Template_Tags/in_category" class="external text" title="http://codex.wordpress.org/Template_Tags/in_category">read more</a>
-</dd></dl>		
+</dd></dl>
 <dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_tag" class="external text" title="http://codex.wordpress.org/Function_Reference/is_tag">is_tag()</a></tt>&nbsp;</dt><dd> When any Tag archive page is being displayed.
 </dd><dt> <tt>is_tag( 'mild' )</tt>&nbsp;</dt><dd> When the archive page for tag with the slug of 'mild' is being displayed.
-</dd><dt> <tt>is_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> Returns true when the tag archive being displayed has a slug of either "sharp", "mild", or "extreme".  
-</dd><dt> <tt>has_tag()</tt>&nbsp;</dt><dd> When the current post has a tag. Must be used inside The Loop. 
+</dd><dt> <tt>is_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> Returns true when the tag archive being displayed has a slug of either "sharp", "mild", or "extreme".
+</dd><dt> <tt>has_tag()</tt>&nbsp;</dt><dd> When the current post has a tag. Must be used inside The Loop.
 </dd><dt> <tt>has_tag( 'mild' )</tt>&nbsp;</dt><dd> When the current post has the tag 'mild'.
 </dd><dt> <tt>has_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> When the current post has any of the tags in the array.
 </dd></dl>
-	</div>	
+	</div>
 <?php
 		$contextual_help = ob_get_clean();
 		$overview = '<p>Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.</p>';
@@ -594,24 +596,32 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 				'id' => 'acm-overview',
 				'title' => 'Overview',
 				'content' => $overview,
-			)	
+			)
 		);
 		get_current_screen()->add_help_tab(
 			array(
 				'id' => 'acm-config',
 				'title' => 'Configuration',
 				'content' => '<p>Description of configuration filters and actions</p>',
-			)	
+			)
 		);
 		get_current_screen()->add_help_tab(
 			array(
 				'id' => 'acm-conditionals',
 				'title' => 'Conditionals',
 				'content' => $contextual_help,
-			)	
+			)
 		);
-		
-	
+
+
+	}
+
+	/**
+	 * Register a custom widget to display ad zones
+	 *
+	 */
+	function register_widget() {
+		register_widget( 'ACM_ad_zones' );
 	}
 
 	/**
@@ -655,7 +665,7 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		// @todo Sanitize all of the other input
 
 		// Make sure our priority is an integer
-		if ( !is_int( $priority ) ) 
+		if ( !is_int( $priority ) )
 			$priority = 10;
 
 		// Save the ad code to our set of ad codes
@@ -878,7 +888,7 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		}
 		return $valid;
 	}
-	
+
 
 }
 
