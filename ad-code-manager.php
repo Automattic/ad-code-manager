@@ -598,11 +598,19 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 		);
 		get_current_screen()->add_help_tab(
 			array(
+				'id' => 'acm-config',
+				'title' => 'Configuration',
+				'content' => '<p>Description of configuration filters and actions</p>',
+			)	
+		);
+		get_current_screen()->add_help_tab(
+			array(
 				'id' => 'acm-conditionals',
 				'title' => 'Conditionals',
 				'content' => $contextual_help,
 			)	
-		);		
+		);
+		
 	
 	}
 
