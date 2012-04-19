@@ -59,6 +59,8 @@ class Ad_Code_Manager
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( &$this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( &$this, 'post_admin_header' ) );
+		add_action( 'widgets_init', array( &$this, 'register_widget' ) );
+
 	}
 
 	/**
@@ -177,10 +179,10 @@ class Ad_Code_Manager
 	 *
 	 * @since 0.1
 	 */
-	function ajax_handler() {		
+	function ajax_handler() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( $_REQUEST['nonce'], 'acm_nonce' ) )
 			return;
-		
+
 		if ( !current_user_can( $this->manage_ads_cap ) )
 			return;
 
@@ -204,7 +206,7 @@ class Ad_Code_Manager
 	/**
 	 * Returns json encoded ad code
 	 * This is the datasource for jqGRID
-	 * 
+	 *
 	 */
 	function get_ad_codes_ajax() {
 		// These are params that should be managed via UI
@@ -214,17 +216,17 @@ class Ad_Code_Manager
 		 * $response->page = current page
 		 * $response->total = total pages
 		 * $response->record = count of rows
-		 * $response->rows = nested array of assoc arrays 
+		 * $response->rows = nested array of assoc arrays
 		 */
 		$response;
 		if ( isset( $_GET[ 'acm-action' ] ) && $_GET[ 'acm-action'] == 'datasource' ) {
 			$response->page = isset( $_GET[ 'acm-grid-page' ] ) ? sanitize_key( $_GET[ 'acm-grid-page' ] ) : 1 ;
 			$query_args = array();
-			
+
 			// We need to pass offset to get_ad_codes offset for jqGrid to work correctly
 			if ( 1 < $response->page )
 				$query_args['offset'] = ( $response->page - 1 ) * intval( $_GET['rows'] );
-			
+
 			$ad_codes = $this->get_ad_codes( $query_args ) ;
 			// prepare data in jqGrid specific format
 			$pass = array();
@@ -238,8 +240,8 @@ class Ad_Code_Manager
 			}
 			$response->rows = $pass;
 			$count_object = wp_count_posts( $this->post_type );
-			$total_pages = ceil ( $count_object->publish / $_GET['rows'] ); 
-			$response->total = $total_pages;			
+			$total_pages = ceil ( $count_object->publish / $_GET['rows'] );
+			$response->total = $total_pages;
 			$response->records = $count_object->publish;
 			$this->print_json( $response );
 		}
@@ -255,12 +257,12 @@ class Ad_Code_Manager
 	function get_ad_codes( $query_args = array() ) {
 		$ad_codes_formatted = array();
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
-		
+
 		$args = array(
 			'post_type' => $this->post_type,
 			'numberposts' => apply_filters( 'acm_ad_code_count', 50 ),
 		);
-		
+
 		foreach ( (array) $query_args as $query_key => $query_value ) {
 			if ( ! in_array( $query_key, $allowed_query_params ) ) {
 				unset( $query_args[$query_key] );
@@ -268,7 +270,7 @@ class Ad_Code_Manager
 				$args[$query_key] = $query_value;
 			}
 		}
-		
+
 		$ad_codes = get_posts( $args );
 		foreach ( $ad_codes as $ad_code_cpt ) {
 			$ad_codes_formatted[] = array(
@@ -286,13 +288,13 @@ class Ad_Code_Manager
 	function get_conditionals_ajax() {
 		if (  0 !== intval( $_GET[ 'id' ] ) ) {
 			$conditionals = $this->get_conditionals( intval( $_GET[ 'id' ] ) );
-			$response;	
+			$response;
 			foreach ( $conditionals as $index => $item ) {
 				if ( is_array( $item['arguments'] ) ) {
 					$item['arguments'] = implode(";", $item['arguments'] );
 				}
 				$response->rows[] = $item;
-			}	
+			}
 			$count = count( $response->rows );
 			$total_pages = ceil ( $count / $_GET['rows'] );
 
@@ -396,7 +398,7 @@ class Ad_Code_Manager
 		if ( 0 !== $ad_code_id && $ad_code['site_name'] && $ad_code['zone1'] ) {
 			update_post_meta( $ad_code_id, 'site_name', $ad_code['site_name'] );
 			update_post_meta( $ad_code_id, 'zone1', $ad_code['zone1'] );
-		} 
+		}
 		return;
 	}
 
@@ -510,6 +512,15 @@ class Ad_Code_Manager
 	}
 
 	/**
+	 * Register a custom widget to display ad zones
+	 *
+	 */
+	function register_widget() {
+		register_widget( 'ACM_ad_zones' );
+	}
+
+
+	/**
 	 * Hook in our submenu page to the navigation
 	 */
 	function action_admin_menu() {
@@ -525,32 +536,32 @@ class Ad_Code_Manager
 	?>
 	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
-	
+
 	<p>Quick start note: Create an ad code, then click on the row and start adding <a href="javascript:;" id="conditionals-help-toggler">conditionals</a>.</p>
-	
+
 	<div id="conditionals-help" class="hidden">
-		<strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>. 
-		
+		<strong>Note:</strong> this is not full list of conditional tags, you can always check out <a href="http://codex.wordpress.org/Conditional_Tags" class="external text">Codex page</a>.
+
 		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_home" class="external text" title="http://codex.wordpress.org/Function_Reference/is_home">is_home()</a></tt>&nbsp;</dt><dd> When the main blog page is being displayed. This is the page which shows the time based blog content of your site, so if you've set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <a href="http://codex.wordpress.org/Administration_Panels" title="Administration Panels" class="mw-redirect">Administration</a> &gt; <a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a>.
 </dd></dl>
-		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_front_page" class="external text" title="http://codex.wordpress.org/Function_Reference/is_front_page">is_front_page()</a></tt>&nbsp;</dt><dd> When the front of the site is displayed, whether it is posts or a <a href="http://codex.wordpress.org/Pages" title="Pages">Page</a>.  Returns true when the main blog page is being displayed and the '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "Your latest posts", <b>or</b> when '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "A static page" and the "Front Page" value is the current <a href="/Pages" title="Pages">Page</a> being displayed. 
+		<dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_front_page" class="external text" title="http://codex.wordpress.org/Function_Reference/is_front_page">is_front_page()</a></tt>&nbsp;</dt><dd> When the front of the site is displayed, whether it is posts or a <a href="http://codex.wordpress.org/Pages" title="Pages">Page</a>.  Returns true when the main blog page is being displayed and the '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "Your latest posts", <b>or</b> when '<a href="http://codex.wordpress.org/Administration_Panels#Reading" title="Administration Panels" class="mw-redirect">Settings</a> &gt; <a href="http://codex.wordpress.org/Settings_Reading_SubPanel" title="Settings Reading SubPanel" class="mw-redirect">Reading</a> -&gt;Front page displays' is set to "A static page" and the "Front Page" value is the current <a href="/Pages" title="Pages">Page</a> being displayed.
 </dd></dl>
 <dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_category" class="external text" title="http://codex.wordpress.org/Function_Reference/is_category">is_category()</a></tt>&nbsp;</dt><dd> When any Category archive page is being displayed.
 </dd><dt> <tt>is_category( '9' )</tt>&nbsp;</dt><dd> When the archive page for Category 9 is being displayed.
 </dd><dt> <tt>is_category( 'Stinky Cheeses' )</tt>&nbsp;</dt><dd> When the archive page for the Category with Name "Stinky Cheeses" is being displayed.
 </dd><dt> <tt>is_category( 'blue-cheese' )</tt>&nbsp;</dt><dd> When the archive page for the Category with Category Slug "blue-cheese" is being displayed.
-</dd><dt> <tt>is_category( array( 9, 'blue-cheese', 'Stinky Cheeses' ) )</tt>&nbsp;</dt><dd> Returns true when the category of posts being displayed is either term_ID 9, or <i>slug</i> "blue-cheese", or <i>name</i> "Stinky Cheeses".  
+</dd><dt> <tt>is_category( array( 9, 'blue-cheese', 'Stinky Cheeses' ) )</tt>&nbsp;</dt><dd> Returns true when the category of posts being displayed is either term_ID 9, or <i>slug</i> "blue-cheese", or <i>name</i> "Stinky Cheeses".
 </dd><dt> <tt>in_category( '5' )</tt>&nbsp;</dt><dd> Returns true if the current post is <b>in</b> the specified category id. <a href="http://codex.wordpress.org/Template_Tags/in_category" class="external text" title="http://codex.wordpress.org/Template_Tags/in_category">read more</a>
-</dd></dl>		
+</dd></dl>
 <dl><dt> <tt><a href="http://codex.wordpress.org/Function_Reference/is_tag" class="external text" title="http://codex.wordpress.org/Function_Reference/is_tag">is_tag()</a></tt>&nbsp;</dt><dd> When any Tag archive page is being displayed.
 </dd><dt> <tt>is_tag( 'mild' )</tt>&nbsp;</dt><dd> When the archive page for tag with the slug of 'mild' is being displayed.
-</dd><dt> <tt>is_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> Returns true when the tag archive being displayed has a slug of either "sharp", "mild", or "extreme".  
-</dd><dt> <tt>has_tag()</tt>&nbsp;</dt><dd> When the current post has a tag. Must be used inside The Loop. 
+</dd><dt> <tt>is_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> Returns true when the tag archive being displayed has a slug of either "sharp", "mild", or "extreme".
+</dd><dt> <tt>has_tag()</tt>&nbsp;</dt><dd> When the current post has a tag. Must be used inside The Loop.
 </dd><dt> <tt>has_tag( 'mild' )</tt>&nbsp;</dt><dd> When the current post has the tag 'mild'.
 </dd><dt> <tt>has_tag( array( 'sharp', 'mild', 'extreme' ) )</tt>&nbsp;</dt><dd> When the current post has any of the tags in the array.
 </dd></dl>
-	</div>	
-	
+	</div>
+
 	<table id="acm-codes-list"></table>
 	<div id="acm-codes-pager"></div>
 
@@ -742,7 +753,7 @@ class Ad_Code_Manager
 		// @todo possibly complicated logic for determining which
 		// script is executed while factoring in:
 		// - priority against other ad codes
-		
+
 		$code_to_display = $display_codes[0];
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
@@ -819,3 +830,65 @@ class Ad_Code_Manager
 }
 global $ad_code_manager;
 $ad_code_manager = new Ad_Code_Manager();
+
+/**
+ * ACM custom widget to choose ad tags to display in widget areas.
+ *
+ */
+class ACM_ad_zones extends WP_Widget {
+
+	//process the new widget
+	function ACM_ad_zones() {
+		$widget_ops = array(
+			'classname' => 'acm_ad_zones',
+			'description' => 'Display Ad Code Manger ad zones in widget areas'
+			);
+		$this->WP_Widget( 'ACM_ad_zones', 'Ad Code Manager Ad Zones', $widget_ops );
+	}
+
+	 //build the widget settings form
+	function form($instance) {
+		$defaults = array( 'title' => '' );
+		$instance = wp_parse_args( (array) $instance, $defaults );
+		$title = $instance['title'];
+		$zone = $instance['ad_zone'];
+		global $ad_code_manager;
+			?>
+			<p><label>Title: <input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>"  type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
+
+			<p><label for="<?php echo $this->get_field_id('ad_zone'); ?>">Choose Ad Zone</label>
+			<select id="<?php echo $this->get_field_id('ad_zone'); ?>" name="<?php echo $this->get_field_name('ad_zone'); ?>">
+				<?php
+				foreach ($ad_code_manager->ad_codes as $key => $value) {
+					?>
+					<option value="<?php echo $key; ?>" <?php selected( $key, $zone); ?>><?php echo $key; ?></option>
+					<?php
+				}
+				?>
+			</select></p>
+
+		<?php
+	}
+
+	//save the widget settings
+	function update($new_instance, $old_instance) {
+		$instance = $old_instance;
+		$instance['title'] = sanitize_text_field( $new_instance['title'] );
+		$instance['ad_zone'] = sanitize_text_field( $new_instance['ad_zone'] );
+		return $instance;
+	}
+
+	//display the widget
+	function widget($args, $instance) {
+		extract($args);
+
+		echo $before_widget;
+		$title = apply_filters( 'widget_title', $instance['title'] );
+
+		if ( !empty( $title ) ) { echo $before_title . $title . $after_title; };
+
+	    do_action( 'acm_tag', $instance['ad_zone'] );
+
+		echo $after_widget;
+	}
+}
