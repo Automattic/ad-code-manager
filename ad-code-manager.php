@@ -46,7 +46,7 @@ class Ad_Code_Manager
 	public $logical_operator;
 	public $ad_tag_ids;
 	public $providers;
-	public $current_provider_slug  = 'doubleclick_for_publishers'; // @todo this should be an option set via UI, probably.
+	public $current_provider_slug;
 	public $current_provider;
 	public $wp_list_table;
 
@@ -118,7 +118,15 @@ class Ad_Code_Manager
 			}
 
 		}
-
+		
+		/**
+		 * Configuration filter: acm_provider_slug
+		 *
+		 * By default we use doubleclick-for-publishers provider
+		 * To switch to a different ad provider use this filter
+		 */
+		$this->current_provider_slug = apply_filters( 'acm_provider_slug', 'doubleclick_for_publishers' );
+		
 		// Instantiate one that we need
 		if ( isset( $this->providers->{$this->current_provider_slug} ) ) {
 			$this->current_provider = new $this->providers->{$this->current_provider_slug}['provider'];
@@ -245,7 +253,14 @@ class Ad_Code_Manager
 
 		$ad_codes_formatted = array();
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
-
+		
+		
+		/**
+		 * Configuration filter: acm_ad_code_count
+		 *
+		 * By default we limit query to 50 ad codes
+		 * Use this filter to change limit 
+		 */
 		$args = array(
 			'post_type' => $this->post_type,
 			'numberposts' => apply_filters( 'acm_ad_code_count', 50 ),
@@ -518,14 +533,10 @@ class Ad_Code_Manager
 	?>
 	<div class="acm-ui-wrapper">
 	<h2>Ad Code Manager</h2>
-
 	<p> Refer to help section for more information</p>
-
 	</div>
 	<?php
-
-require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
-
+	require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	}
 
 	function contextual_help() {
