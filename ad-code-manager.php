@@ -219,9 +219,11 @@ class Ad_Code_Manager
 			if ( ! isset( $_POST['acm-nonce'] ) || ! wp_verify_nonce( $_POST['acm-nonce'], 'acm_nonce' ) || !current_user_can( $this->manage_ads_cap ) ) {
 				exit( 'You shall not pass' );
 			}
+			
+			
 			switch( $wp->query_vars['acm-action'] ) {
 				case 'edit':
-					$this->ad_code_edit_actions();
+					$this->ad_code_post_actions();
 					$this->flush_cache();
 					wp_redirect( wp_get_referer() );
 					break;
@@ -233,6 +235,41 @@ class Ad_Code_Manager
 			exit( $result );
 		}
 	}
+	
+	/**
+	 * Handles post requests
+	 */
+	function ad_code_post_actions() {
+		if ( ! empty( $_POST ) ) {
+			$ad_code_vals = array(
+					'priority' => intval( $_POST['priority'] ),
+				);
+			foreach ( $this->current_provider->columns as $slug => $title ) {
+				$ad_code_vals[$slug] = sanitize_text_field( $_POST[ $slug] );
+			}
+
+			switch ( $_POST['oper'] ) {
+				case 'add':
+					$result = $this->create_ad_code( $ad_code_vals );
+					if ( $result && !empty( $_POST['conditionals'] ) ) {
+						foreach ( $_POST['conditionals'] as $conditional ) {
+							$this->create_conditional( $result, $conditional );
+						}
+					}
+					return $result;
+					break;
+				case 'edit':
+					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals, false );
+					$this->edit_conditionals( intval( $_POST['id'] ), $_POST['conditionals'] );
+					wp_redirect( wp_get_referer() );
+					exit;
+					break;
+			}
+			exit; 
+		}
+		return;
+	}
+	
 
 	/**
 	 *
@@ -309,46 +346,6 @@ class Ad_Code_Manager
 		return get_post_meta( $ad_code_id, 'conditionals', true );
 	}
 
-	/**
-	 * Handles AJAX Create, Update, Delete actions for Ad Codes
-	 *
-	 * @todo remove v0.1.3 logic
-	 */
-	function ad_code_edit_actions() {
-		// Noncing happens in $this->ajax_handler()
-		if ( ! empty( $_POST ) ) {
-			 //this is jqGrid param
-			$ad_code_vals = array(
-					'priority' => intval( $_POST['priority'] ),
-				);
-			foreach ( $this->current_provider->columns as $slug => $title ) {
-				$ad_code_vals[$slug] = sanitize_text_field( $_POST[ $slug] );
-			}
-
-			switch ( $_POST['oper'] ) {
-				case 'add':
-					$result = $this->create_ad_code( $ad_code_vals );
-					if ( $result && !empty( $_POST['conditionals'] ) ) {
-						foreach ( $_POST['conditionals'] as $conditional ) {
-							$this->create_conditional( $result, $conditional );
-						}
-					}
-					return $result;
-					break;
-				case 'edit':
-					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals, false );
-					$this->edit_conditionals( intval( $_POST['id'] ), $_POST['conditionals'] );
-					wp_redirect( wp_get_referer() );
-					exit;
-					break;
-				case 'del':
-					$this->delete_ad_code( intval( $_POST['id'] ) );
-					break;
-			}
-			exit; // exit, jqGrid sends another request to fetch new data
-		}
-		return;
-	}
 
 	/**
 	 * Create a new ad code in the database
@@ -510,16 +507,9 @@ class Ad_Code_Manager
 	/**
 	 * Print the admin interface for managing the ad codes
 	 *
-	 * @todo remove html to views
 	 */
 	function admin_view_controller() {
-	?>
-	<div class="acm-ui-wrapper">
-	<h2>Ad Code Manager</h2>
-	<p> Refer to help section for more information</p>
-	</div>
-	<?php
-	require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
+		require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	}
 
 	function contextual_help() {

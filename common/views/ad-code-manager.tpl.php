@@ -1,10 +1,13 @@
 <?php
 /**
  * Template file for Ad Code Manager
- *
- * @todo TODO: Implement UI interactions
  */
 ?>
+	<div class="acm-ui-wrapper wrap">
+	<h2>Ad Code Manager</h2>
+	<p> Refer to help section for more information</p>
+	</div>
+
 <div class="wrap nosubsub">
 <div id="col-container">
 
