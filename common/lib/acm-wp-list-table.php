@@ -24,10 +24,11 @@ class ACM_WP_List_Table extends WP_List_Table {
 	* @return array $columns, the array of columns to use with the table
 	*/
 	function get_columns() {
-		return $columns= array(
-			'col_acm_id'=>__( 'ID' ),
-			'col_acm_name'=>__( 'Name' ),
-			'col_acm_priority'=>__( 'Priority' ),
+		return $columns = array(
+			'col_acm_id'             => __( 'ID', 'ad-code-manager' ),
+			'col_acm_name'           => __( 'Name', 'ad-code-manager' ),
+			'col_acm_priority'       => __( 'Priority', 'ad-code-manager' ),
+			'col_acm_conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
 	}
 
@@ -99,6 +100,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 		//Loop for each record
 		if( ! empty( $records ) ) { foreach( $records as $rec )  {
 
+			// Gather the conditional functions/arguments
+			$conditionals = get_post_meta( $rec[ 'post_id' ], 'conditionals', true );
+
 			//edit link
 			$edit_link  = add_query_arg( array(
 				'acm-request' => true,
@@ -127,17 +131,20 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 				$attributes = $class . $style;
 
-				$key = str_replace('col_acm_', '', $column_name );
-			
-				if ( ! isset( $rec[$key] ) && ! isset( $rec['url_vars'][$key] ) )
-					continue;
-			
-				$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
+				$key = str_replace( 'col_acm_', '', $column_name );
+
+				if ( $key == 'conditionals' ) {
+					$conditionals_html = '';
+					foreach( $conditionals as $conditional ) {
+						$conditionals_html .= '<strong>' . $conditional['function'] . '</strong> ' . $conditional['arguments'][0] . '<br />';
+					}
+					$value = $conditionals_html;
+				} else {
+					$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
+				}
 				$extra = '';
-				if ( 1 == $i ) {
-					// @todo View Conditionals not connected yet
+				if ( $key == 'site_name' ) {
 					$extra .= $this->row_actions( array(
-						'View Conditionals' => '<a class="acm-ajax-view" id="acmview-' . $rec[ 'post_id' ] . '" href="#">View Conditionals</a>',
 						'Edit' => '<a class="acm-ajax-edit" id="acmedit-' . $rec[ 'post_id' ] . '" href="#">Edit</a>',
 						'Delete' => '<a class="acm-ajax-delete" id="acmdelete-' . $rec[ 'post_id' ] . '" href="#">Delete</a>',
 					));
@@ -145,7 +152,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 				echo '<td '.$attributes.'>'.stripslashes( $value ). $extra . '</td>';
 
-				if ( in_array( $column_name, $hidden ) )
+				if ( in_array( $column_name, $hidden ) || $key == 'conditionals' )
 					continue;
 
 				// If this is *not* a hidden field, we also want to include it in the inline editor
@@ -156,8 +163,6 @@ class ACM_WP_List_Table extends WP_List_Table {
 			//Close the line
 			echo'</tr>';
 
-			// Gather the conditional functions/arguments
-			$conditionals = get_post_meta( $rec[ 'post_id' ], 'conditionals', true );
 			$inline_edit_conditionals = '';
 			if ( ! empty( $conditionals ) ) {
 				for( $j=0, $total = sizeof( $conditionals ); $j < $total; $j++ ) {

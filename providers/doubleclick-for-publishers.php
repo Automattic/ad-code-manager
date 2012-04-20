@@ -81,10 +81,11 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 */
 	function get_columns() {
 		return $columns = array(
-			'col_acm_post_id'=>__( 'ID' ),
-			'col_acm_site_name'=>__( 'Site Name' ),
-			'col_acm_zone1'=>__( 'Zone1' ),
-			'col_acm_priority'=>__( 'Priority' ),
+			'col_acm_post_id'        =>__( 'ID' ),
+			'col_acm_site_name'      =>__( 'Site Name' ),
+			'col_acm_zone1'          =>__( 'Zone1' ),
+			'col_acm_priority'       =>__( 'Priority' ),
+			'col_acm_conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
 	} 
 }
