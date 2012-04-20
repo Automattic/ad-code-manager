@@ -23,13 +23,13 @@ class ACM_WP_List_Table extends WP_List_Table {
 	* Define the columns that are going to be used in the table
 	* @return array $columns, the array of columns to use with the table
 	*/
-   function get_columns() {
-	   return $columns= array(
-		   'col_acm_id'=>__( 'ID' ),
-		   'col_acm_name'=>__( 'Name' ),
-		   'col_acm_priority'=>__( 'Priority' ),
-	   );
-   }
+	function get_columns() {
+		return $columns= array(
+			'col_acm_id'=>__( 'ID' ),
+			'col_acm_name'=>__( 'Name' ),
+			'col_acm_priority'=>__( 'Priority' ),
+		);
+	}
 
 	/**
 	 * Prepare the table with different parameters, pagination, columns and table elements
@@ -84,8 +84,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 	/**
 	 * Display the rows of records in the table
-     * @return string, echo the markup of the rows
-     */
+	 * @return string, echo the markup of the rows
+	 */
 	function display_rows() {
 		// Alternate the table row classes for color swapping
 		$alternate = '';
@@ -112,7 +112,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			$inline_edit_inputs = '';
 
 			//Open the line
-	        echo '<tr id="record_'.$rec['post_id'].'" class="' . $alternate . ' acm-record-display">';
+			echo '<tr id="record_'.$rec['post_id'].'" class="' . $alternate . ' acm-record-display">';
 			$i = 0;
 			foreach ( $columns as $column_name => $column_display_name ) {
 

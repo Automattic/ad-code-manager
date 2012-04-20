@@ -57,7 +57,7 @@ class ACM_Ad_Zones extends WP_Widget {
 		if ( !empty( $title ) ) {
 			echo $before_title . $title . $after_title;
 		}
-	    do_action( 'acm_tag', $instance['ad_zone'] );
+		do_action( 'acm_tag', $instance['ad_zone'] );
 		echo $after_widget;
 	}
 }

@@ -19,68 +19,68 @@ tr:hover .row-actions {
 }
 
 .form-new-row {
-    clear: left;
-    float: left;
-    width: 50%;
+	clear: left;
+	float: left;
+	width: 50%;
 }
 
 .form-half {
-    float: left;
-    width: 45%;
-    margin-bottom: 5px;
+	float: left;
+	width: 45%;
+	margin-bottom: 5px;
 }
 
 .form-add-more {
-    clear:left;
-    width: 90%;
-    text-align: right;
+	clear:left;
+	width: 90%;
+	text-align: right;
 }
 
 .acm-edit-field {
-    position: relative;
-    max-width: 200px;
-    float: left;
-    margin: 15px 0 0 15px;
+	position: relative;
+	max-width: 200px;
+	float: left;
+	margin: 15px 0 0 15px;
 }
 
 .acm-edit-field label {
-    position: relative;
-    float: left;
-    font-weight: 700;
-    color: #333;
+	position: relative;
+	float: left;
+	font-weight: 700;
+	color: #333;
 }
 
 .acm-edit-cond,
 .acm-cancel-button,
 .acm-edit-field input,
 .acm-conditional-label {
-    position: relative;
-    float: left;
-    clear: left;
+	position: relative;
+	float: left;
+	clear: left;
 }
 
 .acm-edit-cond {
-    margin: 5px 0 0 15px;
+	margin: 5px 0 0 15px;
 }
 
 .acm-edit-cond input {
-    margin-left: 15px;
+	margin-left: 15px;
 }
 
 .acm-conditional-label {
-    width: 100%;
-    font-weight: 700;
-    color: #333;
-    margin: 10px 0 0 15px;
+	width: 100%;
+	font-weight: 700;
+	color: #333;
+	margin: 10px 0 0 15px;
 }
 
 .acm-cancel-button {
-    margin: 10px 0 30px 15px;
+	margin: 10px 0 30px 15px;
 }
 
 .acm-edit-button {
-    float: left;
-    margin: 10px 0 30px 15px;
+	float: left;
+	margin: 10px 0 30px 15px;
 }
 
 .acm-x-cond {
