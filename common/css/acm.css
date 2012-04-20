@@ -82,3 +82,16 @@ tr:hover .row-actions {
     float: left;
     margin: 10px 0 30px 15px;
 }
+
+.acm-x-cond {
+	font-size: 14px;
+	padding-left: 5px;
+	color: #888;
+	cursor: pointer;
+	font-family: sans-serif
+}
+
+.acm-x-cond:hover {
+	color: #333;
+	text-decoration: underline;
+}

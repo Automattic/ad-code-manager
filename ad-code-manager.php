@@ -457,13 +457,13 @@ class Ad_Code_Manager
 	 */
 	function edit_conditionals( $ad_code_id, $conditionals = array() ) {
 		if ( 0 !== $ad_code_id && !empty( $conditionals ) ) {
-			foreach( $conditionals as $index => $conditional ) {
-					$conditionals[$index] = array(
+			foreach( $conditionals as $conditional ) {
+					$new_conditionals[] = array(
 						'function' => $conditional['function'],
 						'arguments' => (array) $conditional['arguments'],
 					);
 			}
-			return update_post_meta( $ad_code_id, 'conditionals', $conditionals );
+			return update_post_meta( $ad_code_id, 'conditionals', $new_conditionals );
 		}
 	}
 

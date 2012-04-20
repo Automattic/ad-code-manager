@@ -35,7 +35,17 @@ jQuery( document ).ready( function( $ ) {
             jQuery('.acm-edit-display').hide();
             jQuery('.acm-record-display').show();
         });
-
+	    if ( 1 == jQuery('.acm-edit-cond', '#record_display_' + post_id ).length ) {
+		    jQuery('.acm-x-cond', '#record_display_' + post_id ).remove();
+	    } else {
+		    jQuery('.acm-x-cond').click( function($) {
+			    var record_id = parseInt( jQuery(this).attr('id').split('-')[1] );
+			    jQuery('#acm-edit-cond-' + record_id ).remove();
+			    if ( 1 == jQuery('.acm-edit-cond', '#record_display_' + post_id ).length ) {
+				    jQuery('.acm-x-cond', '#record_display_' + post_id ).remove();
+			    }
+		    });
+	    }
     });
 	jQuery('.acm-ajax-delete').click( function($) {
 		var $this = jQuery(this);
@@ -48,5 +58,6 @@ jQuery( document ).ready( function( $ ) {
 			}
 		} );
 		
-	});	
+	});
+
 });
