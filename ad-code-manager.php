@@ -350,23 +350,6 @@ class Ad_Code_Manager
 		return;
 	}
 
-	function conditionals_edit_actions() {
-		if (  ! empty( $_POST ) ) {
-			$conditional_vals = array(
-					'function' => sanitize_key( $_POST['function'] ),
-					//arguments from jqGrid are passed as string, need to check arguments type before choosing the way to sanitize the value
-					'arguments' => is_array( $_POST['arguments'] ) ? array_map( 'sanitize_text_field', $_POST['arguments'] ) : sanitize_text_field( $_POST['arguments'] ),
-				);
-			switch ( $_POST['oper'] ) {
-				case 'add':
-					$result = $this->create_conditional( intval( $_GET['acm_id'] ), $conditional_vals );
-					break;
-			}
-			exit($result);
-		}
-		return;
-	}
-
 	/**
 	 * Create a new ad code in the database
 	 *
