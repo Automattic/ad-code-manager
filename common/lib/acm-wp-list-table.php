@@ -3,18 +3,18 @@
  * Skeleton child class of WP_List_Table 
  *
  * You need to extend it for a specific provider
+ * Check /providers/doubleclick-for-publishers.php
+ * to see example of implementation
  * 
  * @since v0.1.3
  */
 //Our class extends the WP_List_Table class, so we need to make sure that it's there
-//if( ! class_exists( 'WP_List_Table' ) ){
+
 	require_once( ABSPATH . 'wp-admin/includes/screen.php' );
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
-//}
+
 class ACM_WP_List_Table extends WP_List_Table {
   
-	//public $ad_codes;
-	
 	function __construct( $params = array() ) {
 		parent::__construct( $params );
 	}
@@ -103,7 +103,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			$edit_link  = add_query_arg( array(
 				'acm-request' => true,
 				'acm-action' => 'edit',
-				'acm_id' => (int) $rec['post_id']
+				'acm-id' => (int) $rec['post_id']
 			), home_url( '/' ) );
 
 			$alternate = 'alternate' == $alternate ? '' : 'alternate';
@@ -199,5 +199,4 @@ class ACM_WP_List_Table extends WP_List_Table {
 			<?php
 		}}
 	}
-
 }

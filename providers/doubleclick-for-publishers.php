@@ -6,7 +6,10 @@
  */
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 	function __construct() {
+		// Default output HTML
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
+		
+		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
 		$this->ad_tag_ids = array(
 			array(
 					'tag' => '728x90-atf',
@@ -54,6 +57,8 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 					)
 			),
 		);
+		
+		// Only allow ad tags called from following URLS
 		$this->whitelisted_script_urls = array( 'ad.doubleclick.net' );
 		$this->columns = array( 'site_name' => 'Site Name', 'zone1' => 'zone1' );
 		parent::__construct();
@@ -65,10 +70,15 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 		parent::__construct( array(
 			'singular'=> 'doubleclick_for_publishers_acm_wp_list_table', //Singular label
 			'plural' => 'doubleclick_for_publishers_acm_wp_list_table', //plural label, also this well be one of the table css class
-			'ajax'	=> true //We won't support Ajax for this table
+			'ajax'	=> true 
 		) );
 	 }
-	 
+	
+	
+	/**
+	 * This is nuts and bolts of table representation
+	 *
+	 */
 	function get_columns() {
 	   return $columns = array(
 		   'col_acm_post_id'=>__( 'ID' ),
