@@ -95,3 +95,17 @@ tr:hover .row-actions {
 	color: #333;
 	text-decoration: underline;
 }
+
+#acm-add-inline-cond {
+	display: block;
+	float: left;
+	clear: left;
+	padding-top: 5px;
+	width: 295px;
+	text-align: right;
+	cursor:pointer;
+}
+
+#acm-add-inline-cond:hover {
+	text-decoration: underline;
+}

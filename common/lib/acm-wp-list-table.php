@@ -135,7 +135,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 				$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
 				$extra = '';
 				if ( 1 == $i ) {
-					// @todo Only Edit is hooked up via JS right now
+					// @todo View Conditionals not connected yet
 					$extra .= $this->row_actions( array(
 						'View Conditionals' => '<a class="acm-ajax-view" id="acmview-' . $rec[ 'post_id' ] . '" href="#">View Conditionals</a>',
 						'Edit' => '<a class="acm-ajax-edit" id="acmedit-' . $rec[ 'post_id' ] . '" href="#">Edit</a>',
@@ -164,7 +164,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 					$inline_edit_conditionals .= '<div class="acm-edit-cond" id="acm-edit-cond-' . $j . '"><select name="conditionals[' . $j . '][function]" class="cond_' . $rec[ 'post_id' ] . '"><option value="' . esc_attr( $conditionals[$j][ 'function' ] ) . '">' . $conditionals[$j][ 'function' ] . '</option></select>';
 
 					if ( ! empty( $conditionals[$j][ 'arguments' ][0] ) ) {
-						$inline_edit_conditionals .= ' <input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="' . esc_attr( $conditionals[$j][ 'arguments' ][0] ) . '" />';
+						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="' . esc_attr( $conditionals[$j][ 'arguments' ][0] ) . '" />';
 					} else {
 						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="" />';
 					}
@@ -186,6 +186,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 							<?php echo $inline_edit_inputs; ?>
 							<label class="acm-conditional-label" for="acm-conditionals">Conditionals:</label>
 							<?php echo $inline_edit_conditionals; ?>
+							<div class="acm-edit-cond"></div>
+							<a id="acm-add-inline-cond">Add more</a>
 						</div></fieldset>
 						<p class="inline-edit-save submit">
 							<?php submit_button( __( 'Cancel', 'ad-code-manager' ), 'secondary', 'acm-cancel-edit-' . $rec[ 'post_id' ], false ); ?> 
