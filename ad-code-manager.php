@@ -206,6 +206,7 @@ class Ad_Code_Manager
 	 */
 	function action_parse_request( $wp ) {
 		if ( isset( $wp->query_vars['acm-request'] ) && isset( $wp->query_vars['acm-action'] ) ) {
+			$result;
 			// Check if we're good
 			if ( ! isset( $_POST['acm-nonce'] ) || ! wp_verify_nonce( $_POST['acm-nonce'], 'acm_nonce' ) || !current_user_can( $this->manage_ads_cap ) ) {
 				exit( 'You shall not pass' );
@@ -216,8 +217,12 @@ class Ad_Code_Manager
 					$this->flush_cache();
 					wp_redirect( wp_get_referer() );
 					break;
+				case 'delete':
+					$result = $this->delete_ad_code( $wp->query_vars['acm-id'] );
+					$this->flush_cache();
+					break;
 			}
-			exit;
+			exit( $result );
 		}
 	}
 
@@ -228,6 +233,7 @@ class Ad_Code_Manager
 	function filter_query_vars( $vars ) {
 		$vars[] = 'acm-request';
 		$vars[] = 'acm-action';
+		$vars[] = 'acm-id';
 		return $vars;
 	}
 
@@ -290,6 +296,8 @@ class Ad_Code_Manager
 
 	/**
 	 * Handles AJAX Create, Update, Delete actions for Ad Codes
+	 *
+	 * @todo remove v0.1.3 logic
 	 */
 	function ad_code_edit_actions() {
 		// Noncing happens in $this->ajax_handler()
@@ -409,8 +417,10 @@ class Ad_Code_Manager
 	 * Delete an existing ad code
 	 */
 	function delete_ad_code( $ad_code_id ) {
-		if ( 0 !== $ad_code_id )
+		if ( 0 !== $ad_code_id ) {
 			wp_delete_post( $ad_code_id , true ); //force delete post
+			return true;
+		}
 		return;
 	}
 	/**
@@ -545,7 +555,21 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 <?php
 		$contextual_help = ob_get_clean();	
 		
-		$overview = '<p>Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.</p>';
+		ob_start();
+?>
+<p>Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.</p>
+<p>We tried to streamline the process and make everyday AdOps a little bit easier</p>
+<p>Depending on ad network you use, you will see a set of required fields to fill in (generally, "Ad Code" is a set of parameters you need to pass to ad server, so it could serve proper ad). Then you set conditionals. You can create ad code with conditionals in one easy step</p>
+<p>Priorities work pretty much the same way they work in WordPress.  Lower numbers correspond with higher priority. 
+<p>Once you've done creating ad codes, you can easily implement them in your theme using:</p>
+<ul>
+	<li>template tag: <code>&lt;?php do_action( 'acm_tag', $tag_id ) ?&gt;</code> </li>
+	<li>shortcode: [acm-tag id="tag_id"]</li>
+	<li>or using widget</li>
+</ul>
+	
+<?php			
+		$overview = ob_get_clean();
 		get_current_screen()->add_help_tab(
 			array(
 				'id' => 'acm-overview',

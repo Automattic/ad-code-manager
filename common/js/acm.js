@@ -37,4 +37,16 @@ jQuery( document ).ready( function( $ ) {
         });
 
     });
+	jQuery('.acm-ajax-delete').click( function($) {
+		var $this = jQuery(this);
+        var post_id = parseInt( $this.attr('id').split('-')[1] );
+		var url = '/?acm-request=true&acm-action=delete&acm-id=' + post_id;
+		var data = { 'acm-nonce': acm_ajax_nonce }
+		jQuery.post( url , data , function( response ) {
+			if (1 == response) {
+				$this.parents('tr').hide('fast');
+			}
+		} );
+		
+	});	
 });
