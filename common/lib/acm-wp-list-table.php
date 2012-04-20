@@ -37,7 +37,10 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function prepare_items() {
 		//global $wpdb, $_wp_column_headers;
 		$screen = get_current_screen();
-	
+
+		if ( empty( $this->items ) )
+			return;
+
 		/* -- Pagination parameters -- */
 		//Number of elements in your table?
 		$totalitems = count( $this->items ); //return the total number of affected rows
