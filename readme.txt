@@ -15,9 +15,9 @@ To set things up, you'll need to add small template tags to your theme where you
 
 Once this code-level configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions.
 
-Ad Code Manager currently works with Doubleclick for Publishers and [we'd like to abstract it to other providers](https://github.com/danielbachhuber/Ad-Code-Manager/issues/4)
+Ad Code Manager currently works with Doubleclick for Publishers and [we'd like to abstract it to other providers](https://github.com/Automattic/Ad-Code-Manager/issues/4)
 
-[Fork the plugin on Github](https://github.com/danielbachhuber/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
+[Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
 == Installation ==
 
