@@ -338,15 +338,6 @@ class Ad_Code_Manager
 				case 'add':
 					$result = $this->create_conditional( intval( $_GET['acm_id'] ), $conditional_vals );
 					break;
-				case 'edit':
-					$conditional_vals['id'] = intval( $_POST['id'] ); // we need this for edit action to work correctly
-					$result = $this->edit_conditional( intval( $_GET['acm_id'] ), $conditional_vals, true );
-					break;
-				case 'del':
-					// That's confusing: $_GET['id'] refers to CPT ID, $_POST['id'] refers to indices that should be
-					// removed from array of conditionals
-					$result = $this->delete_conditional( intval( $_GET['id'] ), intval( $_POST['id'] ), true );
-					break;
 			}
 			exit($result);
 		}
@@ -467,28 +458,6 @@ class Ad_Code_Manager
 	}
 
 	/**
-	 * This is a bit tricky as we really don't use any ID for conditionals
-	 * To remove conditional we need to specify array index
-	 *
-	 * @param int $ad_code_id
-	 * @param string $conditional_indices string of comma separated indices
-	 */
-	function delete_conditional( $ad_code_id, $conditional_indices = '', $from_ajax = false ) {
-		if ( 0 !== $ad_code_id ) {
-			$existing_conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
-			$ids_to_delete = explode(',', $conditional_indices ); //
-			foreach ($ids_to_delete as $index_to_delete ) {
-				if ( $from_ajax ) { // jqGrid starts with one, PHP starts with 0
-					$index_to_delete--;
-				}
-				unset( $existing_conditionals[$index_to_delete] );
-			}
-			return update_post_meta( $ad_code_id, 'conditionals', array_values( $existing_conditionals ) ); //array_values to keep indices consistent
-		}
-		return false;
-	}
-
-	/**
 	 * encode as json any given $data
 	 */
 	function print_json( $data = array() ) {
@@ -574,7 +543,8 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 </dd></dl>
 	</div>
 <?php
-		$contextual_help = ob_get_clean();
+		$contextual_help = ob_get_clean();	
+		
 		$overview = '<p>Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.</p>';
 		get_current_screen()->add_help_tab(
 			array(
@@ -597,8 +567,6 @@ require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 				'content' => $contextual_help,
 			)
 		);
-
-
 	}
 
 	/**
