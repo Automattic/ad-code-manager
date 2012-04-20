@@ -457,13 +457,18 @@ class Ad_Code_Manager
 	 */
 	function edit_conditionals( $ad_code_id, $conditionals = array() ) {
 		if ( 0 !== $ad_code_id && !empty( $conditionals ) ) {
-			foreach( $conditionals as $index => $conditional ) {
-					$conditionals[$index] = array(
-						'function' => $conditional['function'],
-						'arguments' => (array) $conditional['arguments'],
-					);
+			$new_conditionals = array();
+			foreach( $conditionals as $conditional ) {
+				if ( '' == $conditional['function'] )
+					continue;
+				$new_conditionals[] = array(
+					'function' => $conditional['function'],
+					'arguments' => (array) $conditional['arguments'],
+				);
 			}
-			return update_post_meta( $ad_code_id, 'conditionals', $conditionals );
+			return update_post_meta( $ad_code_id, 'conditionals', $new_conditionals );
+		} elseif ( 0 !== $ad_code_id ) {
+			return update_post_meta( $ad_code_id, 'conditionals', array() );
 		}
 	}
 

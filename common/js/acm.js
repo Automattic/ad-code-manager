@@ -35,7 +35,23 @@ jQuery( document ).ready( function( $ ) {
             jQuery('.acm-edit-display').hide();
             jQuery('.acm-record-display').show();
         });
-
+	    jQuery('.acm-x-cond').click( function($) {
+		    var record_id = parseInt( jQuery(this).attr('id').split('-')[1] );
+		    jQuery('#acm-edit-cond-' + record_id ).remove();
+	    });
+	    var current_index = jQuery('.acm-edit-cond', '#record_display_' + post_id ).length;
+	    jQuery('#acm-add-inline-cond', '#record_display_' + post_id ).click( function($){
+		    jQuery('.acm-edit-cond', '#record_display_' + post_id ).last().after('<div class="acm-edit-cond" id="acm-edit-cond-' + current_index + '">' +
+			    '<select name="conditionals[' + current_index + '][function]" id="acm-new-inline-cond-' + current_index + '" class="cond_' + post_id + '"></select>' +
+			    '<input name="conditionals[' + current_index + '][arguments]" type="text" size="20" value="" />' +
+			    '<span class="acm-x-cond" id="acmxcond-' + current_index + '">x</span></div>');
+		    jQuery('#acm-conditional-0 option').clone().appendTo('#acm-new-inline-cond-' + current_index );
+		    jQuery('#acmxcond-' + current_index ).click( function($){
+				var this_index = jQuery(this).attr('id').split('-')[1];
+			    jQuery('#acm-edit-cond-' + this_index ).remove();
+		    });
+		    current_index++;
+		});
     });
 	jQuery('.acm-ajax-delete').click( function($) {
 		var $this = jQuery(this);
@@ -48,5 +64,6 @@ jQuery( document ).ready( function( $ ) {
 			}
 		} );
 		
-	});	
+	});
+
 });
