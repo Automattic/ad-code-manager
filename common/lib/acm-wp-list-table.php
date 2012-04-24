@@ -24,12 +24,13 @@ class ACM_WP_List_Table extends WP_List_Table {
 	* @return array $columns, the array of columns to use with the table
 	*/
 	function get_columns() {
-		return $columns = array(
-			'col_acm_id'             => __( 'ID', 'ad-code-manager' ),
-			'col_acm_name'           => __( 'Name', 'ad-code-manager' ),
-			'col_acm_priority'       => __( 'Priority', 'ad-code-manager' ),
-			'col_acm_conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+		$columns = array(
+			'id'             => __( 'ID', 'ad-code-manager' ),
+			'name'           => __( 'Name', 'ad-code-manager' ),
+			'priority'       => __( 'Priority', 'ad-code-manager' ),
+			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
+		return apply_filters( 'acm_list_table_columns', $columns );
 	}
 
 	/**
@@ -50,7 +51,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$perpage = 25;
 		
 		//Which page is this?
-		$paged = !empty($_GET["paged"]) ? mysql_real_escape_string($_GET["paged"]) : '';
+		$paged = !empty( $_GET["paged"] ) ? intval( $_GET["paged"] ) : '';
 			
 		//Page Number
 		if(empty($paged) || !is_numeric($paged) || $paged<=0 ){ $paged=1; }
@@ -74,7 +75,10 @@ class ACM_WP_List_Table extends WP_List_Table {
 	
 		/* -- Register the Columns -- */
 		$columns = $this->get_columns();
-		$this->_column_headers = array($columns, array( 'col_acm_post_id' ), $this->get_sortable_columns() ) ;
+		$hidden = array(
+				'id',
+			);
+		$this->_column_headers = array( $columns, $hidden, $this->get_sortable_columns() ) ;
 	
 		/**
 		 * Items are set in Ad_Code_Manager class
@@ -84,124 +88,85 @@ class ACM_WP_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Display the rows of records in the table
-	 * @return string, echo the markup of the rows
+	 * Message to be displayed if there are no ad codes found
+	 *
+	 * @since 0.2
 	 */
-	function display_rows() {
-		// Alternate the table row classes for color swapping
-		$alternate = '';
-
-		//Get the records registered in the prepare_items method
-		$records = $this->items;
-
-		//Get the columns registered in the get_columns and get_sortable_columns methods
-		list( $columns, $hidden ) = $this->get_column_info();
-
-		//Loop for each record
-		if( ! empty( $records ) ) { foreach( $records as $rec )  {
-
-			// Gather the conditional functions/arguments
-			$conditionals = get_post_meta( $rec[ 'post_id' ], 'conditionals', true );
-
-			//edit link
-			$edit_link  = add_query_arg( array(
-				'acm-request' => true,
-				'acm-action' => 'edit',
-				'acm-id' => (int) $rec['post_id']
-			), home_url( '/' ) );
-
-			$alternate = 'alternate' == $alternate ? '' : 'alternate';
-
-			// Gather a new set of inputs for the inline editor on each loop
-			$inline_edit_inputs = '';
-
-			//Open the line
-			echo '<tr id="record_'.$rec['post_id'].'" class="' . $alternate . ' acm-record-display">';
-			$i = 0;
-			foreach ( $columns as $column_name => $column_display_name ) {
-
-				//Style attributes for each col
-				$class = "class='$column_name column-$column_name'";
-				$style = "";
-
-				if ( in_array( $column_name, $hidden ) )
-					$style = ' style="display:none;"';
-				else
-					$i++; // Only increment on visible columns to help display row actions and ajax
-
-				$attributes = $class . $style;
-
-				$key = str_replace( 'col_acm_', '', $column_name );
-
-				if ( $key == 'conditionals' ) {
-					$conditionals_html = '';
-					foreach( $conditionals as $conditional ) {
-						$conditionals_html .= '<strong>' . $conditional['function'] . '</strong> ' . $conditional['arguments'][0] . '<br />';
-					}
-					$value = $conditionals_html;
-				} else {
-					$value = isset( $rec[$key] ) ? $rec[$key] : $rec['url_vars'][$key];
-				}
-				$extra = '';
-				if ( $key == 'site_name' ) {
-					$extra .= $this->row_actions( array(
-						'Edit' => '<a class="acm-ajax-edit" id="acmedit-' . $rec[ 'post_id' ] . '" href="#">Edit</a>',
-						'Delete' => '<a class="acm-ajax-delete" id="acmdelete-' . $rec[ 'post_id' ] . '" href="#">Delete</a>',
-					));
-				}
-
-				echo '<td '.$attributes.'>'.stripslashes( $value ). $extra . '</td>';
-
-				if ( in_array( $column_name, $hidden ) || $key == 'conditionals' )
-					continue;
-
-				// If this is *not* a hidden field, we also want to include it in the inline editor
-				$inline_edit_inputs .= '<div class="acm-edit-field"><label for="col_edit_' . $key . '_' . $rec[ 'post_id' ] . '">' . $column_display_name . '</label>';
-				$inline_edit_inputs .= '<input type="text" name="' . $key . '" id="col_edit_' . $key . '_' . $rec[ 'post_id' ] . '" value="' . esc_attr( $value ) . '" /></div>';
-			}
-
-			//Close the line
-			echo'</tr>';
-
-			$inline_edit_conditionals = '';
-			if ( ! empty( $conditionals ) ) {
-				for( $j=0, $total = sizeof( $conditionals ); $j < $total; $j++ ) {
-					$inline_edit_conditionals .= '<div class="acm-edit-cond" id="acm-edit-cond-' . $j . '"><select name="conditionals[' . $j . '][function]" class="cond_' . $rec[ 'post_id' ] . '"><option value="' . esc_attr( $conditionals[$j][ 'function' ] ) . '">' . $conditionals[$j][ 'function' ] . '</option></select>';
-
-					if ( ! empty( $conditionals[$j][ 'arguments' ][0] ) ) {
-						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="' . esc_attr( $conditionals[$j][ 'arguments' ][0] ) . '" />';
-					} else {
-						$inline_edit_conditionals .= '<input name="conditionals[' . $j . '][arguments]" type="text" size="20" value="" />';
-					}
-
-					$inline_edit_conditionals .= '<span class="acm-x-cond" id="acmxcond-' . $j . '">x</span></div>';
-
-				}
-			}
-
-			// Display the hidden row for inline editing
-			?>
-			<tr class="<?php echo $alternate; ?> acm-edit-display" id="record_display_<?php echo $rec[ 'post_id' ]; ?>" style="display:none;" >
-				<td colspan="<?php echo $i; ?>">
-					<form id="acm-edit-form-<?php echo $rec[ 'post_id' ]; ?>" method="POST" action="<?php echo $edit_link; ?>">
-						<fieldset><div class="inline-edit-col">
-							<input type="hidden" name="id" value="<?php echo esc_attr( $rec[ 'post_id' ] ); ?>">
-							<input type="hidden" name="oper" value="edit">
-							<?php wp_nonce_field( 'acm_nonce', 'acm-nonce' ); ?>
-							<?php echo $inline_edit_inputs; ?>
-							<label class="acm-conditional-label" for="acm-conditionals">Conditionals:</label>
-							<?php echo $inline_edit_conditionals; ?>
-							<div class="acm-edit-cond"></div>
-							<a id="acm-add-inline-cond">Add more</a>
-						</div></fieldset>
-						<p class="inline-edit-save submit">
-							<?php submit_button( __( 'Cancel', 'ad-code-manager' ), 'secondary', 'acm-cancel-edit-' . $rec[ 'post_id' ], false ); ?> 
-							<?php submit_button( __( 'Update', 'ad-code-manager' ), 'primary', 'acm-edit-button', false ); ?>
-						</p>
-					</form>
-				</td>
-			</tr>
-			<?php
-		}}
+	function no_items() {
+		_e( 'No ad codes have been configured.', 'ad-code-manager' );
 	}
+
+	/**
+	 * Prepare and echo a single ad code row
+	 *
+	 * @since 0.2
+	 */
+	function single_row( $item ) {
+		static $alternate_class = '';
+		$alternate_class = ( $alternate_class == '' ? ' alternate' : '' );
+		$row_class = ' class="term-static' . $alternate_class . '"';
+
+		echo '<tr id="ad-code-' . $item['post_id'] . '"' . $row_class . '>';
+		echo $this->single_row_columns( $item );
+		echo '</tr>';
+	}
+
+	/**
+	 * Fallback column callback.
+	 *
+	 * @since 0.2
+	 *
+	 * @param object $item Custom status as an object
+	 * @param string $column_name Name of the column as registered in $this->prepare_items()
+	 * @return string $output What will be rendered
+	 */
+	function column_default( $item, $column_name ) {
+
+		switch( $column_name ) {
+			case 'priority':
+				return esc_html( $item['priority'] );
+				break;
+			default:
+				break;
+		}
+
+	}
+
+	/**
+	 *
+	 */
+	function column_name( $item ) {
+		$output = esc_html( $item['name'] );
+		$output .= $this->row_actions_output( $item );
+		return $output;
+	}
+
+	/**
+	 * Display the conditionals for this ad code
+	 *
+	 * @since 0.2
+	 */
+	function column_conditionals( $item ) {
+		$conditionals_html = '';
+		foreach( $item['conditionals'] as $conditional ) {
+			$conditionals_html .= '<strong>' . esc_html( $conditional['function'] ) . '</strong> ' . esc_html( $conditional['arguments'][0] ) . '<br />';
+		}
+		return $conditionals_html;
+	}
+
+	/**
+	 * Produce the action links and hidden HTML for inline editing
+	 *
+	 * @since 0.2
+	 */
+	function row_actions_output( $item ) {
+
+		$output = '';
+		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit', 'ad-code-manager' ) . '</a>';
+		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . $item[ 'post_id' ] . '" href="#">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
+		$output .= $this->row_actions( $row_actions );
+
+		return $output;
+	}
+
 }
