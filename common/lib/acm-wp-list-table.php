@@ -147,6 +147,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @since 0.2
 	 */
 	function column_conditionals( $item ) {
+		if ( empty( $item['conditionals'] ) )
+			return '<em>' . __( 'None', 'ad-code-manager' ) . '</em>';
+		
 		$conditionals_html = '';
 		foreach( $item['conditionals'] as $conditional ) {
 			$conditionals_html .= '<strong>' . esc_html( $conditional['function'] ) . '</strong> ' . esc_html( $conditional['arguments'][0] ) . '<br />';
