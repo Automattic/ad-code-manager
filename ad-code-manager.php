@@ -128,10 +128,8 @@ class Ad_Code_Manager
 		$this->current_provider_slug = apply_filters( 'acm_provider_slug', 'doubleclick_for_publishers' );
 		
 		// Instantiate one that we need
-		if ( isset( $this->providers->{$this->current_provider_slug} ) ) {
+		if ( isset( $this->providers->{$this->current_provider_slug} ) )
 			$this->current_provider = new $this->providers->{$this->current_provider_slug}['provider'];
-			$this->current_provider->columns = apply_filters( 'acm_provider_columns', $this->current_provider->columns );
-		}
 
 		// Nothing to do without a provider
 		if ( !is_object( $this->current_provider ) )
