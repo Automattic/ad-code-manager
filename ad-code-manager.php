@@ -360,7 +360,10 @@ class Ad_Code_Manager
 	 * Get the conditional values for an ad code
 	 */
 	function get_conditionals( $ad_code_id ) {
-		return get_post_meta( $ad_code_id, 'conditionals', true );
+		$conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
+		if ( empty( $conditionals ) )
+			$conditionals = array();
+		return $conditionals;
 	}
 
 
