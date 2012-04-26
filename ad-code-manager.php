@@ -56,8 +56,6 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function __construct() {
-		add_action( 'parse_request', array( $this, 'action_parse_request' ) );
-		add_filter( 'query_vars', array( $this, 'filter_query_vars' ) );
 
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
@@ -67,6 +65,7 @@ class Ad_Code_Manager
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
+		add_action( 'wp_ajax_acm_admin_action', array( $this, 'handle_admin_action' ) );
 
 		add_action('current_screen', array( $this, 'contextual_help' ) );
 		add_action( 'widgets_init', array( $this, 'register_widget' ) );
@@ -207,34 +206,64 @@ class Ad_Code_Manager
 	}
 
 	/**
-	 * Parse requests
+	 * Handle any Add, Edit, or Delete actions from the admin interface
+	 * Hooks into admin ajax because it's the proper context for these sort of actions
 	 *
 	 * @since 0.2
 	 */
-	function action_parse_request( $wp ) {
-		if ( isset( $wp->query_vars['acm-request'] ) && isset( $wp->query_vars['acm-action'] ) ) {
-			$result;
-			// Check if we're good
-			if ( ! isset( $_POST['acm-nonce'] ) || ! wp_verify_nonce( $_POST['acm-nonce'], 'acm_nonce' ) || !current_user_can( $this->manage_ads_cap ) ) {
-				exit( 'You shall not pass' );
-			}
-			
-			
-			switch( $wp->query_vars['acm-action'] ) {
-				case 'edit':
-					$this->ad_code_post_actions();
-					$this->flush_cache();
-					wp_redirect( wp_get_referer() );
+	function handle_admin_action() {
+
+		if ( !wp_verify_nonce( $_REQUEST['nonce'], 'acm-admin-action' ) )
+			wp_die( __( 'Doing something fishy, eh?', 'ad-code-manager' ) );
+
+		if ( !current_user_can( $this->manage_ads_cap ) )
+			wp_die( __( 'You do not have the necessary permissions to perform this action', 'ad-code-manager' ) );
+
+		// Depending on the method we're performing, sanitize the requisite data and do it
+		switch( $_REQUEST['method'] ) {
+			case 'add':
+				$priority = ( isset( $_REQUEST['priority'] ) ) ? (int)$_REQUEST['priority'] : 10;
+				$ad_code_vals = array(
+						'priority' => $priority,
+					);
+				foreach( $this->current_provider->columns as $slug => $title ) {
+					$column_id = 'acm-column-' . $slug;
+					$ad_code_vals[$slug] = sanitize_text_field( $_REQUEST[$column_id] );
+				}
+				$result = $this->create_ad_code( $ad_code_vals );
+				if ( is_wp_error( $result ) ) {
+					$message = 'error-adding-ad-code';
 					break;
-				case 'delete':
-					$result = $this->delete_ad_code( $wp->query_vars['acm-id'] );
-					$this->flush_cache();
-					break;
-			}
-			exit( $result );
+				}
+				foreach( (array)$_REQUEST['acm-conditionals'] as $index => $unsafe_conditional ) {
+					$index = (int)$index;
+					$arguments = ( isset( $_REQUEST['acm-arguments'][$index] ) ) ? sanitize_text_field( $_REQUEST['acm-arguments'][$index] ) : '';
+					$conditional = array(
+							'function' => sanitize_key( $unsafe_conditional ),
+							'arguments' => $arguments,
+						);
+					if ( !empty( $conditional['function'] ) )
+						$this->create_conditional( $result, $conditional );
+				}
+				$message = 'ad-code-added';
+				break;
+			case 'edit':
+				$message = 'ad-code-updated';
+				break;
+			case 'delete':
+				$id = (int)$_REQUEST['id'];
+				$this->delete_ad_code( $id );
+				$this->flush_cache();
+				$message = 'ad-code-deleted';
+				break;
 		}
+
+		// @todo support ajax and non-ajax requests
+		$redirect_url = add_query_arg( 'message', $message, remove_query_arg( 'message', wp_get_referer() ) );
+		wp_safe_redirect( $redirect_url );
+		exit;
 	}
-	
+
 	/**
 	 * Handles post requests
 	 */
@@ -268,18 +297,7 @@ class Ad_Code_Manager
 		}
 		return;
 	}
-	
 
-	/**
-	 *
-	 * @since 0.2
-	 */
-	function filter_query_vars( $vars ) {
-		$vars[] = 'acm-request';
-		$vars[] = 'acm-action';
-		$vars[] = 'acm-id';
-		return $vars;
-	}
 
 	/**
 	 * Get the ad codes stored in our custom post type

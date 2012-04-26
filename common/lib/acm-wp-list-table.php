@@ -163,7 +163,15 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 		$output = '';
 		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit', 'ad-code-manager' ) . '</a>';
-		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . $item[ 'post_id' ] . '" href="#">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
+
+		$args = array(
+				'action' => 'acm_admin_action',
+				'method' => 'delete',
+				'id' => $item['post_id'],
+				'nonce' => wp_create_nonce( 'acm-admin-action' ),
+			);
+		$delete_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . $item[ 'post_id' ] . '" href="' . esc_url( $delete_link ) . '">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
 		$output .= $this->row_actions( $row_actions );
 
 		return $output;

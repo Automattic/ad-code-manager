@@ -18,13 +18,16 @@ tr:hover .row-actions {
 	visibility: visible;
 }
 
-.form-new-row {
+.conditional-single-field {
 	clear: left;
+}
+
+.conditional-single-field .conditional-function {
 	float: left;
 	width: 50%;
 }
 
-.form-half {
+.conditional-single-field .conditional-arguments {
 	float: left;
 	width: 45%;
 	margin-bottom: 5px;
