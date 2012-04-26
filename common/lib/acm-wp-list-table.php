@@ -136,7 +136,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 */
 	function column_name( $item ) {
-		$output = esc_html( $item['name'] );
+		$output = isset($item['name']) ? esc_html( $item['name'] ) : esc_html( $item['url_vars']['name'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}

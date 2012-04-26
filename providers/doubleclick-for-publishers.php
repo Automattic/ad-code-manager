@@ -60,7 +60,7 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 		
 		// Only allow ad tags called from following URLS
 		$this->whitelisted_script_urls = array( 'ad.doubleclick.net' );
-		$this->columns = array( 'site_name' => 'Site Name', 'zone1' => 'zone1' );
+		$this->columns = apply_filters( 'acm_provider_columns', array( 'site_name' => 'Site Name', 'zone1' => 'zone1' ) );
 
 		parent::__construct();
 	}

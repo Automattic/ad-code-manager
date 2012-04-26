@@ -130,6 +130,7 @@ class Ad_Code_Manager
 		// Instantiate one that we need
 		if ( isset( $this->providers->{$this->current_provider_slug} ) ) {
 			$this->current_provider = new $this->providers->{$this->current_provider_slug}['provider'];
+			$this->current_provider->columns = apply_filters( 'acm_provider_columns', $this->current_provider->columns );
 		}
 
 		// Nothing to do without a provider
@@ -245,7 +246,7 @@ class Ad_Code_Manager
 					'priority' => intval( $_POST['priority'] ),
 				);
 			foreach ( $this->current_provider->columns as $slug => $title ) {
-				$ad_code_vals[$slug] = sanitize_text_field( $_POST[ $slug] );
+				$ad_code_vals[$slug] = sanitize_text_field( $_POST[$slug] );
 			}
 
 			switch ( $_POST['oper'] ) {
