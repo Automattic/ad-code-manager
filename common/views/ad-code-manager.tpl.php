@@ -46,7 +46,6 @@
 <input type="hidden" name="action" value="acm_admin_action" />
 <input type="hidden" name="method" value="add" />
 <input type="hidden" name="priority" value="10" />
-<input type="hidden" name="conditionals" />
 <?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
 
 <?php
