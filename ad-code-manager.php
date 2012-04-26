@@ -265,41 +265,6 @@ class Ad_Code_Manager
 	}
 
 	/**
-	 * Handles post requests
-	 */
-	function ad_code_post_actions() {
-		if ( ! empty( $_POST ) ) {
-			$ad_code_vals = array(
-					'priority' => intval( $_POST['priority'] ),
-				);
-			foreach ( $this->current_provider->columns as $slug => $title ) {
-				$ad_code_vals[$slug] = sanitize_text_field( $_POST[$slug] );
-			}
-
-			switch ( $_POST['oper'] ) {
-				case 'add':
-					$result = $this->create_ad_code( $ad_code_vals );
-					if ( $result && !empty( $_POST['conditionals'] ) ) {
-						foreach ( $_POST['conditionals'] as $conditional ) {
-							$this->create_conditional( $result, $conditional );
-						}
-					}
-					return $result;
-					break;
-				case 'edit':
-					$this->edit_ad_code( intval( $_POST['id'] ), $ad_code_vals, false );
-					$this->edit_conditionals( intval( $_POST['id'] ), $_POST['conditionals'] );
-					wp_redirect( wp_get_referer() );
-					exit;
-					break;
-			}
-			exit; 
-		}
-		return;
-	}
-
-
-	/**
 	 * Get the ad codes stored in our custom post type
 	 *
 	 */
