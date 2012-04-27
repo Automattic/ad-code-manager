@@ -31,7 +31,7 @@
 <?php
 	$this->wp_list_table->prepare_items();
 	$this->wp_list_table->display();
-?>	
+?>
 
 </div>
 </div><!-- /col-right -->
@@ -50,7 +50,7 @@
 
 <?php
 foreach ( $this->current_provider->columns as $slug => $title ):
-	$column_id = 'acm-column-' . $slug;
+	$column_id = 'acm-column[' . $slug . ']';
 ?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $title ) ?></label>
@@ -59,10 +59,10 @@ foreach ( $this->current_provider->columns as $slug => $title ):
 <?php
 endforeach;
 ?>
-<div class="form-field" id="conditional-tpl">
+<div class="form-field acm-conditional-fields" id="conditional-tpl">
 	<div class="form-new-row">
-	<label for="acm-conditionals">Conditional</label>
-	<div class="conditional-single-field">
+	<label for="acm-conditionals"><?php _e( 'Conditionals', 'ad-code-manager' ); ?></label>
+	<div class="conditional-single-field" id="conditional-single-field-master">
 	<div class="conditional-function">
 	<select name="acm-conditionals[]">
 <option value=""><?php _e( 'Select conditional', 'ad-code-manager' ); ?></option>	  
@@ -78,9 +78,9 @@ foreach ( $this->whitelisted_conditionals as $key ):
 	</div> 
 	</div>
 </div>
-</div>
 <div class="form-field form-add-more">
-	<a href="#" class="button button-secondary" id="add-more-conditionals">Add more</a>
+	<a href="#" class="button button-secondary add-more-conditionals">Add more</a>
+</div>
 </div>
 <p class="clear"></p>
 <?php submit_button( __( 'Add New Ad Code', 'ad-code-manager' ) ); ?>
@@ -88,6 +88,8 @@ foreach ( $this->whitelisted_conditionals as $key ):
 
 </div>
 </div><!-- /col-left -->
+
+<?php $this->wp_list_table->inline_edit(); ?>
 
 </div>
 </div>

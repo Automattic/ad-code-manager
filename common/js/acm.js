@@ -1,65 +1,128 @@
-jQuery( document ).ready( function( $ ) {
-	$('#add-more-conditionals').click(function() {
-		var temp = jQuery( 'div.conditional-single-field').first().clone( false );
-		jQuery('#conditional-tpl').append( temp );
+(function($) {
+inlineEditAdCodes = {
+
+	init : function() {
+		var t = this, row = $('#inline-edit');
+
+		t.what = '#ad-code-';
+
+		$('.acm-ajax-edit').live('click', function(){
+			inlineEditAdCodes.edit(this);
+			return false;
+		});
+
+		// prepare the edit row
+		row.keyup(function(e) { if(e.which == 27) return inlineEditAdCodes.revert(); });
+
+		$('a.cancel', row).click(function() { return inlineEditAdCodes.revert(); });
+		$('a.save', row).click(function() { return inlineEditAdCodes.save(this); });
+		$('input, select', row).keydown(function(e) { if(e.which == 13) return inlineEditAdCodes.save(this); });
+
+		$('#posts-filter input[type="submit"]').mousedown(function(e){
+			t.revert();
+		});
+	},
+
+	toggle : function(el) {
+		var t = this;
+		$(t.what+t.getId(el)).css('display') == 'none' ? t.revert() : t.edit(el);
+	},
+
+	edit : function(id) {
+		var t = this, editRow;
+		t.revert();
+
+		if ( typeof(id) == 'object' )
+			id = t.getId(id);
+
+		editRow = $('#inline-edit').clone(true), rowData = $('#inline_'+id);
+		$('td', editRow).attr('colspan', $('.widefat:first thead th:visible').length);
+
+		if ( $(t.what+id).hasClass('alternate') )
+			$(editRow).addClass('alternate');
+
+		$(t.what+id).hide().after(editRow);
+
+		$('input[name="id"]', editRow).val( $('.id', rowData).text() );
+		$('.acm-column-fields', editRow).html( $('.acm-column-fields', rowData).html() );
+		$('.acm-conditional-fields', editRow).html( $('.acm-conditional-fields', rowData).html() );
+		
+		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
+		$('.ptitle', editRow).eq(0).focus();
+
+		return false;
+	},
+
+	save : function(id) {
+
+		if( typeof(id) == 'object' )
+			id = this.getId(id);
+
+		$('table.widefat .inline-edit-save .waiting').show();
+		// Get all of our field parameters
+		inline_edit = $('#edit-'+id ).find('fieldset').wrap('<form action="POST" ></form>');
+		params = inline_edit.closest('form').serializeArray();
+
+		// make ajax request
+		$.post(ajaxurl, params,
+			function(r) {
+				var row, new_id;
+				$('table.widefat .inline-edit-save .waiting').hide();
+
+				if (r) {
+					if ( -1 != r.indexOf('<tr') ) {
+						$(inlineEditAdCodes.what+id).remove();
+						new_id = $(r).attr('id');
+
+						$('#edit-'+id).before(r).remove();
+						row = new_id ? $('#'+new_id) : $(inlineEditAdCodes.what+id);
+						row.hide().fadeIn();
+					} else
+						$('#edit-'+id+' .inline-edit-save .error').html(r).show();
+				} else
+					$('#edit-'+id+' .inline-edit-save .error').html(inlineEditL10n.error).show();
+			}
+		);
+		return false;
+	},
+
+	revert : function() {
+		var id = $('table.widefat tr.inline-editor').attr('id');
+
+		if ( id ) {
+			$('table.widefat .inline-edit-save .waiting').hide();
+			$('#'+id).remove();
+			id = id.substr( id.lastIndexOf('-') + 1 );
+			$(this.what+id).show();
+		}
+
+		return false;
+	},
+
+	getId : function(o) {
+		var id = o.tagName == 'TR' ? o.id : $(o).parents('tr').attr('id'), parts = id.split('-');
+		return parts[parts.length - 1];
+	}
+};
+
+$(document).ready(function(){inlineEditAdCodes.init();});
+})(jQuery);
+
+function acm_add_more_conditionals() {
+	jQuery('.add-more-conditionals').click(function() {
+		var temp = jQuery( 'div#conditional-single-field-master').clone( false );
+		temp.removeAttr('id');
+		jQuery(this).closest('.acm-conditional-fields').find('.form-new-row').append(temp);
 		return false;
 	});
-	jQuery('#conditionals-help-toggler').click( function( e ) {
+}
+
+jQuery( document ).ready( function( $ ) {
+
+	acm_add_more_conditionals();
+	$('#conditionals-help-toggler').click( function( e ) {
 		var el = jQuery('#conditionals-help');
 		
 		el.toggleClass('hidden');
 	});
-	jQuery('.ad-code-edit').click( function( $ ) {
-		var url_request = ajaxurl + jQuery(this).val();
-		var data = {
-			action: 'acm_edit_ad_code',
-			data: post_id,
-			nonce: $( '#acm_edit_ad_code_nonce' ).val()
-		};
-		$.post( ajaxurl, data, function( response ) {
-			$('.edit_acm_view').replaceWith( response );
-		} );
-	});
-	jQuery('.acm-ajax-edit').click( function($) {
-		var post_id = parseInt( jQuery(this).attr('id').split('-')[1] );
-		jQuery('.acm-edit-display').hide();
-		jQuery('.acm-record-display').show();
-		jQuery('#record_' + post_id ).hide();
-		jQuery('#acm-conditional-0 option').clone().appendTo('.cond_' + post_id );
-		jQuery('#record_display_' + post_id ).show();
-		jQuery('#acm-cancel-edit-' + post_id ).click( function($) {
-			jQuery('.acm-edit-display').hide();
-			jQuery('.acm-record-display').show();
-		});
-		jQuery('.acm-x-cond').click( function($) {
-			var record_id = parseInt( jQuery(this).attr('id').split('-')[1] );
-			jQuery('#acm-edit-cond-' + record_id ).remove();
-		});
-		var current_index = jQuery('.acm-edit-cond', '#record_display_' + post_id ).length;
-		jQuery('#acm-add-inline-cond', '#record_display_' + post_id ).click( function($){
-			jQuery('.acm-edit-cond', '#record_display_' + post_id ).last().after('<div class="acm-edit-cond" id="acm-edit-cond-' + current_index + '">' +
-				'<select name="conditionals[' + current_index + '][function]" id="acm-new-inline-cond-' + current_index + '" class="cond_' + post_id + '"></select>' +
-				'<input name="conditionals[' + current_index + '][arguments]" type="text" size="20" value="" />' +
-				'<span class="acm-x-cond" id="acmxcond-' + current_index + '">x</span></div>');
-			jQuery('#acm-conditional-0 option').clone().appendTo('#acm-new-inline-cond-' + current_index );
-			jQuery('#acmxcond-' + current_index ).click( function($){
-				var this_index = jQuery(this).attr('id').split('-')[1];
-				jQuery('#acm-edit-cond-' + this_index ).remove();
-			});
-			current_index++;
-		});
-	});
-	jQuery('.acm-ajax-delete').click( function($) {
-		var $this = jQuery(this);
-		var post_id = parseInt( $this.attr('id').split('-')[1] );
-		var url = '/?acm-request=true&acm-action=delete&acm-id=' + post_id;
-		var data = { 'acm-nonce': acm_ajax_nonce }
-		jQuery.post( url , data , function( response ) {
-			if (1 == response) {
-				$this.parents('tr').hide('fast');
-			}
-		} );
-		
-	});
-
 });

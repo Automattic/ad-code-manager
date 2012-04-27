@@ -77,10 +77,7 @@ class Ad_Code_Manager
 	 * Hooked to current_screen
 	 */
 	function action_admin_init() {
-		if ( is_admin() ) {
-			$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
-			$this->wp_list_table->items = $this->get_ad_codes();
-		}
+		$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
 	}
 
 	/**
@@ -222,33 +219,45 @@ class Ad_Code_Manager
 		// Depending on the method we're performing, sanitize the requisite data and do it
 		switch( $_REQUEST['method'] ) {
 			case 'add':
+			case 'edit':
+				$id = ( isset( $_REQUEST['id'] ) ) ? (int)$_REQUEST['id'] : 0;
 				$priority = ( isset( $_REQUEST['priority'] ) ) ? (int)$_REQUEST['priority'] : 10;
 				$ad_code_vals = array(
 						'priority' => $priority,
 					);
 				foreach( $this->current_provider->columns as $slug => $title ) {
-					$column_id = 'acm-column-' . $slug;
-					$ad_code_vals[$slug] = sanitize_text_field( $_REQUEST[$column_id] );
+					$ad_code_vals[$slug] = sanitize_text_field( $_REQUEST['acm-column'][$slug] );
 				}
-				$result = $this->create_ad_code( $ad_code_vals );
-				if ( is_wp_error( $result ) ) {
-					$message = 'error-adding-ad-code';
+				if ( $_REQUEST['method'] == 'add')
+					$id = $this->create_ad_code( $ad_code_vals );
+				else
+					$id = $this->edit_ad_code( $id, $ad_code_vals );
+				if ( is_wp_error( $id ) ) {
+					$message = 'error-adding-editing-ad-code';
 					break;
 				}
-				foreach( (array)$_REQUEST['acm-conditionals'] as $index => $unsafe_conditional ) {
+				$new_conditionals = array();
+				$unsafe_conditionals = ( isset( $_REQUEST['acm-conditionals'] ) ) ? $_REQUEST['acm-conditionals'] : array();
+				foreach( $unsafe_conditionals as $index => $unsafe_conditional ) {
 					$index = (int)$index;
 					$arguments = ( isset( $_REQUEST['acm-arguments'][$index] ) ) ? sanitize_text_field( $_REQUEST['acm-arguments'][$index] ) : '';
 					$conditional = array(
 							'function' => sanitize_key( $unsafe_conditional ),
 							'arguments' => $arguments,
 						);
-					if ( !empty( $conditional['function'] ) )
-						$this->create_conditional( $result, $conditional );
+					if ( !empty( $conditional['function'] ) ) {
+						$new_conditionals[] = $conditional;
+					}
 				}
-				$message = 'ad-code-added';
-				break;
-			case 'edit':
-				$message = 'ad-code-updated';
+				if ( $_REQUEST['method'] == 'add' ) {
+					foreach( $new_conditionals as $new_conditional ) {
+						$this->create_conditional( $id, $new_conditional ); 
+					}
+					$message = 'ad-code-added';
+				} else {
+					$this->edit_conditionals( $id, $new_conditionals );
+					$message = 'ad-code-updated';
+				}
 				break;
 			case 'delete':
 				$id = (int)$_REQUEST['id'];
@@ -258,9 +267,21 @@ class Ad_Code_Manager
 				break;
 		}
 
-		// @todo support ajax and non-ajax requests
-		$redirect_url = add_query_arg( 'message', $message, remove_query_arg( 'message', wp_get_referer() ) );
-		wp_safe_redirect( $redirect_url );
+		if ( isset( $_REQUEST['doing_ajax'] ) && $_REQUEST['doing_ajax'] ){
+			switch( $_REQUEST['method'] ) {
+				case 'edit':
+					set_current_screen( 'ad-code-manager' );
+					$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
+					$this->wp_list_table->prepare_items();
+					$new_ad_code = $this->get_ad_code( $id );
+					echo $this->wp_list_table->single_row( $new_ad_code );
+					break;
+			}
+		} else {
+			// @todo support ajax and non-ajax requests
+			$redirect_url = add_query_arg( 'message', $message, remove_query_arg( 'message', wp_get_referer() ) );
+			wp_safe_redirect( $redirect_url );
+		}
 		exit;
 	}
 
@@ -312,6 +333,33 @@ class Ad_Code_Manager
 			wp_cache_add( 'ad_codes', $ad_codes_formatted, 'acm',  3600 );
 		}	
 		return $ad_codes_formatted;
+	}
+
+	/**
+	 * Get a single ad code
+	 *
+	 * @param int $post_id Post ID for the ad code that we want
+	 * @return array $ad_code Ad code representation of the data
+	 */
+	function get_ad_code( $post_id ) {
+
+		$post = get_post( $post_id );
+		if ( !$post )
+			return false;
+		
+		$provider_url_vars = array();
+		foreach ( $this->current_provider->columns as $slug => $title ) {
+			$provider_url_vars[$slug] = get_post_meta( $post->ID, $slug, true );
+		}
+	
+		$ad_code_formatted = array(
+			'conditionals' => $this->get_conditionals( $post->ID ),
+			'url_vars' => $provider_url_vars,
+			'priority' => get_post_meta( $post->ID, 'priority', true ),
+			'post_id' => $post->ID
+		);
+		return $ad_code_formatted;
+
 	}
 
 	/**
@@ -372,12 +420,12 @@ class Ad_Code_Manager
 	/**
 	 * Update an existing ad code
 	 */
-	function edit_ad_code( $ad_code_id, $ad_code = array(), $redirect = true ) {
+	function edit_ad_code( $ad_code_id, $ad_code = array()) {
 		foreach ( $this->current_provider->columns as $slug => $title ) {
 			// We shouldn't update an ad code,
 			// If any of required fields is not set
 			if ( ! $ad_code[$slug] ) {
-				return;
+				return new WP_Error();
 			}
 		}
 		if ( 0 !== $ad_code_id ) {
@@ -387,10 +435,7 @@ class Ad_Code_Manager
 			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
 		}
 		$this->flush_cache();
-		if ( $redirect ) {
-			wp_redirect( wp_get_referer() );
-			exit();
-		}
+		return $ad_code_id;
 	}
 
 	/**

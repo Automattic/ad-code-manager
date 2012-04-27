@@ -37,11 +37,11 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * Prepare the table with different parameters, pagination, columns and table elements
 	 */
 	function prepare_items() {
-		//global $wpdb, $_wp_column_headers;
+		global $ad_code_manager;
+
 		$screen = get_current_screen();
 
-		if ( empty( $this->items ) )
-			return;
+		$this->items = $ad_code_manager->get_ad_codes();
 
 		/* -- Pagination parameters -- */
 		//Number of elements in your table?
@@ -133,6 +133,49 @@ class ACM_WP_List_Table extends WP_List_Table {
 	}
 
 	/**
+	 * Display hidden information we need for inline editing
+	 */
+	function column_id( $item ) {
+		global $ad_code_manager;
+
+		$output = '<div id="inline_' . $item['post_id'] . '" style="display:none;">';
+		$output .= '<div class="id">' . $item['post_id'] . '</div>';
+		// Build the fields for the normal columns
+		$output .= '<div class="acm-column-fields">';
+		foreach( (array)$item['url_vars'] as $slug => $value ) {
+			$column_id = 'acm-column[' . $slug . ']';
+			$output .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
+			$output .= '<input name="' . esc_attr( $column_id ) . '" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="40" aria-required="true">';
+		}
+		$output .= '</div>';
+		// Build the fields for the conditionals
+		$output .= '<div class="acm-conditional-fields"><div class="form-new-row">';
+		$output .= '<label for="acm-conditionals">' . __( 'Conditionals', 'ad-code-manager' ) . '</label>';
+		if ( !empty( $item['conditionals'] ) ) {
+			foreach( $item['conditionals'] as $conditional ) {
+				$function = $conditional['function'];
+				$arguments = $conditional['arguments'];
+				$output .= '<div class="conditional-single-field"><div class="conditional-function">';
+				$output .= '<select name="acm-conditionals[]">';
+				$output .= '<option value="">' . __( 'Select conditional', 'ad-code-manager' ) . '</option>';
+				foreach ( $ad_code_manager->whitelisted_conditionals as $key ) {
+					$output .= '<option value="' .  esc_attr($key) . '" ' . selected( $function, $key, false ) . '>';
+					$output .= esc_html( ucfirst( str_replace('_', ' ', $key ) ) );
+					$output .= '</option>';
+				}
+				$output .= '</select>';
+				$output .= '</div><div class="conditional-arguments">';
+				$output .= '<input name="acm-arguments[]" type="text" value="' . esc_attr( implode( ';', $arguments ) ) .'" size="20" />';
+				$output .= '</div></div>';
+			}
+		}
+		$output .= '<div class="form-field form-add-more"><a href="#" class="button button-secondary" id="add-more-conditionals">Add more</a></div>';
+		$output .= '</div></div>';
+		$output .= '</div>';
+		return $output;
+	}
+
+	/**
 	 *
 	 */
 	function column_name( $item ) {
@@ -149,7 +192,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function column_conditionals( $item ) {
 		if ( empty( $item['conditionals'] ) )
 			return '<em>' . __( 'None', 'ad-code-manager' ) . '</em>';
-		
+
 		$conditionals_html = '';
 		foreach( $item['conditionals'] as $conditional ) {
 			$conditionals_html .= '<strong>' . esc_html( $conditional['function'] ) . '</strong> ' . esc_html( $conditional['arguments'][0] ) . '<br />';
@@ -165,7 +208,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function row_actions_output( $item ) {
 
 		$output = '';
-		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit', 'ad-code-manager' ) . '</a>';
+		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit Ad Code', 'ad-code-manager' ) . '</a>';
 
 		$args = array(
 				'action' => 'acm_admin_action',
@@ -178,6 +221,39 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$output .= $this->row_actions( $row_actions );
 
 		return $output;
+	}
+
+	/**
+	 * Hidden form used for inline editing functionality
+	 *
+	 * @since 0.2
+	 */
+	function inline_edit() {
+?>
+	<form method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>"><table style="display: none"><tbody id="inlineedit">
+		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
+			<fieldset><div class="inline-edit-col">
+				<h4><?php _e( 'Edit Ad Code', 'ad-code-manager' ); ?></h4>
+				<input type="hidden" name="id" value="" />
+				<input type="hidden" name="action" value="acm_admin_action" />
+				<input type="hidden" name="method" value="edit" />
+				<input type="hidden" name="doing_ajax" value="true" />
+				<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
+				<div class="acm-column-fields"></div>
+				<div class="acm-conditional-fields"></div>
+			</div></fieldset>
+		<p class="inline-edit-save submit">
+			<?php $cancel_text = __( 'Cancel', 'ad-code-manager' ); ?>
+			<a href="#inline-edit" title="<?php echo esc_attr( $cancel_text ); ?>" class="cancel button-secondary alignleft"><?php echo $cancel_text; ?></a>
+			<?php $update_text = __( 'Update', 'ad-code-manager' ); ?>
+			<a href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
+			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
+			<span class="error" style="display:none;"></span>
+			<br class="clear" />
+		</p>
+		</td></tr>
+		</tbody></table></form>
+	<?php
 	}
 
 }
