@@ -13,9 +13,10 @@ Ad Code Manager gives non-developers an interface in the WordPress admin for con
 
 To set things up, you'll need to add small template tags to your theme where you'd like your ads to appear. These are called "ad tags." Then, you'll need to define a common set of parameters for your ad provider. These parameters include all of the tag IDs you've established in your template, the default script URL, the default output, etc.
 
-Once this code-level configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions.
+Once this code-level configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expression and then return true or false.
 
-Ad Code Manager currently works with Doubleclick for Publishers and [we'd like to abstract it to other providers](https://github.com/Automattic/Ad-Code-Manager/issues/4)
+Ad Code Manager currently works with Doubleclick for Publishers. However, all logic is abstracted. This means that you can configure ACM for your ad provider 
+relatively easy. You might want to check providers/doubleclick-for-publishers.php to get the idea.
 
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
@@ -25,7 +26,7 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 1. Upload `ad-code-manager` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Incorporate ad tags in your theme template with <?php do_action( 'acm_tag', 'slot' ) ?>. Also you can use [acm-tag id="slot"] shorcode or ACM Widget
+1. Incorporate ad tags in your theme template with <?php do_action( 'acm_tag', 'slot' ) ?>. Also you can use [acm-tag id="slot"] shortcode or ACM Widget
 1. Implement filters to make the plugin work with your provider
 1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
 
@@ -185,7 +186,88 @@ Example usage:
 
 `add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
 
+= acm_provider_slug =
+
+By default we use our bundled doubleclick_for_publishers config ( check it in /providers/doubleclick-for-publishers.php ). If you want to add your own flavor of DFP or even implement configuration for some another ad network, you'd have to apply a filter to correct the slug.
+
+Example usage:
+
+`add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; })`
+
+= acm_logical_operator =
+
+By default logical operator is set to "OR", that is, ad code will be displayed if at least one conditional returns true.
+You can change it to "AND", so that ad code will be displayed only if ALL of the conditionals match
+
+Example usage:
+
+`add_filter( 'acm_provider_slug', function( $slug ) { return 'my-ad-network-slug'; })`
+
+= acm_manage_ads_cap =
+
+By default user has to have "manage_options" cap. This filter comes in handy, if you want to relax the requirements.
+
+Example usage:
+
+`add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; })`
+
+= acm_allowed_get_posts_args =
+
+This filter is only for edge cases. Most likely you won't have to touch it. Allows to include additional query args for Ad_Code_Manager->get_ad_codes() method.
+
+Example usage:
+
+`add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); })`
+
+= acm_ad_code_count =
+
+By default the total number of ad codes to get is 50, which is reasonable for any small to mid site. However, in some certain cases you would want to increase the limit. This will affect Ad_Code_Manager->get_ad_codes() 'numberposts' query argument.
+
+Example usage:
+
+`add_filter( 'acm_ad_code_count', function( $total ) { return 100; })`
+
+= acm_list_table_columns = 
+
+This filter can alter table columns that are displayed in ACM UI.
+
+Example usage:
+
+`add_filter( 'acm_list_table_columns', function ( $columns ) {
+		$columns = array(
+			'id'             => __( 'ID', 'ad-code-manager' ),
+			'name'           => __( 'Name', 'ad-code-manager' ),
+			'priority'       => __( 'Priority', 'ad-code-manager' ),
+			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+		);
+		return $columns;
+} )`
+
+= acm_provider_columns =
+
+This filter comes in pair with previous one, it should return array of ad network specific parameters. E.g. in acm_list_table_columns example we have
+'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name"
+
+Example usage:
+`add_filter( 'acm_provider_columns', function ( $columns ) {
+		$columns = array(
+			'name'           => __( 'Name', 'ad-code-manager' ),
+		);
+		return $columns;
+} )`
+
 == Changelog ==
+
+= 0.2 (May 1, 2012) =
+* UI reworked from the ground to feel like genuine WP List Table.
+* Abstracted ad network logic, so users can integrate their ad networks.
+* Added in-plugin contextual help
+* Implemented priority for ad code ( allows to workaround ad code conflicts if any )
+* Implemented the [acm-tag] shortcode
+* Implemented ACM Widget
+* Bug fix: Enable using ad codes with empty filters using a filter
+* Bug fix: Setting the logical operator from OR to AND does not seem to result in the expected behaviour for displaying ads.
+* Bug fix: Remove logical operator check when a conditional for an ad code is empty
 
 = 0.1.3 (February 13, 2012) =
 * UI cleanup for the admin, including styling and information on applying conditionals
