@@ -19,15 +19,23 @@ tr:hover .row-actions {
 }
 
 .conditional-single-field {
-	clear: left;
+	clear: both;
+}
+
+.acm-remove-conditional {
+	float: right;
+	color: #D54E21;
 }
 
 .conditional-single-field .conditional-function {
 	float: left;
+}
+
+#add-adcode .conditional-single-field .conditional-function {
 	width: 50%;
 }
 
-.conditional-single-field .conditional-arguments {
+#add-adcode .conditional-single-field .conditional-arguments {
 	float: left;
 	width: 45%;
 	margin-bottom: 5px;
@@ -61,10 +69,18 @@ tr:hover .row-actions {
 	min-width: 270px;
 }
 
+.inline-edit-col .acm-conditional-fields .conditional-arguments {
+	margin-left: 140px;
+}
+
+.inline-edit-col .acm-conditional-fields .conditional-arguments input {
+	width: 70%;
+	margin-bottom: 5px;
+}
+
 .inline-edit-col .acm-conditional-fields .form-add-more {
-	padding-top: 5px;
-	padding-bottom: 4px;
-	clear: left;
+	margin-top: 10px;
+	clear: both;
 }
 
 #add-adcode .form-add-more {

@@ -158,7 +158,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 				$output .= '</select>';
 				$output .= '</div><div class="conditional-arguments">';
 				$output .= '<input name="acm-arguments[]" type="text" value="' . esc_attr( implode( ';', $arguments ) ) .'" size="20" />';
-				$output .= '</div></div>';
+				$output .= '<a href="#" class="acm-remove-conditional">Remove</a></div></div>';
 			}
 		}
 		$output .= '</div><div class="form-field form-add-more"><a href="#" class="button button-secondary add-more-conditionals">' . __( 'Add more', 'ad-code-manager' ) . '</a></div>';

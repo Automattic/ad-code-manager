@@ -8,9 +8,9 @@ inlineEditAdCodes = {
 
 		$('.acm-ajax-edit').live('click', function(){
 			inlineEditAdCodes.edit(this);
-			console.log( 'y' );
 			jQuery('.add-more-conditionals').off( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
 			jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+			jQuery('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
 			return false;
 		});
 
@@ -115,7 +115,15 @@ $(document).ready(function(){inlineEditAdCodes.init();});
 var acm_add_more_conditionals = function() {
 	var temp = jQuery( 'div#conditional-single-field-master').clone( false );
 	temp.removeAttr('id');
+	jQuery(temp).find('.conditional-arguments').append( '<a href="#" class="acm-remove-conditional">Remove</a>' );
 	jQuery(this).closest('.acm-conditional-fields').find('.form-new-row').append(temp);
+	jQuery('.acm-remove-conditional').off( 'click.acm_remove_conditional', acm_remove_conditional );
+	jQuery('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
+	return false;
+}
+
+var acm_remove_conditional = function() {
+	jQuery(this).closest('.conditional-single-field').remove();
 	return false;
 }
 
