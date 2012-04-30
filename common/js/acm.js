@@ -47,9 +47,9 @@ inlineEditAdCodes = {
 		$(t.what+id).hide().after(editRow);
 
 		$('input[name="id"]', editRow).val( $('.id', rowData).text() );
+		$('.acm-conditional-fields', editRow).html( $('.acm-conditional-fields', rowData).html() );
 		$('.acm-column-fields', editRow).html( $('.acm-column-fields', rowData).html() );
 		$('.acm-priority-field', editRow).html( $('.acm-priority-field', rowData).html() );
-		$('.acm-conditional-fields', editRow).html( $('.acm-conditional-fields', rowData).html() );
 		
 		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
 		$('.ptitle', editRow).eq(0).focus();

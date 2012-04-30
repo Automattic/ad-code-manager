@@ -38,6 +38,10 @@ tr:hover .row-actions {
 	text-transform: none;
 }
 
+.inline-edit-col .acm-float-left {
+	float: left;
+}
+
 .inline-edit-col .acm-column-fields,
 .inline-edit-col .acm-priority-field {
 	width: 250px;
@@ -53,7 +57,7 @@ tr:hover .row-actions {
 }
 
 .inline-edit-col .acm-conditional-fields {
-	float: right;
+	float: left;
 	min-width: 270px;
 }
 

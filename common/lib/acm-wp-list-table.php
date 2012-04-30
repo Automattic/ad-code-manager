@@ -246,9 +246,11 @@ class ACM_WP_List_Table extends WP_List_Table {
 				<input type="hidden" name="method" value="edit" />
 				<input type="hidden" name="doing_ajax" value="true" />
 				<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
-				<div class="acm-conditional-fields"></div>
+				<div class="acm-float-left">
 				<div class="acm-column-fields"></div>
 				<div class="acm-priority-field"></div>
+				</div>
+				<div class="acm-conditional-fields"></div>
 				<div class="clear"></div>
 			</div></fieldset>
 		<p class="inline-edit-save submit">
