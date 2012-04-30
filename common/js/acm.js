@@ -8,6 +8,9 @@ inlineEditAdCodes = {
 
 		$('.acm-ajax-edit').live('click', function(){
 			inlineEditAdCodes.edit(this);
+			console.log( 'y' );
+			jQuery('.add-more-conditionals').off( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+			jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
 			return false;
 		});
 
@@ -45,6 +48,7 @@ inlineEditAdCodes = {
 
 		$('input[name="id"]', editRow).val( $('.id', rowData).text() );
 		$('.acm-column-fields', editRow).html( $('.acm-column-fields', rowData).html() );
+		$('.acm-priority-field', editRow).html( $('.acm-priority-field', rowData).html() );
 		$('.acm-conditional-fields', editRow).html( $('.acm-conditional-fields', rowData).html() );
 		
 		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
@@ -108,18 +112,16 @@ inlineEditAdCodes = {
 $(document).ready(function(){inlineEditAdCodes.init();});
 })(jQuery);
 
-function acm_add_more_conditionals() {
-	jQuery('.add-more-conditionals').click(function() {
-		var temp = jQuery( 'div#conditional-single-field-master').clone( false );
-		temp.removeAttr('id');
-		jQuery(this).closest('.acm-conditional-fields').find('.form-new-row').append(temp);
-		return false;
-	});
+var acm_add_more_conditionals = function() {
+	var temp = jQuery( 'div#conditional-single-field-master').clone( false );
+	temp.removeAttr('id');
+	jQuery(this).closest('.acm-conditional-fields').find('.form-new-row').append(temp);
+	return false;
 }
 
 jQuery( document ).ready( function( $ ) {
 
-	acm_add_more_conditionals();
+	jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
 	$('#conditionals-help-toggler').click( function( e ) {
 		var el = jQuery('#conditionals-help');
 		

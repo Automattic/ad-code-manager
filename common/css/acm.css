@@ -33,10 +33,39 @@ tr:hover .row-actions {
 	margin-bottom: 5px;
 }
 
-.form-add-more {
+.inline-edit-col .acm-section-label {
+	margin-bottom: 5px;
+	text-transform: none;
+}
+
+.inline-edit-col .acm-column-fields,
+.inline-edit-col .acm-priority-field {
+	width: 250px;
+}
+
+.inline-edit-col .acm-column-fields label {
+	float: left;
+	width: 75px;
+}
+
+.inline-edit-col .acm-column-fields input {
+	margin-bottom: 5px;
+}
+
+.inline-edit-col .acm-conditional-fields {
+	float: right;
+	min-width: 270px;
+}
+
+.inline-edit-col .acm-conditional-fields .form-add-more {
+	padding-top: 5px;
+	padding-bottom: 4px;
+	clear: left;
+}
+
+#add-adcode .form-add-more {
 	clear:left;
 	width: 90%;
-	text-align: right;
 }
 
 .acm-edit-field {

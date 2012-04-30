@@ -140,17 +140,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 		$output = '<div id="inline_' . $item['post_id'] . '" style="display:none;">';
 		$output .= '<div class="id">' . $item['post_id'] . '</div>';
-		// Build the fields for the normal columns
-		$output .= '<div class="acm-column-fields">';
-		foreach( (array)$item['url_vars'] as $slug => $value ) {
-			$column_id = 'acm-column[' . $slug . ']';
-			$output .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
-			$output .= '<input name="' . esc_attr( $column_id ) . '" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="40" aria-required="true">';
-		}
-		$output .= '</div>';
 		// Build the fields for the conditionals
 		$output .= '<div class="acm-conditional-fields"><div class="form-new-row">';
-		$output .= '<label for="acm-conditionals">' . __( 'Conditionals', 'ad-code-manager' ) . '</label>';
+		$output .= '<h4 class="acm-section-label">' . __( 'Conditionals', 'ad-code-manager' ) . '</h4>';
 		if ( !empty( $item['conditionals'] ) ) {
 			foreach( $item['conditionals'] as $conditional ) {
 				$function = $conditional['function'];
@@ -169,8 +161,24 @@ class ACM_WP_List_Table extends WP_List_Table {
 				$output .= '</div></div>';
 			}
 		}
-		$output .= '<div class="form-field form-add-more"><a href="#" class="button button-secondary" id="add-more-conditionals">Add more</a></div>';
-		$output .= '</div></div>';
+		$output .= '</div><div class="form-field form-add-more"><a href="#" class="button button-secondary add-more-conditionals">' . __( 'Add more', 'ad-code-manager' ) . '</a></div>';
+		$output .= '</div>';
+		// Build the fields for the normal columns
+		$output .= '<div class="acm-column-fields">';
+		$output .= '<h4 class="acm-section-label">' . __( 'URL Variables', 'ad-code-manager' ) . '</h4>';
+		foreach( (array)$item['url_vars'] as $slug => $value ) {
+			$output .= '<div class="acm-section-single-field">';
+			$column_id = 'acm-column[' . $slug . ']';
+			$output .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
+			$output .= '<input name="' . esc_attr( $column_id ) . '" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="20" aria-required="true">';
+			$output .= '</div>';
+		}
+		$output .= '</div>';
+		// Build the field for the priority
+		$output .= '<div class="acm-priority-field">';
+		$output .= '<h4 class="acm-section-label">' . __( 'Priority', 'ad-code-manager' ) . '</h4>';
+		$output .= '<input type="text" name="priority" value="' . esc_attr( $item['priority'] ) . '" />';
+		$output .= '</div>';
 		$output .= '</div>';
 		return $output;
 	}
@@ -233,14 +241,15 @@ class ACM_WP_List_Table extends WP_List_Table {
 	<form method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>"><table style="display: none"><tbody id="inlineedit">
 		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
-				<h4><?php _e( 'Edit Ad Code', 'ad-code-manager' ); ?></h4>
 				<input type="hidden" name="id" value="" />
 				<input type="hidden" name="action" value="acm_admin_action" />
 				<input type="hidden" name="method" value="edit" />
 				<input type="hidden" name="doing_ajax" value="true" />
 				<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
-				<div class="acm-column-fields"></div>
 				<div class="acm-conditional-fields"></div>
+				<div class="acm-column-fields"></div>
+				<div class="acm-priority-field"></div>
+				<div class="clear"></div>
 			</div></fieldset>
 		<p class="inline-edit-save submit">
 			<?php $cancel_text = __( 'Cancel', 'ad-code-manager' ); ?>
