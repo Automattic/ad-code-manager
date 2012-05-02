@@ -43,6 +43,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 		$this->items = $ad_code_manager->get_ad_codes();
 
+		if ( empty( $this->items ) )
+			return;
+
 		/* -- Pagination parameters -- */
 		//Number of elements in your table?
 		$totalitems = count( $this->items ); //return the total number of affected rows
