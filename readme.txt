@@ -11,12 +11,11 @@ Manage your ad codes through the WordPress admin in a safe and easy way.
 
 Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.
 
-To set things up, you'll need to add small template tags to your theme where you'd like your ads to appear. These are called "ad tags." Then, you'll need to define a common set of parameters for your ad provider. These parameters include all of the tag IDs you've established in your template, the default script URL, the default output, etc.
+Some code-level configuration is necessary to setup Ad Code Manager. Ad tags must be added (via `do_action`) to your theme's template files where you'd like ads to appear. Also, a common set of parameters must be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL.
 
-Once this code-level configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expression and then return true or false.
+Once this configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expression and then return true or false.
 
-Ad Code Manager currently works with Doubleclick for Publishers. However, all logic is abstracted. This means that you can configure ACM for your ad provider 
-relatively easy. You might want to check providers/doubleclick-for-publishers.php to get the idea.
+Ad Code Manager currently works with Doubleclick for Publishers by default. However, all logic is abstracted which means that you can configure ACM for any ad provider relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
@@ -32,46 +31,13 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 == Configuration Filters ==
 
-There are some filters which will allow you to easily customize output of the plugin. You should place these filters in your themes functions.php file or someplace safe.
+There are some filters which allow you to easily customize the output of the plugin. You should place these filters in your theme's functions.php file or in another appropriate place.
 
 [Check out this gist](https://gist.github.com/1631131) to see all of the filters in action.
 
-= acm_default_url =
-
-Currently, we don't store tokenized script URL anywhere so this filter is a nice place to set default value.
-
-Arguments:
-* string $url The tokenized url of Ad Code
-
-Example usage: Set your default ad code URL
-
-`add_filter( 'acm_default_url', 'my_acm_default_url' );
-function my_acm_default_url( $url ) {
-	if ( 0 === strlen( $url )  ) {
-		return "http://ad.doubleclick.net/adj/%site_name%/%zone1%;s1=%zone1%;s2=;pid=%permalink%;fold=%fold%;kw=;test=%test%;ltv=ad;pos=%pos%;dcopt=%dcopt%;tile=%tile%;sz=%sz%;";
-	}
-}`
-
-= acm_output_tokens =
-
-Register output tokens depending on the needs of your setup. Tokens are the keys to be replaced in your script URL.
-
-Arguments:
-* array $output_tokens Any existing output tokens
-* string $tag_id Unique tag id 
-* array $code_to_display Ad Code that matched conditionals
-
-Example usage: Test to determine whether you're in test or production by passing ?test=on query argument
-
-`add_filter( 'acm_output_tokens', 'my_acm_output_tokens', 10, 3 );
-function my_acm_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
-	$output_tokens['%test%'] = isset( $_GET['test'] ) && $_GET['test'] == 'on' ? 'on' : '';
-	return $output_tokens;
-}`
-
 = acm_ad_tag_ids =
 
-Extend set of default tag ids. Ad tag ids are used as a parameter for your template tag (e.g. do_action( 'acm_tag', 'my_top_leaderboard' ))
+Ad tag ids are used as a parameter when adding tags to your theme (e.g. do_action( 'acm_tag', 'my_top_leaderboard' )). The `url_vars` defined as part of each tag here will also be used to replace tokens in your default URL.
  
 Arguments:
 * array $tag_ids array of default tag ids
@@ -90,9 +56,27 @@ function my_acm_ad_tag_ids( $tag_ids ) {
 	return $tag_ids;
 }`
 
+= acm_default_url =
+
+Set the default tokenized URL used when displaying your ad tags. This filter is required.
+
+Arguments:
+* string $url The tokenized url of Ad Code
+
+Example usage: Set your default ad code URL
+
+`add_filter( 'acm_default_url', 'my_acm_default_url' );
+function my_acm_default_url( $url ) {
+	if ( 0 === strlen( $url )  ) {
+		return "http://ad.doubleclick.net/adj/%site_name%/%zone1%;s1=%zone1%;s2=;pid=%permalink%;fold=%fold%;kw=;test=%test%;ltv=ad;pos=%pos%;dcopt=%dcopt%;tile=%tile%;sz=%sz%;";
+	}
+}`
+
 = acm_output_html =
 
-Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags ) by adjusting the HTML rendered for a given ad tag.
+The HTML outputted by the `do_action( 'acm_tag', 'ad_tag_id' );` call in your theme. Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags ) by adjusting the HTML rendered for a given ad tag. 
+
+The `%url%` token used in this HTML will be filled in with the URL defined with `acm_default_url`.
 
 Arguments:
 * string $output_html The original output HTML
@@ -113,6 +97,38 @@ function my_acm_output_html( $output_html, $tag_id ) {
 			break;
 	}
 	return $output_html;
+}`
+
+= acm_whitelisted_script_urls =
+
+A security filter to whitelist which ad code script URLs can be added in the admin
+
+Arguments:
+* array $whitelisted_urls Existing whitelisted ad code URLs
+
+Example usage: Allow Doubleclick for Publishers ad codes to be used
+
+`add_filter( 'acm_whitelisted_script_urls', 'my_acm_whitelisted_script_urls' );
+function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
+	$whitelisted_urls = array( 'ad.doubleclick.net' );
+	return $whitelisted_urls;
+}`
+
+= acm_output_tokens =
+
+Output tokens can be registered depending on the needs of your setup. Tokens defined here will be replaced in the ad tag's tokenized URL in addition to the tokens already registered with your tag id.
+
+Arguments:
+* array $output_tokens Any existing output tokens
+* string $tag_id Unique tag id 
+* array $code_to_display Ad Code that matched conditionals
+
+Example usage: Test to determine whether you're in test or production by passing ?test=on query argument
+
+`add_filter( 'acm_output_tokens', 'my_acm_output_tokens', 10, 3 );
+function my_acm_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
+	$output_tokens['%test%'] = isset( $_GET['test'] ) && $_GET['test'] == 'on' ? 'on' : '';
+	return $output_tokens;
 }`
 
 = acm_whitelisted_conditionals =
@@ -158,21 +174,6 @@ function my_acm_conditional_args( $cond_args, $cond_func ) {
 	}
 
 	return $cond_args;
-}`
-
-= acm_whitelisted_script_urls =
-
-A security filter to whitelist which ad code script URLs can be added in the admin
-
-Arguments:
-* array $whitelisted_urls Existing whitelisted ad code URLs
-
-Example usage: Allow Doubleclick for Publishers ad codes to be used
-
-`add_filter( 'acm_whitelisted_script_urls', 'my_acm_whitelisted_script_urls' );
-function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
-	$whitelisted_urls = array( 'ad.doubleclick.net' );
-	return $whitelisted_urls;
 }`
 
 = acm_display_ad_codes_without_conditionals =
@@ -255,6 +256,14 @@ Example usage:
 		);
 		return $columns;
 } )`
+
+== Screenshots ==
+
+1.  The ACM admin interface before adding ad codes.
+1.  Adding an ad code with a site name, zone, and multiple conditionals.
+1.  Access the Help menu in the upper right for configuration assistance.
+1.  Edit existing ad codes inline through the admin interface.
+1.	Example of ad tag in use in a theme header template.
 
 == Changelog ==
 
