@@ -972,6 +972,14 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 				continue;
 			}
 
+			// If the ad code doesn't have any conditionals
+			// and configuration filter acm_display_ad_codes_without_conditionals returns false
+			// We should should skip it
+			
+			if ( empty( $ad_code['conditionals'] ) && ! apply_filters( 'acm_display_ad_codes_without_conditionals', false ) ) {
+				continue;
+			}
+
 			$include = true;
 			foreach( $ad_code['conditionals'] as $conditional ) {
 				// If the conditional was passed as an array, then we have a complex rule
