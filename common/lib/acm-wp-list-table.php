@@ -258,9 +258,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 			</div></fieldset>
 		<p class="inline-edit-save submit">
 			<?php $cancel_text = __( 'Cancel', 'ad-code-manager' ); ?>
-			<a href="#inline-edit" title="<?php echo esc_attr( $cancel_text ); ?>" class="cancel button-secondary alignleft"><?php echo $cancel_text; ?></a>
+			<a href="#inline-edit" title="<?php echo esc_attr( $cancel_text ); ?>" class="cancel button-secondary alignleft"><?php echo esc_html( $cancel_text ); ?></a>
 			<?php $update_text = __( 'Update', 'ad-code-manager' ); ?>
-			<a href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo $update_text; ?></a>
+			<a href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo esc_html( $update_text ); ?></a>
 			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 			<span class="error" style="display:none;"></span>
 			<br class="clear" />
