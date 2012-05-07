@@ -846,7 +846,7 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 	 *
 	 */
 	function register_widget() {
-		register_widget( 'ACM_ad_zones' );
+		register_widget( 'ACM_Ad_Zones' );
 	}
 
 	/**
