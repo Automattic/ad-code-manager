@@ -51,7 +51,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$totalitems = count( $this->items ); //return the total number of affected rows
 		
 		//How many to display per page?
-		$perpage = 25;
+		$perpage = apply_filters( 'acm_list_table_per_page', 25 );
 		
 		//Which page is this?
 		$paged = !empty( $_GET["paged"] ) ? intval( $_GET["paged"] ) : '';
