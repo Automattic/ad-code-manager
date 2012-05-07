@@ -498,15 +498,6 @@ class Ad_Code_Manager
 	}
 
 	/**
-	 * encode as json any given $data
-	 */
-	function print_json( $data = array() ) {
-		header( 'Content-type: application/json;' );
-		echo json_encode( $data );
-		exit;
-	}
-
-	/**
 	 * Print our vars as JS
 	 */
 	function post_admin_header() {
