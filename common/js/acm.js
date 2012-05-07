@@ -1,105 +1,138 @@
-jQuery( document ).ready( function( $ ) {
-	var last_selected, subgrid_lastsel;
-	var base_url = acm_url;
-	var grid_selector = jQuery("#acm-codes-list"); //avoid unnecessary selector calls
-	var subgrid_selector = jQuery( '#acm-codes-conditionals-list' );
-	// this is ghetto
-	var actions = {
-			  codes_datasource: ajaxurl + '?acm-action=datasource&action=acm_ajax_handler&nonce=' + acm_ajax_nonce,
-			  codes_edit: ajaxurl + '?acm-action=edit&action=acm_ajax_handler&nonce=' + acm_ajax_nonce,
-			  conditionals_datasource: ajaxurl + '?acm-action=datasource-conditionals&action=acm_ajax_handler&nonce=' + acm_ajax_nonce,
-			  conditionals_edit: ajaxurl + '?acm-action=edit-conditionals&action=acm_ajax_handler&nonce=' + acm_ajax_nonce
-	};
-	var conditionals_options = acm_conditionals;
+(function($) {
+inlineEditAdCodes = {
 
-	grid_selector.jqGrid({
-		datatype: "json",
-		url: actions.codes_datasource,
-		editurl: actions.codes_edit,
-		height: 400,
-		width: 600,
-		multiselect: false,
-		// @todo remove hardcode, colNames and colModel should be set in provider config and printed in head section
-		colNames:['ID', 'Site Name', 'Zone1', 'Priority', 'Actions'],
-		colModel:[
-			{name:'id',index:'id', width:40, align: 'center' },
-			{name:'site_name',index:'site_name', width:200, editable: true, edittype:'text'},
-			{name:'zone1',index:'zone1', width:100, editable: true},
-			{name:'priority',index:'priority', width:100, editable: true},
-			{name:'act',index:'act', width:125,sortable:false, align: 'center'},
-		],
-		prmNames:{ page: 'acm-grid-page' },
-		rowNum:50,
-		rowList:[20,50,100],
-		pager: '#acm-codes-pager',
-		sortname: 'id',
-		viewrecords: true,
-		sortorder: "desc",
-		caption:"Ad Codes",
-		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
-		gridComplete: function(){
-			var ids = grid_selector.jqGrid( 'getDataIDs' );
-			for(var i=0;i < ids.length;i++){
-				var cl = ids[i];
-				be = "<input type='button' value='Edit' onclick=\"jQuery('#acm-codes-list').editRow( '"+cl+"' );\" class='button'  />";
-				se = "<input type='button' value='Save' onclick=\"jQuery('#acm-codes-list').saveRow( '"+cl+"' );\" class='button button-primary'  />";
-				grid_selector.jqGrid( 'setRowData',ids[i],{act:be+se});
+	init : function() {
+		var t = this, row = $('#inline-edit');
+
+		t.what = '#ad-code-';
+
+		$('.acm-ajax-edit').live('click', function(){
+			inlineEditAdCodes.edit(this);
+			jQuery('.add-more-conditionals').off( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+			jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+			jQuery('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
+			return false;
+		});
+
+		// prepare the edit row
+		row.keyup(function(e) { if(e.which == 27) return inlineEditAdCodes.revert(); });
+
+		$('a.cancel', row).click(function() { return inlineEditAdCodes.revert(); });
+		$('a.save', row).click(function() { return inlineEditAdCodes.save(this); });
+		$('input, select', row).keydown(function(e) { if(e.which == 13) return inlineEditAdCodes.save(this); });
+
+		$('#posts-filter input[type="submit"]').mousedown(function(e){
+			t.revert();
+		});
+	},
+
+	toggle : function(el) {
+		var t = this;
+		$(t.what+t.getId(el)).css('display') == 'none' ? t.revert() : t.edit(el);
+	},
+
+	edit : function(id) {
+		var t = this, editRow;
+		t.revert();
+
+		if ( typeof(id) == 'object' )
+			id = t.getId(id);
+
+		editRow = $('#inline-edit').clone(true), rowData = $('#inline_'+id);
+		$('td', editRow).attr('colspan', $('.widefat:first thead th:visible').length);
+
+		if ( $(t.what+id).hasClass('alternate') )
+			$(editRow).addClass('alternate');
+
+		$(t.what+id).hide().after(editRow);
+
+		$('input[name="id"]', editRow).val( $('.id', rowData).text() );
+		$('.acm-conditional-fields', editRow).html( $('.acm-conditional-fields', rowData).html() );
+		$('.acm-column-fields', editRow).html( $('.acm-column-fields', rowData).html() );
+		$('.acm-priority-field', editRow).html( $('.acm-priority-field', rowData).html() );
+		
+		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
+		$('.ptitle', editRow).eq(0).focus();
+
+		return false;
+	},
+
+	save : function(id) {
+
+		if( typeof(id) == 'object' )
+			id = this.getId(id);
+
+		$('table.widefat .inline-edit-save .waiting').show();
+		// Get all of our field parameters
+		inline_edit = $('#edit-'+id ).find('fieldset').wrap('<form action="POST" ></form>');
+		params = inline_edit.closest('form').serializeArray();
+
+		// make ajax request
+		$.post(ajaxurl, params,
+			function(r) {
+				var row, new_id;
+				$('table.widefat .inline-edit-save .waiting').hide();
+
+				if (r) {
+					if ( -1 != r.indexOf('<tr') ) {
+						$(inlineEditAdCodes.what+id).remove();
+						new_id = $(r).attr('id');
+
+						$('#edit-'+id).before(r).remove();
+						row = new_id ? $('#'+new_id) : $(inlineEditAdCodes.what+id);
+						row.hide().fadeIn();
+					} else
+						$('#edit-'+id+' .inline-edit-save .error').html(r).show();
+				} else
+					$('#edit-'+id+' .inline-edit-save .error').html(inlineEditL10n.error).show();
 			}
-			
-		},
-		onSelectRow: function(ids) {
-			if (ids == null) {
-				ids=0;
-				if (subgrid_selector.jqGrid( 'getGridParam','records' ) > 0 )
-				{
-					subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditionals_datasource + "&id="+ids, page:1, editurl: actions.conditionals_edit + "&id="+ids } );
-					subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code #: "+ids)
-					.trigger( 'reloadGrid' );
-				}
-			} else {
-				subgrid_selector.jqGrid( 'setGridParam',{ url:actions.conditionals_datasource + "&id="+ids, page:1, editurl: actions.conditionals_edit + "&id="+ids } );
-				subgrid_selector.jqGrid( 'setCaption',"Conditionals for Ad Code # "+ids)
-				.trigger( 'reloadGrid' );
-			}
-			jQuery('.acm-conditionals-wrapper').removeClass( 'hidden' );
+		);
+		return false;
+	},
+
+	revert : function() {
+		var id = $('table.widefat tr.inline-editor').attr('id');
+
+		if ( id ) {
+			$('table.widefat .inline-edit-save .waiting').hide();
+			$('#'+id).remove();
+			id = id.substr( id.lastIndexOf('-') + 1 );
+			$(this.what+id).show();
 		}
-	});
 
-	grid_selector.jqGrid( 'navGrid','#acm-codes-pager',{edit:true,add:true,del:true});
+		return false;
+	},
 
-	subgrid_selector.jqGrid({
-		height: 200,
-		width: 600,
-		url: actions.conditionals_datasource,
-		editurl: actions.conditionals_edit,
-		prmNames:{ page: 'acm-grid-page' },
-		datatype: "json",
-		colNames:['Conditional', 'Value'],
-		colModel:[
-			{name:'function',index:'function', width:120, editable: true, edittype: 'select', editoptions: {value: conditionals_options}},
-			{name:'arguments',index:'arguments', width:180, align:"left", editable: true, edittype: 'text'},
-		],
-		onSelectRow: function(id){
-		if(id && id!==subgrid_lastsel){
-			subgrid_selector.jqGrid('restoreRow',subgrid_lastsel);
-			subgrid_selector.jqGrid('editRow',id,true);
-			subgrid_lastsel=id;
-		}},
-		rowNum:10,
-		rowList:[10,20,50],
-		pager: '#acm-codes-conditionals-pager',
-		sortname: 'item',
-		jsonReader : { repeatitems: false }, // workaround for jqGrid issue
-		viewrecords: true,
-		sortorder: "asc",
-		multiselect: true,
-		caption:"Conditionals for Ad Code"
-	}).navGrid( '#acm-codes-conditionals-pager',{ add:true,edit:true,del:true } );
+	getId : function(o) {
+		var id = o.tagName == 'TR' ? o.id : $(o).parents('tr').attr('id'), parts = id.split('-');
+		return parts[parts.length - 1];
+	}
+};
 
+$(document).ready(function(){inlineEditAdCodes.init();});
+})(jQuery);
 
-	jQuery('#conditionals-help-toggler').click( function( e ) {
+var acm_add_more_conditionals = function() {
+	var temp = jQuery( 'div#conditional-single-field-master').clone( false );
+	temp.removeAttr('id');
+	jQuery(temp).find('.conditional-arguments').append( '<a href="#" class="acm-remove-conditional">Remove</a>' );
+	jQuery(this).closest('.acm-conditional-fields').find('.form-new-row').append(temp);
+	jQuery('.acm-remove-conditional').off( 'click.acm_remove_conditional', acm_remove_conditional );
+	jQuery('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
+	return false;
+}
+
+var acm_remove_conditional = function() {
+	jQuery(this).closest('.conditional-single-field').remove();
+	return false;
+}
+
+jQuery( document ).ready( function( $ ) {
+
+	jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+	$('#conditionals-help-toggler').click( function( e ) {
 		var el = jQuery('#conditionals-help');
 		
 		el.toggleClass('hidden');
 	});
-} );
+});
