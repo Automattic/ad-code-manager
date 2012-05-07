@@ -18,7 +18,10 @@ class ACM_Ad_Zones extends WP_Widget {
 
 	 // Build the widget settings form
 	function form( $instance ) {
-		$defaults = array( 'title' => '' );
+		$defaults = array(
+			'title' => '',
+			'ad_zone' => '',
+		);
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		$title = $instance['title'];
 		$zone = $instance['ad_zone'];
@@ -26,7 +29,9 @@ class ACM_Ad_Zones extends WP_Widget {
 			?>
 			<p><label>Title: <input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>"  type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
 
-			<p><label for="<?php echo $this->get_field_id( 'ad_zone' ); ?>">Choose Ad Zone</label>
+			<p>
+			<?php if ( !empty( $ad_code_manager->ad_codes ) ): ?>
+			<label for="<?php echo $this->get_field_id( 'ad_zone' ); ?>">Choose Ad Zone</label>
 			<select id="<?php echo $this->get_field_id( 'ad_zone' ); ?>" name="<?php echo $this->get_field_name( 'ad_zone' ); ?>">
 				<?php
 				foreach ( $ad_code_manager->ad_codes as $key => $value ) {
@@ -35,7 +40,12 @@ class ACM_Ad_Zones extends WP_Widget {
 					<?php
 				}
 				?>
-			</select></p>
+			</select>
+			<?php else: ?>
+			<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'tools.php' ) ); ?>
+			<span class="description"><?php echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>." ), $create_url ); ?></span>
+			<?php endif; ?>
+			</p>
 
 		<?php
 	}
