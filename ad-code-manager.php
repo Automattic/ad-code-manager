@@ -522,7 +522,7 @@ class Ad_Code_Manager
 	 * Hook in our submenu page to the navigation
 	 */
 	function action_admin_menu() {
-		add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( &$this, 'admin_view_controller' ) );
+		add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( $this, 'admin_view_controller' ) );
 	}
 
 	/**
