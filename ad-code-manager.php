@@ -1124,12 +1124,16 @@ function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
 	
 	/**
 	 * Shortcode function
+	 *
+	 * @since 0.2
 	 */
 	function shortcode( $atts ) {
-		extract( shortcode_atts(
+		$atts = shortcode_atts(
 			array(
 				'id' => '',
-			), $atts ) );
+			), $atts );
+
+		$id = sanitize_text_field( $atts['id'] );
 		if ( empty( $id ) )
 			return;
 		
