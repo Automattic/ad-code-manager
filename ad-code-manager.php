@@ -412,6 +412,7 @@ class Ad_Code_Manager
 				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[$slug] );
 			}
 			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code['priority'] );
+			$this->flush_cache();
 			return $acm_inserted_post_id;
 		}
 		return false;
@@ -444,6 +445,7 @@ class Ad_Code_Manager
 	function delete_ad_code( $ad_code_id ) {
 		if ( 0 !== $ad_code_id ) {
 			wp_delete_post( $ad_code_id , true ); //force delete post
+			$this->flush_cache();
 			return true;
 		}
 		return;
