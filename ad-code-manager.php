@@ -258,6 +258,7 @@ class Ad_Code_Manager
 					$this->edit_conditionals( $id, $new_conditionals );
 					$message = 'ad-code-updated';
 				}
+				$this->flush_cache();
 				break;
 			case 'delete':
 				$id = (int)$_REQUEST['id'];
