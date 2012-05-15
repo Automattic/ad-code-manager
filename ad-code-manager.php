@@ -323,11 +323,14 @@ class Ad_Code_Manager
 				foreach ( $this->current_provider->columns as $slug => $title ) {
 					$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
 				}
+
+				$priority = get_post_meta( $ad_code_cpt->ID, 'priority', true );
+				$priority = ( !empty( $priority ) ) ? intval( $priority ) : 10;
 	
 				$ad_codes_formatted[] = array(
 					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
 					'url_vars' => $provider_url_vars,
-					'priority' => get_post_meta( $ad_code_cpt->ID, 'priority', true ),
+					'priority' => $priority,
 					'post_id' => $ad_code_cpt->ID
 				);
 			}
@@ -353,8 +356,8 @@ class Ad_Code_Manager
 			$provider_url_vars[$slug] = get_post_meta( $post->ID, $slug, true );
 		}
 
-		$priority = get_post_meta( $ad_code_cpt->ID, 'priority', true ); 
-		$priority = ( !empty( $priority ) ) ? intval( $priority ) : 10; 
+		$priority = get_post_meta( $post_id, 'priority', true );
+		$priority = ( !empty( $priority ) ) ? intval( $priority ) : 10;
 	
 		$ad_code_formatted = array(
 			'conditionals' => $this->get_conditionals( $post->ID ),
