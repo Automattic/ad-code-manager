@@ -267,7 +267,16 @@ Example usage:
 1. Edit existing ad codes inline through the admin interface.
 1. Example of ad tag in use in a theme header template.
 
+== Upgrade Notice ==
+
+= 0.2.1 =
+Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
+
 == Changelog ==
+
+= 0.2.1 (May 14, 2012) =
+* Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
+* Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
 
 = 0.2 (May 7, 2012) =
 * UI reworked from the ground up to look and work much more like the WordPress admin (using WP List Table)
