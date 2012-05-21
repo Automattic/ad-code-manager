@@ -54,7 +54,8 @@ function my_acm_ad_tag_ids( $tag_ids ) {
 			'sz' => '728x90', // %sz% token
 			'fold' => 'atf', // %fold% token
 			'my_custom_token' => 'something' // %my_custom_token% will be replaced with 'something'
-		);
+		),
+	);
 	return $tag_ids;
 }`
 
@@ -99,6 +100,26 @@ function my_acm_output_html( $output_html, $tag_id ) {
 			break;
 	}
 	return $output_html;
+}`
+
+= acm_register_provider_slug =
+
+Ad Code Manager has a built in list of providers that it gathers by scanning the 'providers' directory used by the plugin. Additional providers can be added by placing the appropriate files in that directory, or by using the `acm_register_provider_slug` filter to register those that may be included as part of your theme or another plugin.
+
+When using this plugin, you are defining the provider slug as part of the existing object as well as an array of classes associated with that provider slug.
+
+Arguments:
+* object $providers An object containing the current registered providers.
+
+Example usage:
+
+`add_filter( 'acm_register_provider_slug', 'my_acm_register_provider_slug' );
+function my_acm_register_provider_slug( $providers ) {
+	$providers->new_provider_slug = array( 
+		'provider' => 'My_New_Ad_Company_ACM_Provider', 
+		'table' => 'My_New_Ad_Company_ACM_WP_List_Table'
+	);
+	return $providers;
 }`
 
 = acm_whitelisted_script_urls =
