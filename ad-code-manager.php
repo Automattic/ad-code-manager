@@ -116,6 +116,15 @@ class Ad_Code_Manager
 		}
 		
 		/**
+		 * Configuration filter: acm_register_provider_slug
+		 *
+		 * We've already gathered a list of default providers by scanning the ACM plugin
+		 * directory for classes that we can use. To add a provider already included via
+		 * a different directory, the following filter is provided.
+		 */
+		$this->providers = apply_filters( 'acm_register_provider_slug', $this->providers );
+
+		/**
 		 * Configuration filter: acm_provider_slug
 		 *
 		 * By default we use doubleclick-for-publishers provider
