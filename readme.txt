@@ -296,6 +296,7 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 == Changelog ==
 
 = 0.2.2 (??? ??, 2012) =
+* Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
 * Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
 
 = 0.2.1 (May 14, 2012) =

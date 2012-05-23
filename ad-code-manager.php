@@ -531,7 +531,31 @@ class Ad_Code_Manager
 	 * Hook in our submenu page to the navigation
 	 */
 	function action_admin_menu() {
-		add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( $this, 'admin_view_controller' ) );
+		$hook = add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( $this, 'admin_view_controller' ) );
+		add_action( 'load-' . $hook, array( $this, 'action_load_ad_code_manager' ) );
+	}
+
+	/**
+	 * Instantiate the List Table and handle our bulk actions on the load of the page
+	 *
+	 * @since 0.2.2
+	 */
+	function action_load_ad_code_manager() {
+
+		// Instantiate this list table
+		$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
+		// Handle any bulk action requests
+		switch( $this->wp_list_table->current_action() ) {
+			case 'delete':
+				check_admin_referer( 'acm-bulk-action', 'bulk-action-nonce' );
+				$ad_code_ids = array_map( 'intval', $_REQUEST['ad-codes'] );
+				foreach( $ad_code_ids as $ad_code_id ) {
+					$this->delete_ad_code( $ad_code_id );
+				}
+				$redirect_url = add_query_arg( 'message', 'ad-codes-deleted', remove_query_arg( 'message', wp_get_referer() ) );
+				wp_safe_redirect( $redirect_url );
+				exit;
+		}
 	}
 
 	/**
