@@ -59,7 +59,6 @@ class Ad_Code_Manager
 
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
-		add_action( 'current_screen', array( $this, 'action_admin_init' ) );
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
@@ -70,14 +69,6 @@ class Ad_Code_Manager
 		add_action('current_screen', array( $this, 'contextual_help' ) );
 		add_action( 'widgets_init', array( $this, 'register_widget' ) );
 		add_shortcode( 'acm-tag' , array( $this, 'shortcode' ) );
-	}
-
-	/**
-	 * Initialize our subclass of WP_List_Table and set $items
-	 * Hooked to current_screen
-	 */
-	function action_admin_init() {
-		$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
 	}
 
 	/**

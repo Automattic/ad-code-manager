@@ -29,6 +29,7 @@
 <div id="col-right">
 <div class="col-wrap">
 <?php
+	$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
 	$this->wp_list_table->prepare_items();
 	$this->wp_list_table->display();
 ?>

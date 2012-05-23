@@ -295,6 +295,9 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 == Changelog ==
 
+= 0.2.2 (??? ??, 2012) =
+* Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
+
 = 0.2.1 (May 14, 2012) =
 * Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
 * Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
