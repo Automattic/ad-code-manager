@@ -27,7 +27,7 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 1. Upload `ad-code-manager` to the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Incorporate ad tags in your theme template with <?php do_action( 'acm_tag', 'slot' ) ?>. Also you can use [acm-tag id="slot"] shortcode or ACM Widget
+1. Incorporate ad tags in your theme template with  `do_action( 'acm_tag', 'slot' )`. Also you can use [acm-tag id="slot"] shortcode or ACM Widget
 1. Implement filters to make the plugin work with your provider
 1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
 
@@ -46,18 +46,18 @@ Arguments:
 
 Example usage: Add a new ad tag called 'my_top_leaderboard'
 
-`add_filter( 'acm_ad_tag_ids', 'my_acm_ad_tag_ids' );
-function my_acm_ad_tag_ids( $tag_ids ) {
-	$tag_ids[] = array(
-		'tag' => 'my_top_leaderboard', // tag_id 
-		'url_vars' => array(
-			'sz' => '728x90', // %sz% token
-			'fold' => 'atf', // %fold% token
-			'my_custom_token' => 'something' // %my_custom_token% will be replaced with 'something'
-		),
-	);
-	return $tag_ids;
-}`
+	`add_filter( 'acm_ad_tag_ids', 'my_acm_ad_tag_ids' );
+	function my_acm_ad_tag_ids( $tag_ids ) {
+		$tag_ids[] = array(
+			'tag' => 'my_top_leaderboard', // tag_id 
+			'url_vars' => array(
+				'sz' => '728x90', // %sz% token
+				'fold' => 'atf', // %fold% token
+				'my_custom_token' => 'something' // %my_custom_token% will be replaced with 'something'
+			),
+		);
+		return $tag_ids;
+	}`
 
 = acm_default_url =
 
@@ -68,12 +68,12 @@ Arguments:
 
 Example usage: Set your default ad code URL
 
-`add_filter( 'acm_default_url', 'my_acm_default_url' );
-function my_acm_default_url( $url ) {
-	if ( 0 === strlen( $url )  ) {
-		return "http://ad.doubleclick.net/adj/%site_name%/%zone1%;s1=%zone1%;s2=;pid=%permalink%;fold=%fold%;kw=;test=%test%;ltv=ad;pos=%pos%;dcopt=%dcopt%;tile=%tile%;sz=%sz%;";
-	}
-}`
+	`add_filter( 'acm_default_url', 'my_acm_default_url' );
+	function my_acm_default_url( $url ) {
+		if ( 0 === strlen( $url )  ) {
+			return "http://ad.doubleclick.net/adj/%site_name%/%zone1%;s1=%zone1%;s2=;pid=%permalink%;fold=%fold%;kw=;test=%test%;ltv=ad;pos=%pos%;dcopt=%dcopt%;tile=%tile%;sz=%sz%;";
+		}
+	}`
 
 = acm_output_html =
 
@@ -87,20 +87,20 @@ Arguments:
 
 Example usage:
 
-`add_filter( 'acm_output_html', 'my_acm_output_html', 10, 2 );
-function my_acm_output_html( $output_html, $tag_id ) {
-	switch ( $tag_id ) {
-		case 'my_leaderboard':
-			$output_html = '<a href="%url%"><img src="%image_url%" /></a>';
-			break;
-		case 'rich_media_leaderboard':
-			$output_html = '<script> // omitted </script>';
-			break;
-		default:
-			break;
-	}
-	return $output_html;
-}`
+	`add_filter( 'acm_output_html', 'my_acm_output_html', 10, 2 );
+	function my_acm_output_html( $output_html, $tag_id ) {
+		switch ( $tag_id ) {
+			case 'my_leaderboard':
+				$output_html = '<a href="%url%"><img src="%image_url%" /></a>';
+				break;
+			case 'rich_media_leaderboard':
+				$output_html = '<script> // omitted </script>';
+				break;
+			default:
+				break;
+		}
+		return $output_html;
+	}`
 
 = acm_register_provider_slug =
 
@@ -113,14 +113,14 @@ Arguments:
 
 Example usage:
 
-`add_filter( 'acm_register_provider_slug', 'my_acm_register_provider_slug' );
-function my_acm_register_provider_slug( $providers ) {
-	$providers->new_provider_slug = array( 
-		'provider' => 'My_New_Ad_Company_ACM_Provider', 
-		'table' => 'My_New_Ad_Company_ACM_WP_List_Table'
-	);
-	return $providers;
-}`
+	`add_filter( 'acm_register_provider_slug', 'my_acm_register_provider_slug' );
+	function my_acm_register_provider_slug( $providers ) {
+		$providers->new_provider_slug = array( 
+			'provider' => 'My_New_Ad_Company_ACM_Provider', 
+			'table' => 'My_New_Ad_Company_ACM_WP_List_Table'
+		);
+		return $providers;
+	}`
 
 = acm_whitelisted_script_urls =
 
@@ -131,11 +131,11 @@ Arguments:
 
 Example usage: Allow Doubleclick for Publishers ad codes to be used
 
-`add_filter( 'acm_whitelisted_script_urls', 'my_acm_whitelisted_script_urls' );
-function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
-	$whitelisted_urls = array( 'ad.doubleclick.net' );
-	return $whitelisted_urls;
-}`
+	`add_filter( 'acm_whitelisted_script_urls', 'my_acm_whitelisted_script_urls' );
+	function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
+		$whitelisted_urls = array( 'ad.doubleclick.net' );
+		return $whitelisted_urls;
+	}`
 
 = acm_output_tokens =
 
@@ -148,11 +148,11 @@ Arguments:
 
 Example usage: Test to determine whether you're in test or production by passing ?test=on query argument
 
-`add_filter( 'acm_output_tokens', 'my_acm_output_tokens', 10, 3 );
-function my_acm_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
-	$output_tokens['%test%'] = isset( $_GET['test'] ) && $_GET['test'] == 'on' ? 'on' : '';
-	return $output_tokens;
-}`
+	`add_filter( 'acm_output_tokens', 'my_acm_output_tokens', 10, 3 );
+	function my_acm_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
+		$output_tokens['%test%'] = isset( $_GET['test'] ) && $_GET['test'] == 'on' ? 'on' : '';
+		return $output_tokens;
+	}`
 
 = acm_whitelisted_conditionals =
 
@@ -163,13 +163,13 @@ Arguments:
 
 Example usage: Register a few custom conditional callbacks
 
-`add_filter( 'acm_whitelisted_conditionals', 'my_acm_whitelisted_conditionals' );
-function my_acm_whitelisted_conditionals( $conditionals ) {
-	$conditionals[] = 'my_is_post_type';
-	$conditionals[] = 'is_post_type_archive';
-	$conditionals[] = 'my_page_is_child_of';
-	return $conditionals;
-}`
+	`add_filter( 'acm_whitelisted_conditionals', 'my_acm_whitelisted_conditionals' );
+	function my_acm_whitelisted_conditionals( $conditionals ) {
+		$conditionals[] = 'my_is_post_type';
+		$conditionals[] = 'is_post_type_archive';
+		$conditionals[] = 'my_page_is_child_of';
+		return $conditionals;
+	}`
 
 = acm_conditional_args =
 
@@ -181,23 +181,23 @@ Arguments:
 
 Example usage: has_category() and has_tag() use has_term(), which requires the object ID to function properly
 
-`add_filter( 'acm_conditional_args', 'my_acm_conditional_args', 10, 2 );
-function my_acm_conditional_args( $cond_args, $cond_func ) {
-	global $wp_query;
-	// has_category and has_tag use has_term
-	// we should pass queried object id for it to produce correct result
-	if ( in_array( $cond_func, array( 'has_category', 'has_tag' ) ) ) {
-		if ( $wp_query->is_single == true ) {
-			$cond_args[] = $wp_query->queried_object->ID;
+	`add_filter( 'acm_conditional_args', 'my_acm_conditional_args', 10, 2 );
+	function my_acm_conditional_args( $cond_args, $cond_func ) {
+		global $wp_query;
+		// has_category and has_tag use has_term
+		// we should pass queried object id for it to produce correct result
+		if ( in_array( $cond_func, array( 'has_category', 'has_tag' ) ) ) {
+			if ( $wp_query->is_single == true ) {
+				$cond_args[] = $wp_query->queried_object->ID;
+			}
 		}
-	}
-	// my_page_is_child_of is our custom WP conditional tag and we have to pass queried object ID to it
-	if ( in_array( $cond_func, array( 'my_page_is_child_of' ) ) && $wp_query->is_page ) {
-		$cond_args[] = $cond_args[] = $wp_query->queried_object->ID;
-	}
-
-	return $cond_args;
-}`
+		// my_page_is_child_of is our custom WP conditional tag and we have to pass queried object ID to it
+		if ( in_array( $cond_func, array( 'my_page_is_child_of' ) ) && $wp_query->is_page ) {
+			$cond_args[] = $cond_args[] = $wp_query->queried_object->ID;
+		}
+	
+		return $cond_args;
+	}`
 
 = acm_display_ad_codes_without_conditionals =
 
@@ -208,7 +208,7 @@ Arguments:
 
 Example usage:
 
-`add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
+	`add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
 
 = acm_provider_slug =
 
@@ -216,7 +216,7 @@ By default we use our bundled doubleclick_for_publishers config ( check it in /p
 
 Example usage:
 
-`add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; })`
+	`add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; })`
 
 = acm_logical_operator =
 
@@ -225,7 +225,7 @@ You can change it to "AND", so that ad code will be displayed only if ALL of the
 
 Example usage:
 
-`add_filter( 'acm_provider_slug', function( $slug ) { return 'my-ad-network-slug'; })`
+	`add_filter( 'acm_provider_slug', function( $slug ) { return 'my-ad-network-slug'; })`
 
 = acm_manage_ads_cap =
 
@@ -233,7 +233,7 @@ By default user has to have "manage_options" cap. This filter comes in handy, if
 
 Example usage:
 
-`add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; })`
+	`add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; })`
 
 = acm_allowed_get_posts_args =
 
@@ -241,7 +241,7 @@ This filter is only for edge cases. Most likely you won't have to touch it. Allo
 
 Example usage:
 
-`add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); })`
+	`add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); })`
 
 = acm_ad_code_count =
 
@@ -249,7 +249,7 @@ By default the total number of ad codes to get is 50, which is reasonable for an
 
 Example usage:
 
-`add_filter( 'acm_ad_code_count', function( $total ) { return 100; })`
+	`add_filter( 'acm_ad_code_count', function( $total ) { return 100; })`
 
 = acm_list_table_columns = 
 
@@ -257,15 +257,15 @@ This filter can alter table columns that are displayed in ACM UI.
 
 Example usage:
 
-`add_filter( 'acm_list_table_columns', function ( $columns ) {
-		$columns = array(
-			'id'             => __( 'ID', 'ad-code-manager' ),
-			'name'           => __( 'Name', 'ad-code-manager' ),
-			'priority'       => __( 'Priority', 'ad-code-manager' ),
-			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
-		);
-		return $columns;
-} )`
+	`add_filter( 'acm_list_table_columns', function ( $columns ) {
+			$columns = array(
+				'id'             => __( 'ID', 'ad-code-manager' ),
+				'name'           => __( 'Name', 'ad-code-manager' ),
+				'priority'       => __( 'Priority', 'ad-code-manager' ),
+				'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+			);
+			return $columns;
+	} )`
 
 = acm_provider_columns =
 
@@ -273,12 +273,12 @@ This filter comes in pair with previous one, it should return array of ad networ
 'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name"
 
 Example usage:
-`add_filter( 'acm_provider_columns', function ( $columns ) {
-		$columns = array(
-			'name'           => __( 'Name', 'ad-code-manager' ),
-		);
-		return $columns;
-} )`
+	`add_filter( 'acm_provider_columns', function ( $columns ) {
+			$columns = array(
+				'name'           => __( 'Name', 'ad-code-manager' ),
+			);
+			return $columns;
+	} )`
 
 == Screenshots ==
 
