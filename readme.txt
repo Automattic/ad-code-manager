@@ -291,16 +291,17 @@ Example usage:
 == Upgrade Notice ==
 
 = 0.2.2 =
-Google AdSense provider and a bulk delete action for the WP List Table
+Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
 
 = 0.2.1 =
 Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
 
 == Changelog ==
 
-= 0.2.2 (??? ??, 2012) =
+= 0.2.2 (June 5, 2012) =
 * New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
 * Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
+* New 'acm_register_provider_slug' for registering a provider that's included outside the plugin (e.g. a theme)
 * Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
 
 = 0.2.1 (May 14, 2012) =
