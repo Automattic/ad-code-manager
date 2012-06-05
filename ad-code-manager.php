@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo
-Version: 0.2.2-working
+Version: 0.2.2
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.2.2-working' );
+define( 'AD_CODE_MANAGER_VERSION', '0.2.2' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -33,6 +33,7 @@ define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
 require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-provider.php' );
 require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-wp-list-table.php' );
 require_once( AD_CODE_MANAGER_ROOT .'/common/lib/acm-widget.php' );
+require_once( AD_CODE_MANAGER_ROOT .'/common/lib/markdown.php' );
 
 class Ad_Code_Manager
 {
@@ -59,7 +60,6 @@ class Ad_Code_Manager
 
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
-		add_action( 'current_screen', array( $this, 'action_admin_init' ) );
 
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
@@ -70,14 +70,8 @@ class Ad_Code_Manager
 		add_action('current_screen', array( $this, 'contextual_help' ) );
 		add_action( 'widgets_init', array( $this, 'register_widget' ) );
 		add_shortcode( 'acm-tag' , array( $this, 'shortcode' ) );
-	}
-
-	/**
-	 * Initialize our subclass of WP_List_Table and set $items
-	 * Hooked to current_screen
-	 */
-	function action_admin_init() {
-		$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
+		// Workaround for PHP 5.4 warning: Creating default object from empty value in
+		$this->providers = new stdClass();
 	}
 
 	/**
@@ -540,7 +534,31 @@ class Ad_Code_Manager
 	 * Hook in our submenu page to the navigation
 	 */
 	function action_admin_menu() {
-		add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( $this, 'admin_view_controller' ) );
+		$hook = add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( $this, 'admin_view_controller' ) );
+		add_action( 'load-' . $hook, array( $this, 'action_load_ad_code_manager' ) );
+	}
+
+	/**
+	 * Instantiate the List Table and handle our bulk actions on the load of the page
+	 *
+	 * @since 0.2.2
+	 */
+	function action_load_ad_code_manager() {
+
+		// Instantiate this list table
+		$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
+		// Handle any bulk action requests
+		switch( $this->wp_list_table->current_action() ) {
+			case 'delete':
+				check_admin_referer( 'acm-bulk-action', 'bulk-action-nonce' );
+				$ad_code_ids = array_map( 'intval', $_REQUEST['ad-codes'] );
+				foreach( $ad_code_ids as $ad_code_id ) {
+					$this->delete_ad_code( $ad_code_id );
+				}
+				$redirect_url = add_query_arg( 'message', 'ad-codes-deleted', remove_query_arg( 'message', wp_get_referer() ) );
+				wp_safe_redirect( $redirect_url );
+				exit;
+		}
 	}
 
 	/**
@@ -550,12 +568,29 @@ class Ad_Code_Manager
 	function admin_view_controller() {
 		require_once( AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php' );
 	}
+	
+	function parse_readme_into_contextual_help() {
+		ob_start();
+		include_once(AD_CODE_MANAGER_ROOT . '/readme.txt' );
+		$readme = ob_get_clean();
+		$sections = preg_split( "/==(.*)==/", $readme );
+		// Something's wrong with readme, fail silently
+		if ( 5 > count( $sections) )
+			return;
+		
+		$useful = array( $sections[3], $sections[2], $sections[4] );
+		foreach ( $useful as $i => $tab ) {
+			// Because WP.ORG Markdown has a different flavor
+			$useful[$i] = Markdown( str_replace(array('= ', ' ='), '**', $tab ) );
+		}
+		return $useful;
+	}
 
 	function contextual_help() {
 		global $pagenow;
 	if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 		return;
-
+		list( $installation, $description, $configuration ) = $this->parse_readme_into_contextual_help();
 		ob_start();
 		?>
 			<div id="conditionals-help">
@@ -582,267 +617,23 @@ class Ad_Code_Manager
 	</div>
 <?php
 		$contextual_help = ob_get_clean();	
-		
-		ob_start();
-?>
-<p>Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.</p>
-<p>We tried to streamline the process and make everyday AdOps a little bit easier</p>
-<p>Depending on ad network you use, you will see a set of required fields to fill in (generally, "Ad Code" is a set of parameters you need to pass to ad server, so it could serve proper ad). Then you set conditionals. You can create ad code with conditionals in one easy step</p>
-<p>Priorities work pretty much the same way they work in WordPress.  Lower numbers correspond with higher priority. 
-<p>Once you've done creating ad codes, you can easily implement them in your theme using:</p>
-<ul>
-	<li>template tag: <code>&lt;?php do_action( 'acm_tag', $tag_id ) ?&gt;</code> </li>
-	<li>shortcode: [acm-tag id="tag_id"]</li>
-	<li>or using widget</li>
-</ul>
-	
-<?php			
-		$overview = ob_get_clean();
-		ob_start();
-?>
-<p>There are some filters which will allow you to easily customize output of the plugin. You should place these filters in your themes functions.php file or someplace safe.</p>
 
-<a href="https://gist.github.com/1631131" target="_blank">Check out this gist</a> to see all of the filters in action.
-
-<p><strong>acm_default_url</strong></p>
-
-<p>Currently, we don't store tokenized script URL anywhere so this filter is a nice place to set default value.</p>
-
-<p>Arguments: <br />
-* string $url The tokenized url of Ad Code</p> 
-<p>Example usage: Set your default ad code URL</p>
-<pre>
-add_filter( 'acm_default_url', 'my_acm_default_url' ); 
-function my_acm_default_url( $url ) { 
-	if ( 0 === strlen( $url )  ) {
-		return "http://ad.doubleclick.net/adj/%site_name%/%zone1%;s1=%zone1%;s2=;pid=%permalink%;fold=%fold%;kw=;test=%test%;ltv=ad;pos=%pos%;dcopt=%dcopt%;tile=%tile%;sz=%sz%;";
-	}
-}
-</pre>
-
-<p><strong>acm_output_tokens</strong></p> 
-
-<p>Register output tokens depending on the needs of your setup. Tokens are the keys to be replaced in your script URL.</p>
-
-<p>Arguments: <br/>
-* array $output_tokens Any existing output tokens <br/>
-* string $tag_id Unique tag id <br/>
-* array $code_to_display Ad Code that matched conditionals 
-</p>
-<p>Example usage: Test to determine whether you're in test or production by passing ?test=on query argument</p>
-
-<pre>
-add_filter( 'acm_output_tokens', 'my_acm_output_tokens', 10, 3 );
-function my_acm_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
-	$output_tokens['%test%'] = isset( $_GET['test'] ) && $_GET['test'] == 'on' ? 'on' : '';
-	return $output_tokens;
-}`
-</pre>
-
-<p><strong>acm_ad_tag_ids</strong></p>
-
-<p>Extend set of default tag ids. Ad tag ids are used as a parameter for your template tag (e.g. do_action( 'acm_tag', 'my_top_leaderboard' ))</p>
-<p>Arguments: <br />
-* array $tag_ids array of default tag ids</p>
-
-<p>Example usage: Add a new ad tag called 'my_top_leaderboard'</p>
-
-<pre>
-add_filter( 'acm_ad_tag_ids', 'my_acm_ad_tag_ids' );
-function my_acm_ad_tag_ids( $tag_ids ) {
-	$tag_ids[] = array(
-		'tag' => 'my_top_leaderboard', // tag_id 
-		'url_vars' => array(
-			'sz' => '728x90', // %sz% token
-			'fold' => 'atf', // %fold% token
-			'my_custom_token' => 'something' // %my_custom_token% will be replaced with 'something'
-		);
-	return $tag_ids;
-}
-</pre>
-
-<p><strong>acm_output_html</strong></p>
-
-<p>Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags ) by adjusting the HTML rendered for a given ad tag.</p>
-
-<p>Arguments: <br />
-* string $output_html The original output HTML <br />
-* string $tag_id Ad tag currently being accessed <br />
-</p>
-<p>Example usage:</p>
-<pre>
-add_filter( 'acm_output_html', 'my_acm_output_html', 10, 2 );
-function my_acm_output_html( $output_html, $tag_id ) {
-	switch ( $tag_id ) {
-		case 'my_leaderboard':
-			$output_html = '&lt;a href="%url%"&gt; &lt;img src="%image_url%" /&gt;&lt;/a&gt;';
-			break;
-		case 'rich_media_leaderboard':
-			$output_html = '&lt;script&gt; // omitted &lt;/script&gt;';
-			break;
-		default:
-			break;
-	}
-	return $output_html;
-}
-</pre>
-<p><strong>acm_whitelisted_conditionals</strong></p>
-
-<p>Extend the list of usable conditional functions with your own awesome ones. We whitelist these so users can't execute random PHP functions.</p>
-
-<p>Arguments: <br />
-* array $conditionals Default conditionals</p>
-
-<p>Example usage: Register a few custom conditional callbacks</p>
-
-<pre>
-add_filter( 'acm_whitelisted_conditionals', 'my_acm_whitelisted_conditionals' );
-function my_acm_whitelisted_conditionals( $conditionals ) {
-	$conditionals[] = 'my_is_post_type';
-	$conditionals[] = 'is_post_type_archive';
-	$conditionals[] = 'my_page_is_child_of';
-	return $conditionals;
-}
-</pre>
-
-<p><strong>acm_conditional_args</strong></p>
-
-<p>For certain conditionals (has_tag, has_category), you might need to pass additional arguments.</p>
-
-<p>Arguments: <br />
-* array $cond_args Existing conditional arguments <br />
-* string $cond_func Conditional function (is_category, is_page, etc)
-</p>
-
-<p>Example usage: has_category() and has_tag() use has_term(), which requires the object ID to function properly</p>
-
-<pre>
-add_filter( 'acm_conditional_args', 'my_acm_conditional_args', 10, 2 );
-function my_acm_conditional_args( $cond_args, $cond_func ) {
-	global $wp_query;
-	// has_category and has_tag use has_term
-	// we should pass queried object id for it to produce correct result
-	if ( in_array( $cond_func, array( 'has_category', 'has_tag' ) ) ) {
-		if ( $wp_query->is_single == true ) {
-			$cond_args[] = $wp_query->queried_object->ID;
-		}
-	}
-	// my_page_is_child_of is our custom WP conditional tag and we have to pass queried object ID to it
-	if ( in_array( $cond_func, array( 'my_page_is_child_of' ) ) && $wp_query->is_page ) {
-		$cond_args[] = $cond_args[] = $wp_query->queried_object->ID;
-	}
-
-	return $cond_args;
-}
-</pre>
-
-<p><strong>acm_whitelisted_script_urls</strong></p>
-
-<p>A security filter to whitelist which ad code script URLs can be added in the admin</p>
-
-<p>Arguments: <br />
-* array $whitelisted_urls Existing whitelisted ad code URLs</p>
-
-<p>Example usage: Allow Doubleclick for Publishers ad codes to be used</p>
-
-<pre>add_filter( 'acm_whitelisted_script_urls', 'my_acm_whitelisted_script_urls' );
-function my_acm_whiltelisted_script_urls( $whitelisted_urls ) {
-	$whitelisted_urls = array( 'ad.doubleclick.net' );
-	return $whitelisted_urls;
-}
-</pre>
-
-<p><strong>acm_display_ad_codes_without_conditionals</strong></p>
-
-<p>Change the behavior of Ad Code Manager so that ad codes without conditionals display on the frontend. The default behavior is that each ad code requires a conditional to be included in the presentation logic.</p>
-
-<p>Arguments: <br />
-* bool $behavior Whether or not to display the ad codes that don't have conditionals</p>
-
-<p>Example usage:</p>
-
-<pre>add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );</pre>
-
-<p><strong>acm_provider_slug</strong></p>
-
-<p>By default we use our bundled doubleclick_for_publishers config ( check it in /providers/doubleclick-for-publishers.php ). If you want to add your own flavor of DFP or even implement configuration for some another ad network, you'd have to apply a filter to correct the slug.</p>
-
-<p>Example usage:</p>
-
-<pre>add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; })</pre>
-
-<p><strong>acm_logical_operator</strong></p>
-
-<p>By default logical operator is set to "OR", that is, ad code will be displayed if at least one conditional returns true.
-	You can change it to "AND", so that ad code will be displayed only if ALL of the conditionals match</p>
-
-<p>Example usage:</p>
-
-<pre>add_filter( 'acm_provider_slug', function( $slug ) { return 'my-ad-network-slug'; })</pre>
-
-<p><strong>acm_manage_ads_cap</strong></p>
-
-<p>By default user has to have "manage_options" cap. This filter comes in handy, if you want to relax the requirements.</p>
-
-<p>Example usage:</p>
-
-<pre>add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; })</pre>
-
-<p><strong>acm_allowed_get_posts_args</strong></p>
-
-<p>This filter is only for edge cases. Most likely you won't have to touch it. Allows to include additional query args for Ad_Code_Manager->get_ad_codes() method.</p>
-	
-<p>Example usage:</p>
-
-<code>add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); })</code>
-
-<p><strong>acm_ad_code_count</strong></p>
-
-<p>By default the total number of ad codes to get is 50, which is reasonable for any small to mid site. However, in some certain cases you would want to increase the limit. This will affect Ad_Code_Manager->get_ad_codes() 'numberposts' query argument.</p>
-
-<p>Example usage:</p>
-
-<pre>add_filter( 'acm_ad_code_count', function( $total ) { return 100; })</pre>
-
-<p><strong>acm_list_table_columns</strong></p>
-
-<p>This filter can alter table columns that are displayed in ACM UI.</p>
-
-<p>Example usage:</p>
-
-<pre>add_filter( 'acm_list_table_columns', function ( $columns ) {
-			$columns = array(
-				'id'             => __( 'ID', 'ad-code-manager' ),
-				'name'           => __( 'Name', 'ad-code-manager' ),
-				'priority'       => __( 'Priority', 'ad-code-manager' ),
-				'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
-			);
-			return $columns;
-	} )
-	</pre>
-<p><strong>acm_provider_columns</strong></p>
-
-<p>This filter comes in pair with previous one, it should return array of ad network specific parameters. E.g. in acm_list_table_columns example we have
-	'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name"</p>
-
-<p>Example usage:</p>
-<pre>add_filter( 'acm_provider_columns', function ( $columns ) {
-			$columns = array(
-				'name'           => __( 'Name', 'ad-code-manager' ),
-			);
-			return $columns;
-	} )</pre>
-<?php		
-		$configuration = ob_get_clean();
 		
 		
 		get_current_screen()->add_help_tab(
 			array(
 				'id' => 'acm-overview',
 				'title' => 'Overview',
-				'content' => $overview,
+				'content' => $description,
 			)
 		);
+		get_current_screen()->add_help_tab(
+			array(
+				'id' => 'acm-install',
+				'title' => 'Installation',
+				'content' => $installation,
+			)
+		);		
 		get_current_screen()->add_help_tab(
 			array(
 				'id' => 'acm-config',

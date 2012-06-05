@@ -25,12 +25,27 @@ class ACM_WP_List_Table extends WP_List_Table {
 	*/
 	function get_columns() {
 		$columns = array(
+			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
 			'name'           => __( 'Name', 'ad-code-manager' ),
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
 		return apply_filters( 'acm_list_table_columns', $columns );
+	}
+
+	/**
+	 * Define bulk actions to allow users to mass delete ad codes
+	 *
+	 * @since 0.2.2
+	 *
+	 * @return array $bulk_actions All of the bulk actions permitted on the List Table
+	 */
+	function get_bulk_actions() {
+		$bulk_actions = array(
+				'delete' => __( 'Delete', 'ad-code-manager' ),
+			);
+		return $bulk_actions;
 	}
 
 	/**
@@ -133,6 +148,21 @@ class ACM_WP_List_Table extends WP_List_Table {
 				break;
 		}
 
+	}
+
+	/**
+	 * Column with a checkbox
+	 * Used for bulk actions
+	 *
+	 * @since 0.2.2
+	 *
+	 * @param object $item Ad code as an object
+	 * @return string $output What will be rendered
+	 */
+	function column_cb( $item ) {
+		$id = $item['post_id'];
+		$output = "<input type='checkbox' name='ad-codes[]' id='ad_code_{$id}' value='{$id}' />";
+		return $output;
 	}
 
 	/**

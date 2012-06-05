@@ -13,6 +13,9 @@
 			case 'ad-code-deleted':
 				$message_text = __( 'Ad code deleted.', 'ad-code-manager' );
 				break;
+			case 'ad-codes-deleted':
+				$message_text = __( 'Ad codes deleted.', 'ad-code-manager' );
+				break;
 			default:
 				$message_text = '';
 				break;
@@ -28,10 +31,13 @@
 
 <div id="col-right">
 <div class="col-wrap">
+	<form action="" method="post" name="updateadcodes" id="updateadcodes">
 <?php
+	wp_nonce_field( 'acm-bulk-action', 'bulk-action-nonce' );
 	$this->wp_list_table->prepare_items();
 	$this->wp_list_table->display();
 ?>
+	</form>
 
 </div>
 </div><!-- /col-right -->

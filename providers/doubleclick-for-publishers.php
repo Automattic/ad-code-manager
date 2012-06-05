@@ -90,6 +90,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 */
 	function get_columns() {
 		$columns = array(
+			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
 			'site_name'      => __( 'Site Name', 'ad-code-manager' ),
 			'zone1'          => __( 'Zone1', 'ad-code-manager' ),
