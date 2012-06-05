@@ -70,6 +70,8 @@ class Ad_Code_Manager
 		add_action('current_screen', array( $this, 'contextual_help' ) );
 		add_action( 'widgets_init', array( $this, 'register_widget' ) );
 		add_shortcode( 'acm-tag' , array( $this, 'shortcode' ) );
+		// Workaround for PHP 5.4 warning: Creating default object from empty value in
+		$this->providers = new stdClass();
 	}
 
 	/**
