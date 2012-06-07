@@ -22,8 +22,15 @@ class ACM_Provider
 	function __construct() {
 		if ( empty( $this->ad_code_args ) ) {
 			// This is not actual data, but rather format:
-			// slug => Title
-			$this->columns = array('name' => 'Name');
+			$this->ad_code_args =  array(
+				array(
+					'key'       => 'name',
+					'label'     => __( 'Name', 'ad-code-manager' ),
+					'editable'  => true,
+					'required'  => true,
+					),
+				);
+			$this->ad_code_args = apply_filters( 'acm_ad_code_args', $this->ad_code_args );
 		}
 		
 		// Could be filtered via acm_output_html filter
