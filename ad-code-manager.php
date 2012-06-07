@@ -408,7 +408,7 @@ class Ad_Code_Manager
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// We shouldn't create an ad code,
 			// If any of required fields is not set
-			if ( ! $ad_code[$arg['key']] && $arg['required'] === true  ) {
+			if ( ! isset( $ad_code[$arg['key']] ) && $arg['required'] === true  ) {
 				return new WP_Error();
 			}
 			$titles[] = $ad_code[$arg['key']];
@@ -438,7 +438,7 @@ class Ad_Code_Manager
 	function edit_ad_code( $ad_code_id, $ad_code = array()) {
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// If a required argument is not set, we return an error message with the missing parameter
-			if ( ! $ad_code[$arg['key']] && $arg['required'] === true  ) {
+			if ( ! isset( $ad_code[$arg['key']] ) && $arg['required'] === true  ) {
 				return new WP_Error( 'edit-error', 'Error updating ad code, a parameter for ' . esc_html( $arg['key'] ) . ' is required.' );
 			}
 		}
