@@ -236,7 +236,11 @@ class Ad_Code_Manager
 				else
 					$id = $this->edit_ad_code( $id, $ad_code_vals );
 				if ( is_wp_error( $id ) ) {
-					$message = 'error-adding-editing-ad-code';
+					// We can die with an error if this is an edit/ajax request
+					if ( isset( $id->errors['edit-error'][0] ) )
+						die( '<div class="error">' . $id->errors['edit-error'][0] . '</div>' );
+					else
+						$message = 'error-adding-editing-ad-code';
 					break;
 				}
 				$new_conditionals = array();
@@ -433,10 +437,9 @@ class Ad_Code_Manager
 	 */
 	function edit_ad_code( $ad_code_id, $ad_code = array()) {
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
-			// We shouldn't update an ad code,
-			// If any of required fields is not set
+			// If a required argument is not set, we return an error message with the missing parameter
 			if ( ! $ad_code[$arg['key']] && $arg['required'] === true  ) {
-				return new WP_Error();
+				return new WP_Error( 'edit-error', 'Error updating ad code, a parameter for ' . esc_html( $arg['key'] ) . ' is required.' );
 			}
 		}
 		if ( 0 !== $ad_code_id ) {
