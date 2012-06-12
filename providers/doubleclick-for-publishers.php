@@ -4,6 +4,10 @@
  *
  * @since 0.1.3
  */
+class Doubleclick_For_Publishers_Columns {
+	
+}
+
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 	function __construct() {
 		// Default output HTML
@@ -57,11 +61,23 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 					)
 			),
 		);
-		
+		$this->ad_code_args = array(
+			array(
+				'key'       => 'site_name',
+				'label'     => __( 'Site Name', 'ad-code-manager' ),
+				'editable'  => true,
+				'required'  => true,
+			),
+			array(
+				'key'       => 'zone1',
+				'label'     => __( 'zone1', 'ad-code-manager' ),
+				'editable'  => true,
+				'required'  => true,
+			),
+		);
 		// Only allow ad tags called from following URLS
 		$this->whitelisted_script_urls = array( 'ad.doubleclick.net' );
-		$this->columns = apply_filters( 'acm_provider_columns', array( 'site_name' => 'Site Name', 'zone1' => 'zone1' ) );
-
+		
 		parent::__construct();
 	}
 

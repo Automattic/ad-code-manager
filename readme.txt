@@ -216,7 +216,7 @@ By default we use our bundled doubleclick_for_publishers config ( check it in /p
 
 Example usage:
 
-	`add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; })`
+	`add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; } );`
 
 = acm_logical_operator =
 
@@ -225,7 +225,7 @@ You can change it to "AND", so that ad code will be displayed only if ALL of the
 
 Example usage:
 
-	`add_filter( 'acm_provider_slug', function( $slug ) { return 'my-ad-network-slug'; })`
+	`add_filter( 'acm_logical_operator', function() { return 'AND'; } );`
 
 = acm_manage_ads_cap =
 
@@ -233,7 +233,7 @@ By default user has to have "manage_options" cap. This filter comes in handy, if
 
 Example usage:
 
-	`add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; })`
+	`add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; } );`
 
 = acm_allowed_get_posts_args =
 
@@ -241,7 +241,7 @@ This filter is only for edge cases. Most likely you won't have to touch it. Allo
 
 Example usage:
 
-	`add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); })`
+	`add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); } );`
 
 = acm_ad_code_count =
 
@@ -249,7 +249,7 @@ By default the total number of ad codes to get is 50, which is reasonable for an
 
 Example usage:
 
-	`add_filter( 'acm_ad_code_count', function( $total ) { return 100; })`
+	`add_filter( 'acm_ad_code_count', function( $total ) { return 100; } );`
 
 = acm_list_table_columns = 
 
@@ -257,15 +257,16 @@ This filter can alter table columns that are displayed in ACM UI.
 
 Example usage:
 
-	`add_filter( 'acm_list_table_columns', function ( $columns ) {
-			$columns = array(
-				'id'             => __( 'ID', 'ad-code-manager' ),
-				'name'           => __( 'Name', 'ad-code-manager' ),
-				'priority'       => __( 'Priority', 'ad-code-manager' ),
-				'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
-			);
-			return $columns;
-	} )`
+	`add_filter( 'acm_list_table_columns', 'my_acm_list_table_columns' );
+	function my_acm_list_table_columns( $columns ) {
+		$columns = array(
+			'id'             => __( 'ID', 'ad-code-manager' ),
+			'name'           => __( 'Name', 'ad-code-manager' ),
+			'priority'       => __( 'Priority', 'ad-code-manager' ),
+			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+		);
+		return $columns;
+	}`
 
 = acm_provider_columns =
 
@@ -273,12 +274,14 @@ This filter comes in pair with previous one, it should return array of ad networ
 'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name"
 
 Example usage:
-	`add_filter( 'acm_provider_columns', function ( $columns ) {
-			$columns = array(
-				'name'           => __( 'Name', 'ad-code-manager' ),
-			);
-			return $columns;
-	} )`
+
+	`add_filter( 'acm_provider_columns', 'my_acm_provider_columns' );
+	function my_acm_provider_columns( $columns ) {
+		$columns = array(
+			'name'           => __( 'Name', 'ad-code-manager' ),
+		);
+		return $columns;
+	}`
 
 == Screenshots ==
 

@@ -8,7 +8,7 @@
  * @property string $output_html Html of an ad tag
  * @property array $output_tokens Array of tokens that will be replaced in %url%
  * @property array $ad_tag_ids Set of default ad tags (e.g. 2 leaderboards, 300x250, etc)
- * @property array $columns array of properties of an ad code in format "slug" => 'Column title'
+ * @property array $ad_code_args array of properties of an ad code
  * 
  * @since v0.1.3
  */
@@ -18,13 +18,19 @@ class ACM_Provider
 	public $output_html;
 	public $output_tokens = array();
 	public $ad_tag_ids;
-	public $columns = array();
-	
+	public $ad_code_args = array(); 
 	function __construct() {
-		if ( empty( $this->columns ) ) {
+		if ( empty( $this->ad_code_args ) ) {
 			// This is not actual data, but rather format:
-			// slug => Title
-			$this->columns = array('name' => 'Name');
+			$this->ad_code_args =  array(
+				array(
+					'key'       => 'name',
+					'label'     => __( 'Name', 'ad-code-manager' ),
+					'editable'  => true,
+					'required'  => true,
+					),
+				);
+			$this->ad_code_args = apply_filters( 'acm_ad_code_args', $this->ad_code_args );
 		}
 		
 		// Could be filtered via acm_output_html filter

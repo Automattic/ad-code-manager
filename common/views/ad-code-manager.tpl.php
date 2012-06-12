@@ -55,12 +55,15 @@
 <?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
 
 <?php
-foreach ( $this->current_provider->columns as $slug => $title ):
-	$column_id = 'acm-column[' . $slug . ']';
+foreach ( $this->current_provider->ad_code_args as $arg ):
+	if ( ! $arg['editable'] )
+		continue;
+
+	$column_id = 'acm-column[' . $arg['key'] . ']';
 ?>
 <div class="form-field form-required">
-	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $title ) ?></label>
-	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="true">
+	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
+	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo $arg['editable'] ?>">
 </div>
 <?php
 endforeach;

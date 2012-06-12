@@ -228,15 +228,19 @@ class Ad_Code_Manager
 				$ad_code_vals = array(
 						'priority' => $priority,
 					);
-				foreach( $this->current_provider->columns as $slug => $title ) {
-					$ad_code_vals[$slug] = sanitize_text_field( $_REQUEST['acm-column'][$slug] );
+				foreach( $this->current_provider->ad_code_args as $arg ) {
+					$ad_code_vals[$arg['key']] = sanitize_text_field( $_REQUEST['acm-column'][$arg['key']] );
 				}
 				if ( $_REQUEST['method'] == 'add')
 					$id = $this->create_ad_code( $ad_code_vals );
 				else
 					$id = $this->edit_ad_code( $id, $ad_code_vals );
 				if ( is_wp_error( $id ) ) {
-					$message = 'error-adding-editing-ad-code';
+					// We can die with an error if this is an edit/ajax request
+					if ( isset( $id->errors['edit-error'][0] ) )
+						die( '<div class="error">' . $id->errors['edit-error'][0] . '</div>' );
+					else
+						$message = 'error-adding-editing-ad-code';
 					break;
 				}
 				$new_conditionals = array();
@@ -323,8 +327,8 @@ class Ad_Code_Manager
 			foreach ( $ad_codes as $ad_code_cpt ) {
 				$provider_url_vars = array();
 				
-				foreach ( $this->current_provider->columns as $slug => $title ) {
-					$provider_url_vars[$slug] = get_post_meta( $ad_code_cpt->ID, $slug, true );
+				foreach ( $this->current_provider->ad_code_args as  $arg ) {
+					$provider_url_vars[$arg['key']] = get_post_meta( $ad_code_cpt->ID, $arg['key'], true );
 				}
 
 				$priority = get_post_meta( $ad_code_cpt->ID, 'priority', true );
@@ -355,8 +359,8 @@ class Ad_Code_Manager
 			return false;
 		
 		$provider_url_vars = array();
-		foreach ( $this->current_provider->columns as $slug => $title ) {
-			$provider_url_vars[$slug] = get_post_meta( $post->ID, $slug, true );
+		foreach ( $this->current_provider->ad_code_args as $arg ) {
+			$provider_url_vars[$arg['key']] = get_post_meta( $post->ID, $arg['key'], true );
 		}
 
 		$priority = get_post_meta( $post_id, 'priority', true );
@@ -401,13 +405,13 @@ class Ad_Code_Manager
 	 */
 	function create_ad_code( $ad_code = array() ) {
 		$titles = array();
-		foreach ( $this->current_provider->columns as $slug => $col_title ) {
+		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// We shouldn't create an ad code,
 			// If any of required fields is not set
-			if ( ! $ad_code[$slug] ) {
-				return;
+			if ( ! isset( $ad_code[$arg['key']] ) && $arg['required'] === true  ) {
+				return new WP_Error();
 			}
-			$titles[] = $ad_code[$slug];
+			$titles[] = $ad_code[$arg['key']];
 		}
 		$acm_post = array(
 			'post_title' => implode( '-', $titles ),
@@ -418,8 +422,8 @@ class Ad_Code_Manager
 		);
 
 		if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
-			foreach ( $this->current_provider->columns as $slug => $title ) {
-				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[$slug] );
+			foreach ( $this->current_provider->ad_code_args as $arg ) {
+				update_post_meta( $acm_inserted_post_id, $arg['key'], $ad_code[$arg['key']] );
 			}
 			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code['priority'] );
 			$this->flush_cache();
@@ -432,16 +436,15 @@ class Ad_Code_Manager
 	 * Update an existing ad code
 	 */
 	function edit_ad_code( $ad_code_id, $ad_code = array()) {
-		foreach ( $this->current_provider->columns as $slug => $title ) {
-			// We shouldn't update an ad code,
-			// If any of required fields is not set
-			if ( ! $ad_code[$slug] ) {
-				return new WP_Error();
+		foreach ( $this->current_provider->ad_code_args as $arg ) {
+			// If a required argument is not set, we return an error message with the missing parameter
+			if ( ! isset( $ad_code[$arg['key']] ) && $arg['required'] === true  ) {
+				return new WP_Error( 'edit-error', 'Error updating ad code, a parameter for ' . esc_html( $arg['key'] ) . ' is required.' );
 			}
 		}
 		if ( 0 !== $ad_code_id ) {
-			foreach ( $this->current_provider->columns as $slug => $title ) {
-				update_post_meta( $ad_code_id, $slug, $ad_code[$slug] );
+			foreach ( $this->current_provider->ad_code_args as $arg ) {
+				update_post_meta( $ad_code_id, $arg['key'], $ad_code[$arg['key']] );
 			}
 			update_post_meta( $ad_code_id, 'priority', $ad_code['priority'] );
 		}
