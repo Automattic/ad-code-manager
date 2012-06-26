@@ -298,6 +298,9 @@ Example usage:
 
 == Upgrade Notice ==
 
+= 0.2.3 =
+The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
+
 = 0.2.2 =
 Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
 
