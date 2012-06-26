@@ -29,9 +29,12 @@ class ACM_Provider
 					'editable'  => true,
 					'required'  => true,
 					),
-				);
-			$this->ad_code_args = apply_filters( 'acm_ad_code_args', $this->ad_code_args );
+				);			
 		}
+		/**
+		 * Configuration filter: acm_ad_code_args
+		 */
+		$this->ad_code_args = apply_filters( 'acm_ad_code_args', $this->ad_code_args );
 		
 		// Could be filtered via acm_output_html filter
 		// @see Ad_Code_Manager::action_acm_tag()

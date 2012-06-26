@@ -38,8 +38,14 @@ class Google_AdSense_ACM_Provider extends ACM_Provider {
 		//Since URLs aren't used with AdSense, value 'null' is included as ACM uses parse_url to validate URLs
 		$this->whitelisted_script_urls = array( '%slot%', null );
 
-		//Specify table columns
-		$this->columns = apply_filters( 'acm_provider_columns', array( 'slot' => 'Slot' ) );
+		$this->ad_code_args = array(
+			array(
+				'key'       => 'slot',
+				'label'     => __( 'Slot', 'ad-code-manager' ),
+				'editable'  => true,
+				'required'  => true,
+			),
+		);
 
 		parent::__construct();
 	}
