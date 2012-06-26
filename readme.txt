@@ -268,7 +268,7 @@ Example usage:
 		return $columns;
 	}`
 
-= acm_acm_ad_code_args =
+= acm_ad_code_args =
 
 This filter comes in pair with previous one, it should return array of ad network specific parameters. E.g. in acm_list_table_columns example we have
 'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name". "editable" and "required" indicate whether this field should be editable and required.
