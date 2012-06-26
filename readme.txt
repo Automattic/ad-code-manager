@@ -1,6 +1,6 @@
 === Ad Code Manager ===
 Contributors: rinatkhaziev, jeremyfelt, zztimur, danielbachhuber, automattic, doejo
-Tags: advertising, ad codes
+Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
 Tested up to: 3.4
 Stable tag: 0.2.2
