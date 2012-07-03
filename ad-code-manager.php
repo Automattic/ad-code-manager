@@ -202,7 +202,7 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function register_acm_post_type() {
-		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false ) );
+		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false, 'rewrite' => false ) );
 	}
 
 	/**
