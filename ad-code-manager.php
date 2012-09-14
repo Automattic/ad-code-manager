@@ -916,6 +916,11 @@ class Ad_Code_Manager
 	 * @see https://gist.github.com/1623788
 	 */
 	function validate_script_url( $url ) {
+		// If url is empty, there's nothing to validate
+		// Fixes issue with DFP JS
+		if ( empty( $url ) )
+			return true;
+					
 		$domain = parse_url( $url, PHP_URL_HOST );
 
 		// Check if we match the domain exactly
