@@ -374,6 +374,7 @@ class Ad_Code_Manager
 
 		$operator = get_post_meta( $post_id, 'operator', true );
 		$operator = ( !empty( $operator ) ) ? esc_html( $operator ) : 'OR';
+		$operator = apply_filters( 'acm_logical_operator', $operator );
 
 		$ad_code_formatted = array(
 			'conditionals' => $this->get_conditionals( $post->ID ),
