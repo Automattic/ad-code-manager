@@ -145,6 +145,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 				return esc_html( $item['priority'] );
 				break;
 			default:
+				// Handle custom columns, if any
+				if ( isset( $item['url_vars'][$column_name] ) )
+					return esc_html( $item['url_vars'][$column_name] );
 				break;
 		}
 
