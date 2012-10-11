@@ -50,7 +50,8 @@ inlineEditAdCodes = {
 		$('.acm-conditional-fields', editRow).html( $('.acm-conditional-fields', rowData).html() );
 		$('.acm-column-fields', editRow).html( $('.acm-column-fields', rowData).html() );
 		$('.acm-priority-field', editRow).html( $('.acm-priority-field', rowData).html() );
-		
+		$('.acm-operator-field', editRow).html( $('.acm-operator-field', rowData).html() );
+
 		$(editRow).attr('id', 'edit-'+id).addClass('inline-editor').show();
 		$('.ptitle', editRow).eq(0).focus();
 
@@ -132,7 +133,7 @@ jQuery( document ).ready( function( $ ) {
 	jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
 	$('#conditionals-help-toggler').click( function( e ) {
 		var el = jQuery('#conditionals-help');
-		
+
 		el.toggleClass('hidden');
 	});
 });
