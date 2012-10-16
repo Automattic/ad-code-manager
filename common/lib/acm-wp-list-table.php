@@ -140,11 +140,14 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @return string $output What will be rendered
 	 */
 	function column_default( $item, $column_name ) {
+		global $ad_code_manager;
 
 		switch( $column_name ) {
 			case 'priority':
 				return esc_html( $item['priority'] );
 				break;
+			case 'operator':
+				return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
 			default:
 				// Handle custom columns, if any
 				if ( isset( $item['url_vars'][$column_name] ) )
@@ -220,8 +223,13 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$output .= '<div class="acm-operator-field">';
 		$output .= '<h4 class="acm-section-label">' . __( 'Logical Operator', 'ad-code-manager' ) . '</h4>';
 		$output .= '<select name="operator">';
-		$output .= '<option ' . selected( esc_attr( $item['operator'] ), 'OR' ) . '>OR</option>';
-		$output .= '<option ' . selected( esc_attr( $item['operator'] ), 'AND' ) . '>AND</option>';
+		$operators = array(
+				'OR'     => __( 'OR', 'ad-code-manager' ),
+				'AND'    => __( 'AND', 'ad-code-manager' ),
+			);
+		foreach( $operators as $key => $label ) {
+			$output .= '<option ' . selected( $item['operator'], $key ) . '>' . esc_attr( $label ) . '</option>';
+		}
 		$output .= '</select>';
 		$output .= '</div>';
 
@@ -236,18 +244,6 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$output = isset($item['name']) ? esc_html( $item['name'] ) : esc_html( $item['url_vars']['name'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
-	}
-
-	/**
-	 * Display the logical operator for this ad code
-	 *
-	 * @since 0.2
-	 */
-	function column_operator( $item ) {
-		if ( empty( $item['operator'] ) )
-			return esc_html( 'OR' );
-
-		return esc_html( $item['operator'] );
 	}
 
 	/**

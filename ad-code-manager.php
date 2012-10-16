@@ -44,7 +44,7 @@ class Ad_Code_Manager
 	public $plugin_slug = 'ad-code-manager';
 	public $manage_ads_cap = 'manage_options';
 	public $post_type_labels;
-	// public $logical_operator;
+	public $logical_operator;
 	public $ad_tag_ids;
 	public $providers;
 	public $current_provider_slug;
@@ -170,7 +170,7 @@ class Ad_Code_Manager
 		 */
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
 		// Allow users to filter default logical operator
-		// $this->logical_operator = apply_filters( 'acm_logical_operator', 'OR' );
+		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR' );
 
 		// Allow the ad management cap to be filtered if need be
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
@@ -225,7 +225,7 @@ class Ad_Code_Manager
 			case 'edit':
 				$id = ( isset( $_REQUEST['id'] ) ) ? (int)$_REQUEST['id'] : 0;
 				$priority = ( isset( $_REQUEST['priority'] ) ) ? (int)$_REQUEST['priority'] : 10;
-				$operator = ( isset( $_REQUEST['operator'] ) && $_REQUEST['operator'] == 'AND' ) ? 'AND' : 'OR';
+				$operator = ( isset( $_REQUEST['operator'] ) && in_array( $_REQUEST['operator'], array( 'AND', 'OR' ) ) ) ? $_REQUEST['operator'] : $this->logical_operator;
 				$ad_code_vals = array(
 						'priority' => $priority,
 						'operator' => $operator,
@@ -337,7 +337,7 @@ class Ad_Code_Manager
 				$priority = ( !empty( $priority ) ) ? intval( $priority ) : 10;
 
 				$operator = get_post_meta( $ad_code_cpt->ID, 'operator', true );
-				$operator = ( !empty( $operator ) ) ? esc_html( $operator ) : 'OR';
+				$operator = ( !empty( $operator ) ) ? esc_html( $operator ) : $this->logical_operator;
 
 				$ad_codes_formatted[] = array(
 					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
@@ -373,8 +373,7 @@ class Ad_Code_Manager
 		$priority = ( !empty( $priority ) ) ? intval( $priority ) : 10;
 
 		$operator = get_post_meta( $post_id, 'operator', true );
-		$operator = ( !empty( $operator ) ) ? esc_html( $operator ) : 'OR';
-		$operator = apply_filters( 'acm_logical_operator', $operator );
+		$operator = ( !empty( $operator ) ) ? esc_html( $operator ) : $this->logical_operator;
 
 		$ad_code_formatted = array(
 			'conditionals' => $this->get_conditionals( $post->ID ),
@@ -703,7 +702,7 @@ class Ad_Code_Manager
 	 * @param int $priority Priority of the ad code in comparison to others
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = 'OR' ) {
+	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $url ) )
@@ -719,7 +718,8 @@ class Ad_Code_Manager
 			$priority = 10;
 
 		// Make sure our operator is 'OR' or 'AND'
-		$operator = $operator == 'AND' ? 'AND' : 'OR';
+		if ( ! $operator || ! in_array( $operator, array( 'AND', 'OR' ) ) )
+			$operator = $this->logical_operator;
 
 		// Save the ad code to our set of ad codes
 		$this->ad_codes[$tag][] = array(
@@ -750,7 +750,7 @@ class Ad_Code_Manager
 						'conditionals' => array(),
 						'url_vars' => array(),
 						'priority' => 10,
-						'operator' => 'OR',
+						'operator' => $this->logical_operator,
 					);
 			$ad_code = array_merge( $default, $ad_code );
 
@@ -764,7 +764,8 @@ class Ad_Code_Manager
 				$ad_code['priority'] = strlen( $ad_code['priority'] ) == 0 ? 10 : intval( $ad_code['priority'] ); //make sure priority is int, if it's unset, we set it to 10
 
 				// Make sure our operator is 'OR' or 'AND'
-				$ad_code['operator'] = $ad_code['operator'] == 'AND' ? 'AND' : 'OR';
+				if ( ! $ad_code['operator'] || ! in_array( $ad_code['operator'], array( 'AND', 'OR' ) ) )
+					$operator = $this->logical_operator;
 
 				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ), $ad_code['priority'], $ad_code['operator'] );
 			}
