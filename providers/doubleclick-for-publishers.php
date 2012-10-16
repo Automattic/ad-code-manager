@@ -5,14 +5,14 @@
  * @since 0.1.3
  */
 class Doubleclick_For_Publishers_Columns {
-	
+
 }
 
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 	function __construct() {
 		// Default output HTML
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
-		
+
 		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
 		$this->ad_tag_ids = array(
 			array(
@@ -57,7 +57,7 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 						'fold' => 'int',
 						'pos' => 'top',
 						'width' => '1',
-						'height' => '1',						
+						'height' => '1',
 					)
 			),
 		);
@@ -77,7 +77,7 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 		);
 		// Only allow ad tags called from following URLS
 		$this->whitelisted_script_urls = array( 'ad.doubleclick.net' );
-		
+
 		parent::__construct();
 	}
 
@@ -96,11 +96,11 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 		parent::__construct( array(
 			'singular'=> 'doubleclick_for_publishers_acm_wp_list_table', //Singular label
 			'plural' => 'doubleclick_for_publishers_acm_wp_list_table', //plural label, also this well be one of the table css class
-			'ajax'	=> true 
+			'ajax'	=> true
 		) );
 	 }
-	
-	
+
+
 	/**
 	 * This is nuts and bolts of table representation
 	 */
@@ -111,6 +111,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 			'site_name'      => __( 'Site Name', 'ad-code-manager' ),
 			'zone1'          => __( 'Zone1', 'ad-code-manager' ),
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
+			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
 		return apply_filters( 'acm_list_table_columns', $columns );
