@@ -80,15 +80,6 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 
 		parent::__construct();
 	}
-
-
-	/**
-	 * Filter the columns that can appear in the list table of ad codes
-	 */
-	function filter_list_table_columns( $columns ) {
-
-		return $columns;
-	}
 }
 
 class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
@@ -114,7 +105,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
-		return apply_filters( 'acm_list_table_columns', $columns );
+		return parent::get_columns( $columns );
 	}
 
 	/**

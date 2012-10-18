@@ -23,8 +23,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 	* Define the columns that are going to be used in the table
 	* @return array $columns, the array of columns to use with the table
 	*/
-	function get_columns() {
-		$columns = array(
+	function get_columns( $columns = false ) {
+
+		$default = array(
 			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
 			'name'           => __( 'Name', 'ad-code-manager' ),
@@ -32,7 +33,19 @@ class ACM_WP_List_Table extends WP_List_Table {
 			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
-		return apply_filters( 'acm_list_table_columns', $columns );
+		$columns = apply_filters( 'acm_list_table_columns', !is_array( $columns ) || empty( $columns ) ? $default : $columns );
+		// Fail-safe for misconfiguration
+		$required_before = array(
+			'cb'             => '<input type="checkbox" />',
+			'id'             => __( 'ID', 'ad-code-manager' ),		
+		);
+		$required_after = array(
+			'priority'       => __( 'Priority', 'ad-code-manager' ),
+			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
+			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),	
+		);
+		$columns = array_merge( $required_before, $columns, $required_after  );
+		return $columns;
 	}
 
 	/**

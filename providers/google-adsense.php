@@ -48,7 +48,7 @@ class Google_AdSense_ACM_Provider extends ACM_Provider {
 		);
 
 		parent::__construct();
-	}
+	}	
 }
 
 /**
@@ -82,8 +82,7 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
-
-		return apply_filters( 'acm_list_table_columns', $columns );
+		return parent::get_columns( $columns );
 	}
 
 	/**

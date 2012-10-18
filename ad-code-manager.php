@@ -57,7 +57,6 @@ class Ad_Code_Manager
 	 * @since 0.1
 	 */
 	function __construct() {
-
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 
@@ -133,7 +132,6 @@ class Ad_Code_Manager
 		// Nothing to do without a provider
 		if ( !is_object( $this->current_provider ) )
 			return ;
-
 		/**
 		 * Configuration filter: acm_whitelisted_script_urls
 		 * A security filter to whitelist which ad code script URLs can be added in the admin
