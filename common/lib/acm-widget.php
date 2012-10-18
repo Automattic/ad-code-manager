@@ -12,11 +12,11 @@ class ACM_Ad_Zones extends WP_Widget {
 		$widget_ops = array(
 			'classname' => 'acm_ad_zones',
 			'description' => 'Display an Ad Code Manger ad zone within a widget area'
-			);
+		);
 		$this->WP_Widget( 'ACM_Ad_Zones', 'Ad Code Manager Ad Zone', $widget_ops );
 	}
 
-	 // Build the widget settings form
+	// Build the widget settings form
 	function form( $instance ) {
 		$defaults = array(
 			'title' => '',
@@ -26,7 +26,7 @@ class ACM_Ad_Zones extends WP_Widget {
 		$title = $instance['title'];
 		$zone = $instance['ad_zone'];
 		global $ad_code_manager;
-			?>
+?>
 			<p><label>Title: <input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>"  type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
 
 			<p>
@@ -34,12 +34,12 @@ class ACM_Ad_Zones extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'ad_zone' ); ?>">Choose Ad Zone</label>
 			<select id="<?php echo $this->get_field_id( 'ad_zone' ); ?>" name="<?php echo $this->get_field_name( 'ad_zone' ); ?>">
 				<?php
-				foreach ( $ad_code_manager->ad_codes as $key => $value ) {
-					?>
-					<option value="<?php echo $key; ?>" <?php selected( $key, $zone); ?>><?php echo $key; ?></option>
+		foreach ( $ad_code_manager->ad_codes as $key => $value ) {
+?>
+					<option value="<?php echo $key; ?>" <?php selected( $key, $zone ); ?>><?php echo $key; ?></option>
 					<?php
-				}
-				?>
+		}
+?>
 			</select>
 			<?php else: ?>
 			<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'tools.php' ) ); ?>

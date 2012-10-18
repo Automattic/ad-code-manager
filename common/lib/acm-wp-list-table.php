@@ -10,8 +10,8 @@
  */
 //Our class extends the WP_List_Table class, so we need to make sure that it's there
 
-	require_once( ABSPATH . 'wp-admin/includes/screen.php' );
-	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
+require_once ABSPATH . 'wp-admin/includes/screen.php';
+require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class ACM_WP_List_Table extends WP_List_Table {
 
@@ -20,11 +20,11 @@ class ACM_WP_List_Table extends WP_List_Table {
 	}
 
 	/**
-	* Define the columns that are going to be used in the table
-	* @return array $columns, the array of columns to use with the table
-	*/
+	 * Define the columns that are going to be used in the table
+	 *
+	 * @return array $columns, the array of columns to use with the table
+	 */
 	function get_columns( $columns = false ) {
-
 		$default = array(
 			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
@@ -37,12 +37,12 @@ class ACM_WP_List_Table extends WP_List_Table {
 		// Fail-safe for misconfiguration
 		$required_before = array(
 			'id'             => __( 'ID', 'ad-code-manager' ),
-			'cb'             => '<input type="checkbox" />',		
+			'cb'             => '<input type="checkbox" />',
 		);
 		$required_after = array(
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
 			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
-			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),	
+			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
 		$columns = array_merge( $required_before, $columns, $required_after  );
 		return $columns;
@@ -57,8 +57,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function get_bulk_actions() {
 		$bulk_actions = array(
-				'delete' => __( 'Delete', 'ad-code-manager' ),
-			);
+			'delete' => __( 'Delete', 'ad-code-manager' ),
+		);
 		return $bulk_actions;
 	}
 
@@ -86,30 +86,30 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$paged = !empty( $_GET["paged"] ) ? intval( $_GET["paged"] ) : '';
 
 		//Page Number
-		if(empty($paged) || !is_numeric($paged) || $paged<=0 ){ $paged=1; }
+		if ( empty( $paged ) || !is_numeric( $paged ) || $paged<=0 ) { $paged=1; }
 		//How many pages do we have in total?
 
-		$totalpages = ceil($totalitems/$perpage);
+		$totalpages = ceil( $totalitems/$perpage );
 
 		//adjust the query to take pagination into account
 
-		if( ! empty( $paged ) && !empty( $perpage ) ) {
+		if ( ! empty( $paged ) && !empty( $perpage ) ) {
 			$offset = ( $paged - 1 ) * $perpage;
 		}
 
 		/* -- Register the pagination -- */
 		$this->set_pagination_args( array(
-			"total_items" => $totalitems,
-			"total_pages" => $totalpages,
-			"per_page" => $perpage,
+				"total_items" => $totalitems,
+				"total_pages" => $totalpages,
+				"per_page" => $perpage,
 			) );
 		//The pagination links are automatically built according to those parameters
 
 		/* -- Register the Columns -- */
 		$columns = $this->get_columns();
 		$hidden = array(
-				'id',
-			);
+			'id',
+		);
 		$this->_column_headers = array( $columns, $hidden, $this->get_sortable_columns() ) ;
 
 		/**
@@ -148,25 +148,25 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2
 	 *
-	 * @param object $item Custom status as an object
-	 * @param string $column_name Name of the column as registered in $this->prepare_items()
+	 * @param object  $item        Custom status as an object
+	 * @param string  $column_name Name of the column as registered in $this->prepare_items()
 	 * @return string $output What will be rendered
 	 */
 	function column_default( $item, $column_name ) {
 		global $ad_code_manager;
 
-		switch( $column_name ) {
-			case 'priority':
-				return esc_html( $item['priority'] );
-				break;
-			case 'operator':
-				return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
-			default:
+		switch ( $column_name ) {
+		case 'priority':
+			return esc_html( $item['priority'] );
+			break;
+		case 'operator':
+			return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
+		default:
 			// @todo need to make the first column (whatever it is filtered) to show row actions
-				// Handle custom columns, if any
-				if ( isset( $item['url_vars'][$column_name] ) )
-					return esc_html( $item['url_vars'][$column_name] );
-				break;
+			// Handle custom columns, if any
+			if ( isset( $item['url_vars'][$column_name] ) )
+				return esc_html( $item['url_vars'][$column_name] );
+			break;
 		}
 
 	}
@@ -177,7 +177,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2.2
 	 *
-	 * @param object $item Ad code as an object
+	 * @param object  $item Ad code as an object
 	 * @return string $output What will be rendered
 	 */
 	function column_cb( $item ) {
@@ -197,15 +197,15 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$output .= '<div class="acm-conditional-fields"><div class="form-new-row">';
 		$output .= '<h4 class="acm-section-label">' . __( 'Conditionals', 'ad-code-manager' ) . '</h4>';
 		if ( !empty( $item['conditionals'] ) ) {
-			foreach( $item['conditionals'] as $conditional ) {
+			foreach ( $item['conditionals'] as $conditional ) {
 				$function = $conditional['function'];
 				$arguments = $conditional['arguments'];
 				$output .= '<div class="conditional-single-field"><div class="conditional-function">';
 				$output .= '<select name="acm-conditionals[]">';
 				$output .= '<option value="">' . __( 'Select conditional', 'ad-code-manager' ) . '</option>';
 				foreach ( $ad_code_manager->whitelisted_conditionals as $key ) {
-					$output .= '<option value="' .  esc_attr($key) . '" ' . selected( $function, $key, false ) . '>';
-					$output .= esc_html( ucfirst( str_replace('_', ' ', $key ) ) );
+					$output .= '<option value="' .  esc_attr( $key ) . '" ' . selected( $function, $key, false ) . '>';
+					$output .= esc_html( ucfirst( str_replace( '_', ' ', $key ) ) );
 					$output .= '</option>';
 				}
 				$output .= '</select>';
@@ -219,7 +219,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 		// Build the fields for the normal columns
 		$output .= '<div class="acm-column-fields">';
 		$output .= '<h4 class="acm-section-label">' . __( 'URL Variables', 'ad-code-manager' ) . '</h4>';
-		foreach( (array)$item['url_vars'] as $slug => $value ) {
+		foreach ( (array)$item['url_vars'] as $slug => $value ) {
 			$output .= '<div class="acm-section-single-field">';
 			$column_id = 'acm-column[' . $slug . ']';
 			$output .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
@@ -237,10 +237,10 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$output .= '<h4 class="acm-section-label">' . __( 'Logical Operator', 'ad-code-manager' ) . '</h4>';
 		$output .= '<select name="operator">';
 		$operators = array(
-				'OR'     => __( 'OR', 'ad-code-manager' ),
-				'AND'    => __( 'AND', 'ad-code-manager' ),
-			);
-		foreach( $operators as $key => $label ) {
+			'OR'     => __( 'OR', 'ad-code-manager' ),
+			'AND'    => __( 'AND', 'ad-code-manager' ),
+		);
+		foreach ( $operators as $key => $label ) {
 			$output .= '<option ' . selected( $item['operator'], $key ) . '>' . esc_attr( $label ) . '</option>';
 		}
 		$output .= '</select>';
@@ -254,7 +254,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 */
 	function column_name( $item ) {
-		$output = isset($item['name']) ? esc_html( $item['name'] ) : esc_html( $item['url_vars']['name'] );
+		$output = isset( $item['name'] ) ? esc_html( $item['name'] ) : esc_html( $item['url_vars']['name'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
@@ -269,7 +269,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			return '<em>' . __( 'None', 'ad-code-manager' ) . '</em>';
 
 		$conditionals_html = '';
-		foreach( $item['conditionals'] as $conditional ) {
+		foreach ( $item['conditionals'] as $conditional ) {
 			$conditionals_html .= '<strong>' . esc_html( $conditional['function'] ) . '</strong> ' . esc_html( $conditional['arguments'][0] ) . '<br />';
 		}
 		return $conditionals_html;
@@ -283,15 +283,15 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function row_actions_output( $item ) {
 
 		$output = '';
-$row_actions['preview-ad-code'] = '<a class="acm-ajax-preview" id="acm-preview-' . $item[ 'post_id' ] . '" href="#">' . __( 'Preview Ad Code', 'ad-code-manager' ) . '</a>';
+		$row_actions['preview-ad-code'] = '<a class="acm-ajax-preview" id="acm-preview-' . $item[ 'post_id' ] . '" href="#">' . __( 'Preview Ad Code', 'ad-code-manager' ) . '</a>';
 		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit Ad Code', 'ad-code-manager' ) . '</a>';
 
 		$args = array(
-				'action' => 'acm_admin_action',
-				'method' => 'delete',
-				'id' => $item['post_id'],
-				'nonce' => wp_create_nonce( 'acm-admin-action' ),
-			);
+			'action' => 'acm_admin_action',
+			'method' => 'delete',
+			'id' => $item['post_id'],
+			'nonce' => wp_create_nonce( 'acm-admin-action' ),
+		);
 		$delete_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
 		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . $item[ 'post_id' ] . '" href="' . esc_url( $delete_link ) . '">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
 
