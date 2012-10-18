@@ -36,8 +36,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$columns = apply_filters( 'acm_list_table_columns', !is_array( $columns ) || empty( $columns ) ? $default : $columns );
 		// Fail-safe for misconfiguration
 		$required_before = array(
-			'cb'             => '<input type="checkbox" />',
-			'id'             => __( 'ID', 'ad-code-manager' ),		
+			'id'             => __( 'ID', 'ad-code-manager' ),
+			'cb'             => '<input type="checkbox" />',		
 		);
 		$required_after = array(
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
@@ -162,6 +162,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			case 'operator':
 				return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
 			default:
+			// @todo need to make the first column (whatever it is filtered) to show row actions
 				// Handle custom columns, if any
 				if ( isset( $item['url_vars'][$column_name] ) )
 					return esc_html( $item['url_vars'][$column_name] );
@@ -190,7 +191,6 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function column_id( $item ) {
 		global $ad_code_manager;
-
 		$output = '<div id="inline_' . $item['post_id'] . '" style="display:none;">';
 		$output .= '<div class="id">' . $item['post_id'] . '</div>';
 		// Build the fields for the conditionals
@@ -283,6 +283,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function row_actions_output( $item ) {
 
 		$output = '';
+$row_actions['preview-ad-code'] = '<a class="acm-ajax-preview" id="acm-preview-' . $item[ 'post_id' ] . '" href="#">' . __( 'Preview Ad Code', 'ad-code-manager' ) . '</a>';
 		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit Ad Code', 'ad-code-manager' ) . '</a>';
 
 		$args = array(
@@ -293,8 +294,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 			);
 		$delete_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
 		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . $item[ 'post_id' ] . '" href="' . esc_url( $delete_link ) . '">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
-		$output .= $this->row_actions( $row_actions );
 
+		$output .= $this->row_actions( $row_actions );
 		return $output;
 	}
 
