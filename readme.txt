@@ -2,8 +2,8 @@
 Contributors: rinatkhaziev, jeremyfelt, zztimur, danielbachhuber, automattic, doejo
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
-Tested up to: 3.4
-Stable tag: 0.2.3
+Tested up to: 3.4.2
+Stable tag: 0.3
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
@@ -298,6 +298,9 @@ Example usage:
 
 == Upgrade Notice ==
 
+= 0.3 =
+Conditional operator logic can be set on an ad code by ad code basis. Couple of bug fixes.
+
 = 0.2.3 =
 The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
 
@@ -308,6 +311,12 @@ Incorporated a new provider for Google AdSense and added bulk delete action for 
 Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
 
 == Changelog ==
+
+= 0.3 (October 25, 2012) =
+* Conditional operator logic can be set on an ad code by ad code basis. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request!
+* Bug fix: If an ad tag doesn't need a URL, ignore the whitelist check
+* Bug fix: Make sure that all providers list tables call parent::get_columns to avoid conflicts with filters.
+* Coding standards cleanup
 
 = 0.2.3 (June 25,2012) =
 
