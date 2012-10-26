@@ -11,9 +11,9 @@ class ACM_Ad_Zones extends WP_Widget {
 	function ACM_Ad_Zones() {
 		$widget_ops = array(
 			'classname' => 'acm_ad_zones',
-			'description' => 'Display an Ad Code Manger ad zone within a widget area'
+			'description' => __( 'Display an Ad Code Manger ad zone within a widget area', 'ad-code-manager' ),
 		);
-		$this->WP_Widget( 'ACM_Ad_Zones', 'Ad Code Manager Ad Zone', $widget_ops );
+		$this->WP_Widget( 'ACM_Ad_Zones', __( 'Ad Code Manager Ad Zone', 'ad-code-manager' ), $widget_ops );
 	}
 
 	// Build the widget settings form
@@ -43,7 +43,7 @@ class ACM_Ad_Zones extends WP_Widget {
 			</select>
 			<?php else: ?>
 			<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'tools.php' ) ); ?>
-			<span class="description"><?php echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>." ), $create_url ); ?></span>
+			<span class="description"><?php echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), $create_url ); ?></span>
 			<?php endif; ?>
 			</p>
 

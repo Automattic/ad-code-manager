@@ -146,9 +146,11 @@ class Ad_Code_Manager {
 	 */
 	function action_init() {
 
+		load_plugin_textdomain( 'ad-code-manager', false, plugin_basename( dirname( __FILE__ ) ) . '/languages/' );
+
 		$this->post_type_labels = array(
-			'name' => __( 'DFP Ad Codes' ),
-			'singular_name' => __( 'DFP Ad Codes' ),
+			'name' => __( 'Ad Codes', 'ad-code-manager' ),
+			'singular_name' => __( 'Ad Code', 'ad-code-manager' ),
 		);
 
 		// Allow other conditionals to be used

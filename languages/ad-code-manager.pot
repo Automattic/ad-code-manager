@@ -1,0 +1,174 @@
+# Copyright (C) 2012 Ad Code Manager
+# This file is distributed under the same license as the Ad Code Manager package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Ad Code Manager 0.3-working\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/ad-code-manager\n"
+"POT-Creation-Date: 2012-10-26 01:27:39+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2012-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: ad-code-manager.php:152
+msgid "Ad Codes"
+msgstr ""
+
+#: ad-code-manager.php:153
+msgid "Ad Code"
+msgstr ""
+
+#: ad-code-manager.php:216
+msgid "Doing something fishy, eh?"
+msgstr ""
+
+#: ad-code-manager.php:219
+msgid "You do not have the necessary permissions to perform this action"
+msgstr ""
+
+#: common/lib/acm-provider.php:27 common/lib/acm-wp-list-table.php:31
+msgid "Name"
+msgstr ""
+
+#: common/lib/acm-widget.php:14
+msgid "Display an Ad Code Manger ad zone within a widget area"
+msgstr ""
+
+#: common/lib/acm-widget.php:16
+msgid "Ad Code Manager Ad Zone"
+msgstr ""
+
+#: common/lib/acm-widget.php:46
+msgid "No ad codes have been added yet. <a href='%s'>Please create one</a>."
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:30 common/lib/acm-wp-list-table.php:39
+#: providers/doubleclick-for-publishers.php:101
+#: providers/google-adsense.php:80
+msgid "ID"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:32 common/lib/acm-wp-list-table.php:43
+#: common/lib/acm-wp-list-table.php:232
+#: providers/doubleclick-for-publishers.php:104
+#: providers/google-adsense.php:82
+msgid "Priority"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:33 common/lib/acm-wp-list-table.php:44
+#: common/lib/acm-wp-list-table.php:237
+#: providers/doubleclick-for-publishers.php:105
+msgid "Logical Operator"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:34 common/lib/acm-wp-list-table.php:45
+#: common/lib/acm-wp-list-table.php:198
+#: common/views/ad-code-manager.tpl.php:73
+#: providers/doubleclick-for-publishers.php:106
+#: providers/google-adsense.php:83
+msgid "Conditionals"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:60 common/lib/acm-wp-list-table.php:296
+msgid "Delete"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:128
+msgid "No ad codes have been configured."
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:205
+#: common/views/ad-code-manager.tpl.php:77
+msgid "Select conditional"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:217
+msgid "Add more"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:221
+msgid "URL Variables"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:240
+msgid "OR"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:241
+msgid "AND"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:269
+msgid "None"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:286
+msgid "Preview Ad Code"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:287
+msgid "Edit Ad Code"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:326
+msgid "Cancel"
+msgstr ""
+
+#: common/lib/acm-wp-list-table.php:328
+msgid "Update"
+msgstr ""
+
+#: common/views/ad-code-manager.tpl.php:11
+msgid "Ad code created."
+msgstr ""
+
+#: common/views/ad-code-manager.tpl.php:14
+msgid "Ad code deleted."
+msgstr ""
+
+#: common/views/ad-code-manager.tpl.php:17
+msgid "Ad codes deleted."
+msgstr ""
+
+#: common/views/ad-code-manager.tpl.php:50
+#: common/views/ad-code-manager.tpl.php:95
+msgid "Add New Ad Code"
+msgstr ""
+
+#: providers/doubleclick-for-publishers.php:67
+#: providers/doubleclick-for-publishers.php:102
+msgid "Site Name"
+msgstr ""
+
+#: providers/doubleclick-for-publishers.php:73
+msgid "zone1"
+msgstr ""
+
+#: providers/doubleclick-for-publishers.php:103
+msgid "Zone1"
+msgstr ""
+
+#: providers/google-adsense.php:44 providers/google-adsense.php:81
+msgid "Slot"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Ad Code Manager"
+msgstr ""
+
+#. #-#-#-#-#  plugin.pot (Ad Code Manager 0.3-working)  #-#-#-#-#
+#. Plugin URI of the plugin/theme
+#. #-#-#-#-#  plugin.pot (Ad Code Manager 0.3-working)  #-#-#-#-#
+#. Author URI of the plugin/theme
+msgid "http://automattic.com"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Easy ad code management"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo"
+msgstr ""
