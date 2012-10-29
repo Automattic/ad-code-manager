@@ -908,6 +908,12 @@ class Ad_Code_Manager {
 			$output_html = str_replace( $token, $val, $output_html );
 		}
 
+		/**
+		 * Configuration filter: acm_output_html_after_tokens_processed
+		 * In some rare cases you might want to filter html after the tokens are processed
+		 */
+		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
+
 		// Print the ad code
 		echo $output_html;
 	}
