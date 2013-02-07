@@ -161,3 +161,12 @@ tr:hover .row-actions {
 #acm-add-inline-cond:hover {
 	text-decoration: underline;
 }
+
+.acm-global-options {
+	clear: both;
+}
+
+.acm-global-options input[type="text"] {
+	min-width: 200px;
+	width: 30%;
+}

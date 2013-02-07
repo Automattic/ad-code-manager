@@ -36,6 +36,8 @@ require_once AD_CODE_MANAGER_ROOT .'/common/lib/acm-widget.php';
 require_once AD_CODE_MANAGER_ROOT .'/common/lib/markdown.php';
 
 class Ad_Code_Manager {
+	const DEFAULT_PROVIDER = 'doubleclick_for_publishers';
+
 	public $ad_codes = array();
 	public $whitelisted_conditionals = array();
 	public $title = 'Ad Code Manager';
@@ -88,20 +90,25 @@ class Ad_Code_Manager {
 			$tmp = explode( '-', $module_dir );
 			$class_name = '';
 			$slug_name = '';
+			$label = '';
 			$table_class_name = '';
 			foreach ( $tmp as $word ) {
 				$class_name .= ucfirst( $word ) . '_';
 				$slug_name .= $word . '_';
+				$label .= ucfirst( $word ) . ' ';
 			}
 			$table_class_name = $class_name . 'ACM_WP_List_Table';
 			$class_name .= 'ACM_Provider';
 			$slug_name = rtrim( $slug_name, '_' );
+			$label = rtrim( $label, ' ' );
 
 			// Store class names, but don't instantiate
 			// We don't need them all at once
 			if ( class_exists( $class_name ) ) {
-				$this->providers->$slug_name = array( 'provider' => $class_name,
+				$this->providers->$slug_name = array(
+					'provider' => $class_name,
 					'table' => $table_class_name,
+					'label' => $label,
 				);
 			}
 
@@ -122,7 +129,7 @@ class Ad_Code_Manager {
 		 * By default we use doubleclick-for-publishers provider
 		 * To switch to a different ad provider use this filter
 		 */
-		$this->current_provider_slug = apply_filters( 'acm_provider_slug', 'doubleclick_for_publishers' );
+		$this->set_provider();
 
 		// Instantiate one that we need
 		if ( isset( $this->providers->{$this->current_provider_slug} ) )
@@ -137,6 +144,15 @@ class Ad_Code_Manager {
 		 */
 		$this->current_provider->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->current_provider->whitelisted_script_urls );
 
+	}
+
+	function set_provider() {
+		$provider = apply_filters( 'acm_provider_slug', '' );
+		if ( ! $provider ) {
+			$provider = $this->get_option( 'provider', self::DEFAULT_PROVIDER );
+		}
+
+		$this->current_provider_slug = $provider;
 	}
 
 	/**
@@ -202,6 +218,34 @@ class Ad_Code_Manager {
 	 */
 	function register_acm_post_type() {
 		register_post_type( $this->post_type, array( 'labels' => $this->post_type_labels, 'public' => false, 'rewrite' => false ) );
+	}
+
+	/**
+	 * @param      $option
+	 * @param bool $default
+	 * @return bool
+	 */
+	function get_option( $option, $default = false ) {
+		$options = get_option( 'acm_options', array() );
+		if ( isset( $options[$option] ) ) {
+			return $options[$option];
+		} else {
+			return $default;
+		}
+	}
+
+	/**
+	 * @param array $new_options
+	 * @return bool
+	 */
+	function update_options( $new_options = array() ) {
+		$options = get_option( 'acm_options', array() );
+		if ( ! empty( $new_options ) ) {
+			foreach ( $new_options as $key => $value ) {
+				$options[$key] = $value;
+			}
+		}
+		return update_option( 'acm_options', $options );
 	}
 
 	/**
@@ -274,6 +318,18 @@ class Ad_Code_Manager {
 			$this->flush_cache();
 			$message = 'ad-code-deleted';
 			break;
+		case 'update_options':
+			$new_options = array();
+			foreach ( $_POST as $key => $value ) {
+				if ( ! in_array( $key, array( 'nonce', 'method', '_wp_http_referer', 'action', 'priority' ) ) ) {
+					$key = esc_attr( $key );
+					$value = sanitize_text_field( $value );
+					$new_options[$key] = $value;
+				}
+			}
+			$this->update_options( $new_options );
+			$message = 'options-saved';
+			break;
 		}
 
 		if ( isset( $_REQUEST['doing_ajax'] ) && $_REQUEST['doing_ajax'] ) {
@@ -323,13 +379,14 @@ class Ad_Code_Manager {
 			}
 		}
 
-		if ( false === ( $ad_codes_formatted = wp_cache_get( 'ad_codes' , 'acm' ) ) ) {
+		$ad_codes_formatted = wp_cache_get( 'ad_codes' , 'acm' );
+		if ( false === $ad_codes_formatted ) {
 			$ad_codes = get_posts( $args );
 			foreach ( $ad_codes as $ad_code_cpt ) {
-				$provider_url_vars = array();
+				$provider_vars = array();
 
 				foreach ( $this->current_provider->ad_code_args as  $arg ) {
-					$provider_url_vars[$arg['key']] = get_post_meta( $ad_code_cpt->ID, $arg['key'], true );
+					$provider_vars[$arg['key']] = get_post_meta( $ad_code_cpt->ID, $arg['key'], true );
 				}
 
 				$priority = get_post_meta( $ad_code_cpt->ID, 'priority', true );
@@ -340,7 +397,7 @@ class Ad_Code_Manager {
 
 				$ad_codes_formatted[] = array(
 					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-					'url_vars' => $provider_url_vars,
+					'vars' => $provider_vars,
 					'priority' => $priority,
 					'operator' => $operator,
 					'post_id' => $ad_code_cpt->ID
@@ -363,9 +420,9 @@ class Ad_Code_Manager {
 		if ( !$post )
 			return false;
 
-		$provider_url_vars = array();
+		$provider_vars = array();
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
-			$provider_url_vars[$arg['key']] = get_post_meta( $post->ID, $arg['key'], true );
+			$provider_vars[$arg['key']] = get_post_meta( $post->ID, $arg['key'], true );
 		}
 
 		$priority = get_post_meta( $post_id, 'priority', true );
@@ -376,7 +433,7 @@ class Ad_Code_Manager {
 
 		$ad_code_formatted = array(
 			'conditionals' => $this->get_conditionals( $post->ID ),
-			'url_vars' => $provider_url_vars,
+			'vars' => $provider_vars,
 			'priority' => $priority,
 			'operator' => $operator,
 			'post_id' => $post->ID
@@ -697,11 +754,11 @@ class Ad_Code_Manager {
 	 * @param string  $url          Script URL for ad code
 	 * @param array   $conditionals WordPress-style conditionals for where this code should be displayed
 	 * @param int     $priority     What priority this registration runs at
-	 * @param array   $url_vars     Replace tokens in $script with these values
+	 * @param array   $vars     Replace tokens in $script with these values
 	 * @param int     $priority     Priority of the ad code in comparison to others
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
+	function register_ad_code( $tag, $url, $conditionals = array(), $vars = array(), $priority = 10, $operator = false ) {
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $url ) )
@@ -726,7 +783,7 @@ class Ad_Code_Manager {
 			'priority' => $priority,
 			'operator' => $operator,
 			'conditionals' => $conditionals,
-			'url_vars' => $url_vars,
+			'vars' => $vars,
 		);
 	}
 
@@ -747,13 +804,28 @@ class Ad_Code_Manager {
 				'tag' => '',
 				'url' => '',
 				'conditionals' => array(),
-				'url_vars' => array(),
+				'vars' => array(),
 				'priority' => 10,
 				'operator' => $this->logical_operator,
 			);
 			$ad_code = array_merge( $default, $ad_code );
 
 			foreach ( (array)$this->ad_tag_ids as $default_tag ) {
+
+				/*
+				 * Without this comparison, each ad was being registered one
+				 * time for each other ad. This eliminates the duplication.
+				 *
+				 * The duplication became a problem when the "default"
+				 * ad_tag_ids from the provider were made dynamic instead of
+				 * being hard-coded.
+				 *
+				 * TODO: Does this break code-based implementation?
+				 */
+				if ( $ad_code['vars'] != $default_tag['vars'] ) {
+					continue;
+				}
+
 				/**
 				 * Configuration filter: acm_default_url
 				 * If you don't specify a URL for your ad code when registering it in
@@ -766,7 +838,7 @@ class Ad_Code_Manager {
 				if ( ! $ad_code['operator'] || ! in_array( $ad_code['operator'], array( 'AND', 'OR' ) ) )
 					$operator = $this->logical_operator;
 
-				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ), $ad_code['priority'], $ad_code['operator'] );
+				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['vars'], $ad_code['vars'] ), $ad_code['priority'], $ad_code['operator'] );
 			}
 		}
 	}
@@ -801,7 +873,7 @@ class Ad_Code_Manager {
 			// and configuration filter acm_display_ad_codes_without_conditionals returns false
 			// We should should skip it
 
-			if ( empty( $ad_code['conditionals'] ) && ! apply_filters( 'acm_display_ad_codes_without_conditionals', false ) ) {
+			if ( empty( $ad_code['conditionals'] ) && ! apply_filters( 'acm_display_ad_codes_without_conditionals', true ) ) {
 				continue;
 			}
 
@@ -905,7 +977,7 @@ class Ad_Code_Manager {
 		 */
 		$output_tokens = apply_filters( 'acm_output_tokens', $this->current_provider->output_tokens, $tag_id, $code_to_display );
 		foreach ( (array)$output_tokens as $token => $val ) {
-			$output_html = str_replace( $token, $val, $output_html );
+			$output_html = str_replace( $token, esc_attr( $val ), $output_html );
 		}
 
 		/**
@@ -926,11 +998,11 @@ class Ad_Code_Manager {
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
 	function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
-		if ( !isset( $code_to_display['url_vars'] ) || !is_array( $code_to_display['url_vars'] ) )
+		if ( !isset( $code_to_display['vars'] ) || !is_array( $code_to_display['vars'] ) )
 			return $output_tokens;
 
-		foreach ( $code_to_display['url_vars'] as $url_var => $val ) {
-			$new_key = '%' . $url_var . '%';
+		foreach ( $code_to_display['vars'] as $var => $val ) {
+			$new_key = '%' . $var . '%';
 			$output_tokens[$new_key] = $val;
 		}
 
