@@ -383,10 +383,10 @@ class Ad_Code_Manager {
 		if ( false === $ad_codes_formatted ) {
 			$ad_codes = get_posts( $args );
 			foreach ( $ad_codes as $ad_code_cpt ) {
-				$provider_vars = array();
+				$provider_url_vars = array();
 
 				foreach ( $this->current_provider->ad_code_args as  $arg ) {
-					$provider_vars[$arg['key']] = get_post_meta( $ad_code_cpt->ID, $arg['key'], true );
+					$provider_url_vars[$arg['key']] = get_post_meta( $ad_code_cpt->ID, $arg['key'], true );
 				}
 
 				$priority = get_post_meta( $ad_code_cpt->ID, 'priority', true );
@@ -397,7 +397,7 @@ class Ad_Code_Manager {
 
 				$ad_codes_formatted[] = array(
 					'conditionals' => $this->get_conditionals( $ad_code_cpt->ID ),
-					'vars' => $provider_vars,
+					'url_vars' => $provider_url_vars,
 					'priority' => $priority,
 					'operator' => $operator,
 					'post_id' => $ad_code_cpt->ID
@@ -420,7 +420,7 @@ class Ad_Code_Manager {
 		if ( !$post )
 			return false;
 
-		$provider_vars = array();
+		$provider_url_vars = array();
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			$provider_vars[$arg['key']] = get_post_meta( $post->ID, $arg['key'], true );
 		}
@@ -433,7 +433,7 @@ class Ad_Code_Manager {
 
 		$ad_code_formatted = array(
 			'conditionals' => $this->get_conditionals( $post->ID ),
-			'vars' => $provider_vars,
+			'url_vars' => $provider_url_vars,
 			'priority' => $priority,
 			'operator' => $operator,
 			'post_id' => $post->ID
@@ -754,11 +754,11 @@ class Ad_Code_Manager {
 	 * @param string  $url          Script URL for ad code
 	 * @param array   $conditionals WordPress-style conditionals for where this code should be displayed
 	 * @param int     $priority     What priority this registration runs at
-	 * @param array   $vars     Replace tokens in $script with these values
+	 * @param array   $url_vars     Replace tokens in $script with these values
 	 * @param int     $priority     Priority of the ad code in comparison to others
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_code( $tag, $url, $conditionals = array(), $vars = array(), $priority = 10, $operator = false ) {
+	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $url ) )
@@ -783,7 +783,7 @@ class Ad_Code_Manager {
 			'priority' => $priority,
 			'operator' => $operator,
 			'conditionals' => $conditionals,
-			'vars' => $vars,
+			'url_vars' => $url_vars,
 		);
 	}
 
@@ -804,7 +804,7 @@ class Ad_Code_Manager {
 				'tag' => '',
 				'url' => '',
 				'conditionals' => array(),
-				'vars' => array(),
+				'url_vars' => array(),
 				'priority' => 10,
 				'operator' => $this->logical_operator,
 			);
@@ -822,7 +822,7 @@ class Ad_Code_Manager {
 				 *
 				 * TODO: Does this break code-based implementation?
 				 */
-				if ( $ad_code['vars'] != $default_tag['vars'] ) {
+				if ( $ad_code['url_vars'] != $default_tag['url_vars'] ) {
 					continue;
 				}
 
@@ -838,7 +838,7 @@ class Ad_Code_Manager {
 				if ( ! $ad_code['operator'] || ! in_array( $ad_code['operator'], array( 'AND', 'OR' ) ) )
 					$operator = $this->logical_operator;
 
-				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['vars'], $ad_code['vars'] ), $ad_code['priority'], $ad_code['operator'] );
+				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ), $ad_code['priority'], $ad_code['operator'] );
 			}
 		}
 	}
@@ -998,10 +998,10 @@ class Ad_Code_Manager {
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
 	function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
-		if ( !isset( $code_to_display['vars'] ) || !is_array( $code_to_display['vars'] ) )
+		if ( !isset( $code_to_display['url_vars'] ) || !is_array( $code_to_display['url_vars'] ) )
 			return $output_tokens;
 
-		foreach ( $code_to_display['vars'] as $var => $val ) {
+		foreach ( $code_to_display['url_vars'] as $var => $val ) {
 			$new_key = '%' . $var . '%';
 			$output_tokens[$new_key] = $val;
 		}
