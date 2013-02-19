@@ -422,7 +422,7 @@ class Ad_Code_Manager {
 
 		$provider_url_vars = array();
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
-			$provider_vars[$arg['key']] = get_post_meta( $post->ID, $arg['key'], true );
+			$provider_url_vars[$arg['key']] = get_post_meta( $post->ID, $arg['key'], true );
 		}
 
 		$priority = get_post_meta( $post_id, 'priority', true );
@@ -1001,8 +1001,8 @@ class Ad_Code_Manager {
 		if ( !isset( $code_to_display['url_vars'] ) || !is_array( $code_to_display['url_vars'] ) )
 			return $output_tokens;
 
-		foreach ( $code_to_display['url_vars'] as $var => $val ) {
-			$new_key = '%' . $var . '%';
+		foreach ( $code_to_display['url_vars'] as $url_var => $val ) {
+			$new_key = '%' . $url_var . '%';
 			$output_tokens[$new_key] = $val;
 		}
 
