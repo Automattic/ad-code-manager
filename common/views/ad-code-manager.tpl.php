@@ -120,34 +120,6 @@ foreach ( $this->whitelisted_conditionals as $key ):
 </div>
 </div><!-- /col-left -->
 
-<div class="acm-global-options">
-	<h3><?php _e( 'Ad Code Manager Options', 'ad-code-manager' ); ?></h3>
-	<div class="form-wrap">
-        <form action="<?php echo admin_url( 'admin-ajax.php' ); ?>" method="post" name="updatesettings" id="updatesettings">
-			<div class="form-field form-required">
-				<label for="provider">Provider</label>
-				<select name="provider" id="provider">
-					<?php
-					$current_provider = $this->get_option( 'provider', self::DEFAULT_PROVIDER );
-					foreach ( $this->providers as $slug => $provider ) :
-						?>
-					<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( esc_attr( $slug ), $current_provider ); ?>>
-						<?php echo esc_html( $provider['label'] ); ?>
-					</option>
-					<?php endforeach; ?>
-				</select>
-			</div>
-
-			<?php do_action( 'acm_provider_options' ); ?>
-            <input type="hidden" name="action" value="acm_admin_action" />
-			<input type="hidden" name="method" value="update_options" />
-            <input type="hidden" name="priority" value="10" />
-			<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
-			<?php submit_button( __( 'Save Options', 'ad-code-manager' ) ); ?>
-		</form>
-	</div>
-</div>
-
 <?php $this->wp_list_table->inline_edit(); ?>
 
 </div>
