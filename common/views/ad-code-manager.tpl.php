@@ -67,15 +67,13 @@ foreach ( $this->current_provider->ad_code_args as $arg ):
 	/*
 	 * Field type conditional: Defaults to text
 	 *
-	 * This is needed for Enterprise implementation since users can't add PHP
-	 * to theme files. Position in theme needs to be from a predefined set of
-	 * options (do_action calls within the theme).
+	 * For specific implementations, allow the user to choose which tag the ad code applies to.
 	 */
 	if ( isset( $arg['type'] ) && 'select' == $arg['type'] ) :
 ?>
 <div class="form-field form-required">
-    <label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
-    <select name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" aria-required="<?php echo $arg['required'] ?>">
+	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
+	<select name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" aria-required="<?php echo $arg['required'] ?>">
 		<?php foreach ( $arg['options'] as $value => $label ) : ?>
 		<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 		<?php endforeach; ?>
