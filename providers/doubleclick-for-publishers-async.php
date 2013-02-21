@@ -52,14 +52,14 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 				'required'  => true,
 			),
 			array(
-				'key'       => 'site_id',
-				'label'     => __( 'Site ID', 'ad-code-manager' ),
+				'key'       => 'dfp_id',
+				'label'     => __( 'DFP ID', 'ad-code-manager' ),
 				'editable'  => true,
 				'required'  => true,
 			),
 			array(
-				'key'       => 'zone_1',
-				'label'     => __( 'Zone 1', 'ad-code-manager' ),
+				'key'       => 'tag_name',
+				'label'     => __( 'Tag Name', 'ad-code-manager' ),
 				'editable'  => true,
 				'required'  => true,
 			),
@@ -134,7 +134,7 @@ foreach ( (array) $ad_tags as $tag ):
 	$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
 	if ( ! empty( $matching_ad_code ) ) {
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['site_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['zone_1'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
 <?php
 	}
 endforeach;
@@ -189,8 +189,8 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 			'id'             => __( 'ID', 'ad-code-manager' ),
 			'tag'            => __( 'Tag', 'ad-code-manager' ),
 			'tag_id'         => __( 'Tag ID', 'ad-code-manager' ),
-			'site_id'        => __( 'Site ID', 'ad-code-manager' ),
-			'zone_1'        => __( 'Zone 1', 'ad-code-manager' ),
+			'dfp_id'         => __( 'DFP ID', 'ad-code-manager' ),
+			'tag_name'       => __( 'Tag Name', 'ad-code-manager' ),
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
 			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
