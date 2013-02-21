@@ -139,7 +139,8 @@ googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['site_
 	}
 endforeach;
 ?>
-//googletag.pubads().enableSingleRequest();
+googletag.pubads().enableSingleRequest();
+googletag.pubads().collapseEmptyDivs();
 googletag.enableServices();
 });
 </script>
