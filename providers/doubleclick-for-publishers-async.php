@@ -105,7 +105,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 
 		switch( $tag_id ) {
 			case 'dfp_head':
-				$ad_tags = $this->ad_tag_ids;
+				$ad_tags = $ad_code_manager->ad_tag_ids;
 				ob_start();
 ?>			
 	<!-- Include google_services.js -->
