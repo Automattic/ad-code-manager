@@ -223,7 +223,18 @@ class ACM_WP_List_Table extends WP_List_Table {
 			$output .= '<div class="acm-section-single-field">';
 			$column_id = 'acm-column[' . $slug . ']';
 			$output .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
-			$output .= '<input name="' . esc_attr( $column_id ) . '" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="20" aria-required="true">';
+			// Support for select dropdowns
+			$ad_code_args = $ad_code_manager->current_provider->ad_code_args;
+			$ad_code_arg = array_shift( wp_filter_object_list( $ad_code_args, array( 'key' => $slug ) ) );
+			if ( isset( $ad_code_arg['type'] ) && 'select' == $ad_code_arg['type'] ) {
+				$output .= '<select name="' . esc_attr( $column_id ) . '">';
+				foreach( $ad_code_arg['options'] as $key => $label ) {
+					$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_attr( $label ) . '</option>';
+				}
+				$output .= '</select>';
+			} else {
+				$output .= '<input name="' . esc_attr( $column_id ) . '" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="20" aria-required="true">';
+			}
 			$output .= '</div>';
 		}
 		$output .= '</div>';
