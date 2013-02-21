@@ -36,6 +36,7 @@ require_once AD_CODE_MANAGER_ROOT .'/common/lib/acm-widget.php';
 require_once AD_CODE_MANAGER_ROOT .'/common/lib/markdown.php';
 
 class Ad_Code_Manager {
+
 	public $ad_codes = array();
 	public $whitelisted_conditionals = array();
 	public $title = 'Ad Code Manager';
@@ -100,7 +101,8 @@ class Ad_Code_Manager {
 			// Store class names, but don't instantiate
 			// We don't need them all at once
 			if ( class_exists( $class_name ) ) {
-				$this->providers->$slug_name = array( 'provider' => $class_name,
+				$this->providers->$slug_name = array(
+					'provider' => $class_name,
 					'table' => $table_class_name,
 				);
 			}
@@ -182,6 +184,13 @@ class Ad_Code_Manager {
 		 * for your template tag (e.g. do_action( 'acm_tag', 'my_top_leaderboard' ))
 		 */
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
+
+		/**
+		 * Configuration filter: acm_ad_code_args
+		 * Allow the ad code arguments to be filtered
+		 * Useful if we need to dynamically change these arguments based on the above
+		 */
+		$this->current_provider->ad_code_args = apply_filters( 'acm_ad_code_args', $this->current_provider->ad_code_args );
 
 		$this->register_acm_post_type();
 
@@ -323,7 +332,8 @@ class Ad_Code_Manager {
 			}
 		}
 
-		if ( false === ( $ad_codes_formatted = wp_cache_get( 'ad_codes' , 'acm' ) ) ) {
+		$ad_codes_formatted = wp_cache_get( 'ad_codes' , 'acm' );
+		if ( false === $ad_codes_formatted ) {
 			$ad_codes = get_posts( $args );
 			foreach ( $ad_codes as $ad_code_cpt ) {
 				$provider_url_vars = array();
@@ -754,6 +764,15 @@ class Ad_Code_Manager {
 			$ad_code = array_merge( $default, $ad_code );
 
 			foreach ( (array)$this->ad_tag_ids as $default_tag ) {
+
+				/**
+				 * 'enable_ui_mapping' is a special argument which means this ad tag can be
+				 * mapped with ad codes through the admin interface. If that's the case, we
+				 * want to make sure those ad codes are only registered with the tag. 
+				 */
+				if ( isset( $default_tag['enable_ui_mapping'] ) && $default_tag['tag'] != $ad_code['url_vars']['tag'] )
+					continue;
+
 				/**
 				 * Configuration filter: acm_default_url
 				 * If you don't specify a URL for your ad code when registering it in
@@ -781,6 +800,47 @@ class Ad_Code_Manager {
 	 */
 	function action_acm_tag( $tag_id ) {
 
+		$code_to_display = $this->get_matching_ad_code( $tag_id );
+
+		// Run $url aganist a whitelist to make sure it's a safe URL
+		if ( !$this->validate_script_url( $code_to_display['url'] ) )
+			return;
+
+		/**
+		 * Configuration filter: acm_output_html
+		 * Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags )
+		 * by adjusting the HTML rendered for a given ad tag.
+		 */
+		$output_html = apply_filters( 'acm_output_html', $this->current_provider->output_html, $tag_id );
+
+		// Parse the output and replace any tokens we have left. But first, load the script URL
+		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
+		/**
+		 * Configuration filter: acm_output_tokens
+		 * Register output tokens depending on the needs of your setup. Tokens are the
+		 * keys to be replaced in your script URL.
+		 */
+		$output_tokens = apply_filters( 'acm_output_tokens', $this->current_provider->output_tokens, $tag_id, $code_to_display );
+		foreach ( (array)$output_tokens as $token => $val ) {
+			$output_html = str_replace( $token, esc_attr( $val ), $output_html );
+		}
+
+		/**
+		 * Configuration filter: acm_output_html_after_tokens_processed
+		 * In some rare cases you might want to filter html after the tokens are processed
+		 */
+		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
+
+		// Print the ad code
+		echo $output_html;
+	}
+
+	/**
+	 * Of all the ad codes registered, get the one that matches our current context
+	 *
+	 * @since 0.4
+	 */
+	public function get_matching_ad_code( $tag_id ) {
 		// If there aren't any ad codes, it's not worth it for us to do anything.
 		if ( !isset( $this->ad_codes[$tag_id] ) )
 			return;
@@ -885,37 +945,7 @@ class Ad_Code_Manager {
 		ksort( $prioritized_display_codes, SORT_NUMERIC );
 		$code_to_display = array_shift( array_shift( $prioritized_display_codes ) );
 
-		// Run $url aganist a whitelist to make sure it's a safe URL
-		if ( !$this->validate_script_url( $code_to_display['url'] ) )
-			return;
-
-		/**
-		 * Configuration filter: acm_output_html
-		 * Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags )
-		 * by adjusting the HTML rendered for a given ad tag.
-		 */
-		$output_html = apply_filters( 'acm_output_html', $this->current_provider->output_html, $tag_id );
-
-		// Parse the output and replace any tokens we have left. But first, load the script URL
-		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
-		/**
-		 * Configuration filter: acm_output_tokens
-		 * Register output tokens depending on the needs of your setup. Tokens are the
-		 * keys to be replaced in your script URL.
-		 */
-		$output_tokens = apply_filters( 'acm_output_tokens', $this->current_provider->output_tokens, $tag_id, $code_to_display );
-		foreach ( (array)$output_tokens as $token => $val ) {
-			$output_html = str_replace( $token, $val, $output_html );
-		}
-
-		/**
-		 * Configuration filter: acm_output_html_after_tokens_processed
-		 * In some rare cases you might want to filter html after the tokens are processed
-		 */
-		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
-
-		// Print the ad code
-		echo $output_html;
+		return $code_to_display;
 	}
 
 	/**

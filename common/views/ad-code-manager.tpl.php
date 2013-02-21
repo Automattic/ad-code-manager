@@ -16,6 +16,9 @@
 			case 'ad-codes-deleted':
 				$message_text = __( 'Ad codes deleted.', 'ad-code-manager' );
 				break;
+			case 'options-saved':
+				$message_text = __( 'Options saved.', 'ad-code-manager' );
+				break;
 			default:
 				$message_text = '';
 				break;
@@ -60,12 +63,31 @@ foreach ( $this->current_provider->ad_code_args as $arg ):
 		continue;
 
 	$column_id = 'acm-column[' . $arg['key'] . ']';
+
+	/*
+	 * Field type conditional: Defaults to text
+	 *
+	 * For specific implementations, allow the user to choose which tag the ad code applies to.
+	 */
+	if ( isset( $arg['type'] ) && 'select' == $arg['type'] ) :
 ?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
-	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo $arg['editable'] ?>">
+	<select name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" aria-required="<?php echo $arg['required'] ?>">
+		<?php foreach ( $arg['options'] as $value => $label ) : ?>
+		<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
+		<?php endforeach; ?>
+	</select>
+</div>
+	<?php
+	else : // field_type conditional
+	?>
+<div class="form-field form-required">
+	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
+	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo $arg['required'] ?>">
 </div>
 <?php
+	endif;
 endforeach;
 ?>
 <div class="form-field acm-conditional-fields" id="conditional-tpl">
@@ -74,7 +96,7 @@ endforeach;
 	<div class="conditional-single-field" id="conditional-single-field-master">
 	<div class="conditional-function">
 	<select name="acm-conditionals[]">
-<option value=""><?php _e( 'Select conditional', 'ad-code-manager' ); ?></option>	  
+<option value=""><?php _e( 'Select conditional', 'ad-code-manager' ); ?></option>
 <?php
 foreach ( $this->whitelisted_conditionals as $key ):
 ?>
@@ -84,7 +106,7 @@ foreach ( $this->whitelisted_conditionals as $key ):
 	</div>
 	<div class="conditional-arguments">
 		<input name="acm-arguments[]" type="text" value="" size="20" />
-	</div> 
+	</div>
 	</div>
 </div>
 <div class="form-field form-add-more">
