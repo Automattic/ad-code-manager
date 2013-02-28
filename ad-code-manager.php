@@ -221,8 +221,17 @@ class Ad_Code_Manager {
 	 */
 	function get_options() {
 
+		$default_provider = 'doubleclick_for_publishers';
+		// Make sure our default provider exists. Otherwise, the sky will fall on our head
+		if ( ! isset( $this->providers->$default_provider ) ) {
+			foreach( $this->providers as $slug => $provider ) {
+				$default_provider = $slug;
+				break;
+			}
+		}
+
 		$defaults = array(
-				'provider'          => 'doubleclick_for_publishers',
+				'provider'          => $default_provider,
 			);
 		$options = get_option( 'acm_options', array() );
 		return array_merge( $defaults, $options );
