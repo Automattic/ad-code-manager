@@ -129,9 +129,14 @@ $(document).ready(function(){inlineEditAdCodes.init();});
 		return false;
 	}
 
-	$('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
-	$('#conditionals-help-toggler').click( function( e ) {
-		var el = jQuery('#conditionals-help');
-		el.toggleClass('hidden');
-	});
+	var setup_conditional_clicks = function() {
+		$('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+		$('#conditionals-help-toggler').click( function( e ) {
+			var el = $('#conditionals-help');
+			el.toggleClass('hidden');
+		});
+	}
+
+	setup_conditional_clicks();
+
 })( window, jQuery );
