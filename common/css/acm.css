@@ -170,3 +170,8 @@ tr:hover .row-actions {
 	min-width: 200px;
 	width: 30%;
 }
+
+.acm-global-options #provider-field label {
+	float: left;
+	width: 125px;
+}

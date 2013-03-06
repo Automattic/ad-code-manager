@@ -50,6 +50,36 @@
 
 
 <div class="form-wrap">
+<?php
+// Only show the provider selector if one hasn't been specified at the code level.
+if ( ! apply_filters( 'acm_provider_slug', false ) ) : ?>
+<div class="acm-global-options">
+	<h3><?php _e( 'Configuration', 'ad-code-manager' ); ?></h3>
+	<div class="form-wrap">
+	<form action="<?php echo admin_url( 'admin-ajax.php' ); ?>" method="post" name="updatesettings" id="updatesettings">
+	<div id="provider-field" class="form-field form-required">
+		<label for="provider"><?php _e( 'Select a provider:', 'ad-code-manager' ); ?></label>
+		<select name="provider" id="provider">
+		<?php $current_provider = $this->get_option( 'provider' );
+		foreach ( $this->providers as $slug => $provider ) :
+			if ( isset( $provider['label'] ) )
+				$label = $provider['label'];
+			else
+				$label = ucwords( str_replace( '_', ' ', $slug ) );
+			?>
+			<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $slug, $current_provider ); ?>><?php echo esc_html( $label ); ?></option>
+		<?php endforeach; ?>
+		</select>
+	</div>
+		<?php do_action( 'acm_options_form' ); ?>
+		<input type="hidden" name="action" value="acm_admin_action" />
+		<input type="hidden" name="method" value="update_options" />
+		<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
+		<?php submit_button( __( 'Save Options', 'ad-code-manager' ) ); ?>
+	</form>
+	</div>
+</div>
+<?php endif; ?>
 <h3><?php _e( 'Add New Ad Code', 'ad-code-manager' ); ?></h3>
 <form id="add-adcode" method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="validate">
 <input type="hidden" name="action" value="acm_admin_action" />
