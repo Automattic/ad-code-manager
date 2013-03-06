@@ -26,11 +26,6 @@
 			});
 		},
 
-		toggle : function(el) {
-			var t = this;
-			$(t.what+t.getId(el)).css('display') == 'none' ? t.revert() : t.edit(el);
-		},
-
 		edit : function(id) {
 			var t = this, editRow;
 			t.revert();
