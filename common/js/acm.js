@@ -19,7 +19,7 @@ inlineEditAdCodes = {
 
 		$('a.cancel', row).click(function() { return inlineEditAdCodes.revert(); });
 		$('a.save', row).click(function() { return inlineEditAdCodes.save(this); });
-		$('input, select', row).keydown(function(e) { if(e.which == 13) return inlineEditAdCodes.save(this); });
+		$('td', row).keydown(function(e) { if(e.which == 13) return inlineEditAdCodes.save(this); });
 
 		$('#posts-filter input[type="submit"]').mousedown(function(e){
 			t.revert();
