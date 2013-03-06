@@ -108,6 +108,7 @@
 	var acm_add_more_conditionals = function() {
 		var temp = $( 'div#conditional-single-field-master').clone( false );
 		temp.removeAttr('id');
+		temp.children('.conditional-arguments').children('input').attr('value','');
 		$(temp).find('.conditional-arguments').append( '<a href="#" class="acm-remove-conditional">Remove</a>' );
 		$(this).closest('.acm-conditional-fields').find('.form-new-row').append(temp);
 		$('.acm-remove-conditional').off( 'click.acm_remove_conditional', acm_remove_conditional );
