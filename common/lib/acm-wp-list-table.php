@@ -15,6 +15,13 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class ACM_WP_List_Table extends WP_List_Table {
 
+	/**
+	 * Row actions should be displayed once per row. This tracks if the row
+	 * action method has been accessed.
+	 * @var bool
+	 */
+	var $row_actions_processed = false;
+
 	function __construct( $params = array() ) {
 		parent::__construct( $params );
 	}
@@ -141,6 +148,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 		echo '<tr id="ad-code-' . $item['post_id'] . '"' . $row_class . '>';
 		echo $this->single_row_columns( $item );
 		echo '</tr>';
+
+		// Reset to false after each row is complete
+		$this->row_actions_processed = false;
 	}
 
 	/**
@@ -162,10 +172,12 @@ class ACM_WP_List_Table extends WP_List_Table {
 		case 'operator':
 			return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
 		default:
-			// @todo need to make the first column (whatever it is filtered) to show row actions
 			// Handle custom columns, if any
-			if ( isset( $item['url_vars'][$column_name] ) )
-				return esc_html( $item['url_vars'][$column_name] );
+			if ( isset( $item['url_vars'][ $column_name ] ) ) {
+				$output = esc_html( $item['url_vars'][ $column_name ] );
+				$output .= $this->row_actions_output( $item );
+				return $output;
+			}
 			break;
 		}
 
@@ -292,6 +304,12 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @since 0.2
 	 */
 	function row_actions_output( $item ) {
+
+		// If row actions have already been processed for this row, return an empty string,
+		if ( $this->row_actions_processed )
+			return '';
+		else
+			$this->row_actions_processed = true;
 
 		$output = '';
 		// $row_actions['preview-ad-code'] = '<a class="acm-ajax-preview" id="acm-preview-' . $item[ 'post_id' ] . '" href="#">' . __( 'Preview Ad Code', 'ad-code-manager' ) . '</a>';
