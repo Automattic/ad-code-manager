@@ -1,12 +1,12 @@
 (function( window, $ ) {
-	inlineEditAdCodes = {
+	var inlineEditAdCodes = {
 
 		init : function() {
 			var t = this, row = $('#inline-edit');
 
 			t.what = '#ad-code-';
 
-			$('.acm-ajax-edit').live('click', function(){
+			$('.acm-ajax-edit').on( 'click', function(){
 				inlineEditAdCodes.edit(this);
 				jQuery('.add-more-conditionals').off( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
 				jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
@@ -17,11 +17,11 @@
 			// prepare the edit row
 			row.keyup(function(e) { if(e.which == 27) return inlineEditAdCodes.revert(); });
 
-			$('a.cancel', row).click(function() { return inlineEditAdCodes.revert(); });
-			$('a.save', row).click(function() { return inlineEditAdCodes.save(this); });
-			$('td', row).keydown(function(e) { if(e.which == 13) return inlineEditAdCodes.save(this); });
+			$('a.cancel', row).on('click', function() { return inlineEditAdCodes.revert(); });
+			$('a.save', row).on('click', function() { return inlineEditAdCodes.save(this); });
+			$('td', row).on('keydown', function(e) { if(e.which == 13) return inlineEditAdCodes.save(this); });
 
-			$('#posts-filter input[type="submit"]').mousedown(function(e){
+			$('#posts-filter input[type="submit"]').on('mousedown', function(e){
 				t.revert();
 			});
 		},
@@ -113,20 +113,20 @@
 		$('.acm-remove-conditional').off( 'click.acm_remove_conditional', acm_remove_conditional );
 		$('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
 		return false;
-	}
+	};
 
 	var acm_remove_conditional = function() {
 		$(this).closest('.conditional-single-field').remove();
 		return false;
-	}
+	};
 
 	var setup_conditional_clicks = function() {
 		$('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
-		$('#conditionals-help-toggler').click( function( e ) {
+		$('#conditionals-help-toggler').on( 'click', function( e ) {
 			var el = $('#conditionals-help');
 			el.toggleClass('hidden');
 		});
-	}
+	};
 
 	setup_conditional_clicks();
 	inlineEditAdCodes.init();
