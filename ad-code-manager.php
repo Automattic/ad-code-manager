@@ -308,8 +308,6 @@ class Ad_Code_Manager {
 	 *
 	 */
 	function get_ad_codes( $query_args = array() ) {
-
-		$ad_codes_formatted = array();
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
 
 
@@ -544,13 +542,17 @@ class Ad_Code_Manager {
 		$conditionals_parsed = array();
 		foreach ( $this->whitelisted_conditionals as $conditional )
 			$conditionals_parsed[] = $conditional . ':' . ucfirst( str_replace( '_', ' ', $conditional ) );
-?>
-		<script type="text/javascript">
-			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
-			var acm_conditionals = '<?php echo esc_js( implode( ';', $conditionals_parsed ) )?>';
-			var acm_ajax_nonce = '<?php echo esc_js( wp_create_nonce( 'acm_nonce' ) ) ?>';
-			var acm_conditionals_index = 0;
-		</script>
+
+		// todo: these aren't even being used? didn't find them in the code from before - might want to check into them
+		$js_settings = array(
+			'url' => admin_url( 'admin.php?page=' . $this->plugin_slug ),
+			'conditionals' => $this->whitelisted_conditionals,
+			'conditionalsIndex' => 0,
+			'nonce' => wp_create_nonce( 'acm_nonce' ),
+		);
+
+		?>
+		<script type="text/javascript">var AdCodeManagerSettings = <?php echo json_encode( $js_settings ); ?>;</script>
 		<?php
 	}
 
@@ -694,7 +696,7 @@ class Ad_Code_Manager {
 			return;
 
 		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . '/common/css/acm.css' );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ), false, true );
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery' ), false, true );
 	}
 
 	/**
