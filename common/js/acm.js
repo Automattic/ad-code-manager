@@ -8,9 +8,9 @@
 
 			$('.acm-ajax-edit').on( 'click', function(){
 				inlineEditAdCodes.edit(this);
-				jQuery('.add-more-conditionals').off( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
-				jQuery('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
-				jQuery('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
+				$('.add-more-conditionals').off( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+				$('.add-more-conditionals').on( 'click.acm_add_more_conditionals', acm_add_more_conditionals );
+				$('.acm-remove-conditional').on( 'click.acm_remove_conditional', acm_remove_conditional );
 				return false;
 			});
 
