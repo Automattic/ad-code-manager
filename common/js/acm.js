@@ -49,6 +49,7 @@
 		var _cacheElements = function() {
 			UI.addMoreButton = document.getElementById( 'conditional-tpl' ).querySelector( '.add-more-conditionals' );
 			UI.theList = document.getElementById( 'the-list' );
+			UI.theNew = document.getElementById( 'add-adcode' );
 		};
 
 		/**
@@ -59,6 +60,7 @@
 		var _bindEvents = function() {
 			_addEvent( 'click', UI.addMoreButton, _addConditional );
 			_addEvent( 'click', UI.theList, _delegateListClicks );
+			_addEvent( 'click', UI.theNew, _delegateNewAdClicks );
 		};
 
 		/**
@@ -107,6 +109,23 @@
 			}
 			if( e.preventDefault ) {
 				e.preventDefault();
+			}
+		};
+
+		/**
+		 * Handles checking delegated events for the add ad code area
+		 *
+		 * @param e The event object
+		 * @private
+		 */
+		var _delegateNewAdClicks = function( e ) {
+			e = e || window.event;
+			var target = e.srcElement || e.target;
+
+			// check for remove conditional call
+			if( _hasClass( target, 'acm-remove-conditional' ) === true ) {
+				_removeInlineConditionalRow( target );
+				_killEvent( e );
 			}
 		};
 
