@@ -10,13 +10,6 @@
 		var SELF = this;
 
 		/**
-		 * Contains the settings passed to our App
-		 *
-		 * @type {Object}
-		 */
-		var SETTINGS = {};
-
-		/**
 		 * Container for cached UI elements
 		 *
 		 * @type {Object}
@@ -36,7 +29,6 @@
 		 * @private
 		 */
 		var _init = function() {
-			SETTINGS = window.AdCodeManagerSettings;
 			_cacheElements();
 			_bindEvents();
 		};
