@@ -63,7 +63,6 @@ class Ad_Code_Manager {
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
-		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 		add_action( 'wp_ajax_acm_admin_action', array( $this, 'handle_admin_action' ) );
 
 		add_action( 'current_screen', array( $this, 'contextual_help' ) );
@@ -529,31 +528,6 @@ class Ad_Code_Manager {
 		} elseif ( 0 !== $ad_code_id ) {
 			return update_post_meta( $ad_code_id, 'conditionals', array() );
 		}
-	}
-
-	/**
-	 * Print our vars as JS
-	 */
-	function post_admin_header() {
-
-		if ( !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
-			return;
-
-		$conditionals_parsed = array();
-		foreach ( $this->whitelisted_conditionals as $conditional )
-			$conditionals_parsed[] = $conditional . ':' . ucfirst( str_replace( '_', ' ', $conditional ) );
-
-		// todo: these aren't even being used? didn't find them in the code from before - might want to check into them
-		$js_settings = array(
-			'url' => admin_url( 'admin.php?page=' . $this->plugin_slug ),
-			'conditionals' => $this->whitelisted_conditionals,
-			'conditionalsIndex' => 0,
-			'nonce' => wp_create_nonce( 'acm_nonce' ),
-		);
-
-		?>
-		<script type="text/javascript">var AdCodeManagerSettings = <?php echo json_encode( $js_settings ); ?>;</script>
-		<?php
 	}
 
 	/**
