@@ -1,5 +1,5 @@
 === Ad Code Manager ===
-Contributors: rinatkhaziev, jeremyfelt, zztimur, danielbachhuber, automattic, doejo
+Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
 Tested up to: 3.5.1
