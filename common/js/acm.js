@@ -61,6 +61,7 @@
 			_addEvent( 'click', UI.addMoreButton, _addConditional );
 			_addEvent( 'click', UI.theList, _delegateListClicks );
 			_addEvent( 'click', UI.theNew, _delegateNewAdClicks );
+			_addEvent( 'keydown', UI.theList, _delegateListKeyEvents );
 		};
 
 		/**
@@ -125,6 +126,22 @@
 			// check for remove conditional call
 			if( _hasClass( target, 'acm-remove-conditional' ) === true ) {
 				_removeInlineConditionalRow( target );
+				_killEvent( e );
+			}
+		};
+
+		/**
+		 * Handles checking delegated key events for the inline editor and table rows
+		 * @param e
+		 * @private
+		 */
+		var _delegateListKeyEvents = function( e ) {
+			e = e || window.event;
+			var key = e.which || e.keyCode;
+
+			// 13 is Enter, which avoids the default form on the page from saving
+			if ( key === 13 ) {
+				_saveInlineEditorChanges();
 				_killEvent( e );
 			}
 		};
