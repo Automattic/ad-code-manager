@@ -124,7 +124,8 @@ class Ad_Code_Manager {
 		 * By default we use doubleclick-for-publishers provider
 		 * To switch to a different ad provider use this filter
 		 */
-		$this->current_provider_slug = apply_filters( 'acm_provider_slug', 'doubleclick_for_publishers' );
+
+		$this->current_provider_slug = apply_filters( 'acm_provider_slug', $this->get_option( 'provider' ) );
 
 		// Instantiate one that we need
 		if ( isset( $this->providers->{$this->current_provider_slug} ) )
@@ -214,6 +215,56 @@ class Ad_Code_Manager {
 	}
 
 	/**
+	 * Get all ACM options
+	 *
+	 * @since 0.4
+	 */
+	function get_options() {
+
+		$default_provider = 'doubleclick_for_publishers';
+		// Make sure our default provider exists. Otherwise, the sky will fall on our head
+		if ( ! isset( $this->providers->$default_provider ) ) {
+			foreach( $this->providers as $slug => $provider ) {
+				$default_provider = $slug;
+				break;
+			}
+		}
+
+		$defaults = array(
+				'provider'          => $default_provider,
+			);
+		$options = get_option( 'acm_options', array() );
+		return array_merge( $defaults, $options );
+	}
+
+	/**
+	 * Get an ACM option
+	 *
+	 * @since 0.4
+	 */
+	function get_option( $key ) {
+
+		$options = $this->get_options();
+
+		if ( isset( $options[$key] ) )
+			return $options[$key];
+		else
+			return false;
+	}
+
+	/**
+	 * Update an ACM option
+	 *
+	 * @since 0.4
+	 */
+	function update_options( $new_options ) {
+
+		$options = $this->get_options();
+		$options = array_merge( $options, $new_options );
+		update_option( 'acm_options', $options );
+	}
+
+	/**
 	 * Handle any Add, Edit, or Delete actions from the admin interface
 	 * Hooks into admin ajax because it's the proper context for these sort of actions
 	 *
@@ -282,6 +333,15 @@ class Ad_Code_Manager {
 			$this->delete_ad_code( $id );
 			$this->flush_cache();
 			$message = 'ad-code-deleted';
+			break;
+		case 'update_options':
+			$options = $this->get_options();
+			foreach( $options as $key => $value ) {
+				if ( isset( $_REQUEST[$key] ) )
+					$options[$key] = sanitize_text_field( $_REQUEST[$key] );
+			}
+			$this->update_options( $options );
+			$message = 'options-saved';
 			break;
 		}
 
@@ -693,8 +753,8 @@ class Ad_Code_Manager {
 		if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
-		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . '/common/css/acm.css' );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
+		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . 'common/css/acm.css' );
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . 'common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
 	}
 
 	/**

@@ -3,6 +3,7 @@
  * Google AdSense Ad Provider for Ad Code manager
  */
 class Google_AdSense_ACM_Provider extends ACM_Provider {
+
 	/**
 	 * Register default options for Google AdSense
 	 *
@@ -11,43 +12,87 @@ class Google_AdSense_ACM_Provider extends ACM_Provider {
 	 */
 	public function __construct() {
 		// Default output HTML
-		$this->output_html = '<script type="text/javascript">GA_googleFillSlot( "%slot%" );</script>';
+		$this->output_html = '<script type="text/javascript"><!-- 
+google_ad_client = "%publisher_id%"; 
+google_ad_slot = "%tag_id%"; 
+google_ad_width = %width%; 
+google_ad_height = %height%; 
+//--> 
+</script> 
+<script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script>';
 
 		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
 		$this->ad_tag_ids = array(
 			array(
-				'tag' => 'popunder',
-				'url_vars' => array(
-					'slot' => 'generic'
-				)
-			),
+					'tag'       => '250x250_a',
+					'url_vars'  => array(
+							'tag'       => '250x250_a',
+							'height'    => '250',
+							'width'     => '250',
+						),
+					'enable_ui_mapping' => true,
+				),
 			array(
-				'tag' => 'background',
-				'url_vars' => array(
-					'slot' => 'generic'
-				)
-			),
-			array(
-				'tag' => 'masthead',
-				'url_vars' => array(
-					'slot' => 'generic'
-				)
-			)
+					'tag'       => '250x250_b',
+					'url_vars'  => array(
+							'tag'       => '250x250_b',
+							'height'    => '250',
+							'width'     => '250',
+						),
+					'enable_ui_mapping' => true,
+				),
 		);
-
-		//Since URLs aren't used with AdSense, value 'null' is included as ACM uses parse_url to validate URLs
-		$this->whitelisted_script_urls = array( '%slot%', null );
 
 		$this->ad_code_args = array(
 			array(
-				'key'       => 'slot',
-				'label'     => __( 'Slot', 'ad-code-manager' ),
+				'key'       => 'tag',
+				'label'     => __( 'Tag', 'ad-code-manager' ),
+				'editable'  => true,
+				'required'  => true,
+				'type'      => 'select',
+				'options'   => array(
+						// This is added later, through 'acm_ad_code_args' filter
+					),
+			),
+			array(
+				'key'       => 'tag_id',
+				'label'     => __( 'Tag ID', 'ad-code-manager' ),
+				'editable'  => true,
+				'required'  => true,
+			),
+			array(
+				'key'       => 'publisher_id',
+				'label'     => __( 'Publisher ID', 'ad-code-manager' ),
 				'editable'  => true,
 				'required'  => true,
 			),
 		);
 
+		add_filter( 'acm_ad_code_args', array( $this, 'filter_ad_code_args' ) );
+		add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+
 		parent::__construct();
+	}
+
+	/**
+	 * Register the 'tag's available for mapping in the UI
+	 */
+	public function filter_ad_code_args( $ad_code_args ) {
+		global $ad_code_manager;
+
+		foreach( $ad_code_args as $tag => $ad_code_arg ) {
+
+			if ( 'tag' != $ad_code_arg['key'] )
+				continue;
+
+			// Get all of the tags that are registered, and provide them as options
+			foreach( (array)$ad_code_manager->ad_tag_ids as $ad_tag ) {
+				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] )
+					$ad_code_args[$tag]['options'][$ad_tag['tag']] = $ad_tag['tag'];
+			}
+
+		}
+		return $ad_code_args;
 	}
 }
 
@@ -70,32 +115,28 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	}
 
 	/**
-	 * Specify table columns
-	 *
-	 * @uses apply_filters
-	 * @return array
+	 * This is nuts and bolts of table representation
 	 */
-	public function get_columns() {
+	function get_columns() {
 		$columns = array(
+			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
-			'slot'      => __( 'Slot', 'ad-code-manager' ),
+			'tag'            => __( 'Tag', 'ad-code-manager' ),
+			'tag_id'         => __( 'Tag ID', 'ad-code-manager' ),
+			'publisher_id'   => __( 'Publisher ID', 'ad-code-manager' ),
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
+			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
 		return parent::get_columns( $columns );
 	}
 
 	/**
-	 * Output ad slot in table
-	 *
-	 * @param array   $item
-	 * @uses esc_html, this::row_actions_output
-	 * @return string
+	 * Output the tag cell in the list table
 	 */
-	public function column_slot( $item ) {
-		$output = esc_html( $item[ 'url_vars' ][ 'slot' ] );
+	function column_tag( $item ) {
+		$output = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
-
 		return $output;
 	}
 }
