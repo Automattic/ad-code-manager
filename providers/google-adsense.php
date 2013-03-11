@@ -24,20 +24,65 @@ google_ad_height = %height%;
 		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
 		$this->ad_tag_ids = array(
 			array(
-					'tag'       => '250x250_a',
+					'tag'       => '728x90_leaderboard',
 					'url_vars'  => array(
-							'tag'       => '250x250_a',
+							'tag'       => '728x90_leaderboard',
+							'height'    => '90',
+							'width'     => '728',
+						),
+					'enable_ui_mapping' => true,
+				),
+			array(
+					'tag'       => '468x60_banner',
+					'url_vars'  => array(
+							'tag'       => '468x60_banner',
+							'height'    => '60',
+							'width'     => '468',
+						),
+					'enable_ui_mapping' => true,
+				),
+			array(
+					'tag'       => '120x600_skyscraper',
+					'url_vars'  => array(
+							'tag'       => '120x600_skyscraper',
+							'height'    => '600',
+							'width'     => '120',
+						),
+					'enable_ui_mapping' => true,
+				),
+			array(
+					'tag'       => '160x600_wideskyscraper',
+					'url_vars'  => array(
+							'tag'       => '160x600_wideskyscraper',
+							'height'    => '600',
+							'width'     => '160',
+						),
+					'enable_ui_mapping' => true,
+				),
+			array(
+					'tag'       => '300x600_largeskyscraper',
+					'url_vars'  => array(
+							'tag'       => '300x600_largeskyscraper',
+							'height'    => '600',
+							'width'     => '300',
+						),
+					'enable_ui_mapping' => true,
+				),
+			array(
+					'tag'       => '250x250_square',
+					'url_vars'  => array(
+							'tag'       => '250x250_square',
 							'height'    => '250',
 							'width'     => '250',
 						),
 					'enable_ui_mapping' => true,
 				),
 			array(
-					'tag'       => '250x250_b',
+					'tag'       => '200x200_smallsquare',
 					'url_vars'  => array(
-							'tag'       => '250x250_b',
-							'height'    => '250',
-							'width'     => '250',
+							'tag'       => '200x200_smallsquare',
+							'height'    => '200',
+							'width'     => '200',
 						),
 					'enable_ui_mapping' => true,
 				),
