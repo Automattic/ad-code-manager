@@ -31,6 +31,14 @@ Since the plugin is in its early stages, there are a couple additional configura
 1. Implement filters to make the plugin work with your provider
 1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
 
+== Screenshots ==
+
+1. The ACM admin interface before adding ad codes.
+1. Adding an ad code with a site name, zone, and multiple conditionals.
+1. Access the Help menu in the upper right for configuration assistance.
+1. Edit existing ad codes inline through the admin interface.
+1. Example of ad tag in use in a theme header template.
+
 == Upgrade Notice ==
 
 = 0.4 =
@@ -357,11 +365,3 @@ Example usage:
 		);
 		return $args;
 	}`
-
-== Screenshots ==
-
-1. The ACM admin interface before adding ad codes.
-1. Adding an ad code with a site name, zone, and multiple conditionals.
-1. Access the Help menu in the upper right for configuration assistance.
-1. Edit existing ad codes inline through the admin interface.
-1. Example of ad tag in use in a theme header template.
