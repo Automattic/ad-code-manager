@@ -11,13 +11,11 @@ Manage your ad codes through the WordPress admin in a safe and easy way.
 
 Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.
 
-Some code-level configuration is necessary to setup Ad Code Manager. Ad tags must be added (via `do_action`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode.
+Some code-level configuration may be necessary to setup Ad Code Manager. Ad tags must be added (via `do_action()`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode.
 
-Also, a common set of parameters must be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL.
+A common set of parameters must also be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL. Ad Code Manager comes with support for Google Doubleclick For Publishers (and Async), OpenX, and Google AdSense. All of the logic is abstracted, however, so configuring a different provider is relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
 Once this configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expression and then return true or false.
-
-Ad Code Manager currently works with Doubleclick for Publishers by default. However, all logic is abstracted which means that you can configure ACM for any ad provider relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
