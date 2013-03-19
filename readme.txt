@@ -11,7 +11,7 @@ Manage your ad codes through the WordPress admin in a safe and easy way.
 
 Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.
 
-Some code-level configuration may be necessary to setup Ad Code Manager. Ad tags must be added (via `do_action()`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode.
+Some code-level configuration may be necessary to setup Ad Code Manager. Ad tags must be added (via `do_action()`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode. [Check out the configuration guide](http://vip.wordpress.com/documentation/configure-ad-code-manager-to-manage-the-advertisements-on-your-site/) for the full details.
 
 A common set of parameters must also be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL. Ad Code Manager comes with support for Google Doubleclick For Publishers (and Async), OpenX, and Google AdSense. All of the logic is abstracted, however, so configuring a different provider is relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
