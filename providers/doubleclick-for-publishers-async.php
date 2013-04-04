@@ -17,11 +17,11 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 					'enable_ui_mapping' => true,
 				),
 			array(
-					'tag'       => '320x250',
+					'tag'       => '300x250',
 					'url_vars'  => array(
-							'tag'       => '320x250',
-							'sz'        => '320x250',
-							'height'    => '320',
+							'tag'       => '300x250',
+							'sz'        => '300x250',
+							'height'    => '300',
 							'width'     => '250',
 						),
 					'enable_ui_mapping' => true,
