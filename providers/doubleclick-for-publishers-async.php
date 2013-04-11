@@ -21,8 +21,8 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 					'url_vars'  => array(
 							'tag'       => '300x250',
 							'sz'        => '300x250',
-							'height'    => '300',
-							'width'     => '250',
+							'width'    => '300',
+							'height'     => '250',
 						),
 					'enable_ui_mapping' => true,
 				),
