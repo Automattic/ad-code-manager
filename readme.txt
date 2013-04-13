@@ -56,6 +56,9 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 == Changelog ==
 
+= 0.4.1 (??? ??, 2013) =
+* Bug fix: Corrected "medium rectangle" ad size for DFP Async Provider. Thanks [Marco](https://github.com/NRG-R9T)
+
 = 0.4 (Mar. 19, 2013) =
 * Streamlined configuration for Doubleclick for Publishers Async and Google AdSense
 * Faster, cleaner JavaScript thanks to [Jeremy Felt](https://github.com/jeremyfelt) and [Carl Danley](https://github.com/carldanley)
