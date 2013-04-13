@@ -161,6 +161,7 @@ class Ad_Code_Manager {
 			'is_front_page',
 			'is_category',
 			'has_category',
+			'is_single',
 			'is_page',
 			'is_tag',
 			'has_tag',
