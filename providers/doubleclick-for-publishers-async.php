@@ -133,6 +133,9 @@ foreach ( (array) $ad_tags as $tag ):
 	$tt = $tag['url_vars'];
 	$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
 	if ( ! empty( $matching_ad_code ) ) {
+	// @todo There might be a case when there are two tags registered with the same dimensions
+	// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
+	// that tags are unique
 ?>
 googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
 <?php
