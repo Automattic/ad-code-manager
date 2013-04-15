@@ -139,11 +139,6 @@ googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_i
 	}
 endforeach;
 ?>
-
-<?php if ( is_single() ) : ?>
-googletag.pubads().set("page_url", "<?php echo esc_js( home_url( '?p=' . get_queried_object_id() ) ); ?>");
-<?php endif; ?>
-
 googletag.pubads().enableSingleRequest();
 googletag.pubads().collapseEmptyDivs();
 googletag.enableServices();
