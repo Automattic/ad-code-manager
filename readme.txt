@@ -57,6 +57,7 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 == Changelog ==
 
 = 0.4.1 (??? ??, 2013) =
+* Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
 * Bug fix: Corrected "medium rectangle" ad size for DFP Async Provider. Thanks [Marco](https://github.com/NRG-R9T)
 
 = 0.4 (Mar. 19, 2013) =
