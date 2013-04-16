@@ -26,6 +26,38 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 						),
 					'enable_ui_mapping' => true,
 				),
+			array(
+				'tag'       => '120x600',
+				'url_vars'  => array(
+						'tag'       => '120x600',
+						'sz'        => '120x600',
+						'width'    => '120',
+						'height'     => '600',
+					),
+				'enable_ui_mapping' => true,
+			),
+			array(
+				'tag'       => '160x600',
+				'url_vars'  => array(
+						'tag'       => '160x600',
+						'sz'        => '160x600',
+						'width'    => '160',
+						'height'     => '600',
+					),
+				'enable_ui_mapping' => true,
+			),
+			array(
+				'tag'       => '300x600',
+				'url_vars'  => array(
+						'tag'       => '300x600',
+						'sz'        => '300x600',
+						'width'    => '300',
+						'height'     => '600',
+					),
+				'enable_ui_mapping' => true,
+			),
+
+
 			// An extra, special tag to make sure the <head> gets the output we need it to
 			array(
 				'tag'           => 'dfp_head',
