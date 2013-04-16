@@ -6,26 +6,26 @@
 	<div class="acm-ui-wrapper wrap">
 	<h2>Ad Code Manager</h2>
 	<?php if ( isset( $_REQUEST['message'] ) ) {
-		switch( $_REQUEST['message'] ) {
-			case 'ad-code-added':
-				$message_text = __( 'Ad code created.', 'ad-code-manager' );
-				break;
-			case 'ad-code-deleted':
-				$message_text = __( 'Ad code deleted.', 'ad-code-manager' );
-				break;
-			case 'ad-codes-deleted':
-				$message_text = __( 'Ad codes deleted.', 'ad-code-manager' );
-				break;
-			case 'options-saved':
-				$message_text = __( 'Options saved.', 'ad-code-manager' );
-				break;
-			default:
-				$message_text = '';
-				break;
-		}
-		if ( $message_text )
-			echo '<div class="message updated"><p>' . esc_html( $message_text ) . '</p></div>';
-	} ?>
+	switch ( $_REQUEST['message'] ) {
+	case 'ad-code-added':
+		$message_text = __( 'Ad code created.', 'ad-code-manager' );
+		break;
+	case 'ad-code-deleted':
+		$message_text = __( 'Ad code deleted.', 'ad-code-manager' );
+		break;
+	case 'ad-codes-deleted':
+		$message_text = __( 'Ad codes deleted.', 'ad-code-manager' );
+		break;
+	case 'options-saved':
+		$message_text = __( 'Options saved.', 'ad-code-manager' );
+		break;
+	default:
+		$message_text = '';
+		break;
+	}
+	if ( $message_text )
+		echo '<div class="message updated"><p>' . esc_html( $message_text ) . '</p></div>';
+} ?>
 	<p> Refer to help section for more information</p>
 	</div>
 
@@ -36,9 +36,9 @@
 <div class="col-wrap">
 	<form action="" method="post" name="updateadcodes" id="updateadcodes">
 <?php
-	wp_nonce_field( 'acm-bulk-action', 'bulk-action-nonce' );
-	$this->wp_list_table->prepare_items();
-	$this->wp_list_table->display();
+wp_nonce_field( 'acm-bulk-action', 'bulk-action-nonce' );
+$this->wp_list_table->prepare_items();
+$this->wp_list_table->display();
 ?>
 	</form>
 
@@ -61,12 +61,12 @@ if ( ! apply_filters( 'acm_provider_slug', false ) ) : ?>
 		<label for="provider"><?php _e( 'Select a provider:', 'ad-code-manager' ); ?></label>
 		<select name="provider" id="provider">
 		<?php $current_provider = $this->get_option( 'provider' );
-		foreach ( $this->providers as $slug => $provider ) :
-			if ( isset( $provider['label'] ) )
-				$label = $provider['label'];
-			else
-				$label = ucwords( str_replace( '_', ' ', $slug ) );
-			?>
+foreach ( $this->providers as $slug => $provider ) :
+	if ( isset( $provider['label'] ) )
+		$label = $provider['label'];
+	else
+		$label = ucwords( str_replace( '_', ' ', $slug ) );
+?>
 			<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $slug, $current_provider ); ?>><?php echo esc_html( $label ); ?></option>
 		<?php endforeach; ?>
 		</select>
@@ -94,12 +94,12 @@ foreach ( $this->current_provider->ad_code_args as $arg ):
 
 	$column_id = 'acm-column[' . $arg['key'] . ']';
 
-	/*
+/*
 	 * Field type conditional: Defaults to text
 	 *
 	 * For specific implementations, allow the user to choose which tag the ad code applies to.
 	 */
-	if ( isset( $arg['type'] ) && 'select' == $arg['type'] ) :
+if ( isset( $arg['type'] ) && 'select' == $arg['type'] ) :
 ?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
@@ -110,8 +110,8 @@ foreach ( $this->current_provider->ad_code_args as $arg ):
 	</select>
 </div>
 	<?php
-	else : // field_type conditional
-	?>
+else : // field_type conditional
+?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
 	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo $arg['required'] ?>">
@@ -130,7 +130,7 @@ endforeach;
 <?php
 foreach ( $this->whitelisted_conditionals as $key ):
 ?>
-<option value="<?php echo esc_attr($key) ?>"><?php echo esc_html( ucfirst( str_replace('_', ' ', $key ) ) ) ?></option>
+<option value="<?php echo esc_attr( $key ) ?>"><?php echo esc_html( ucfirst( str_replace( '_', ' ', $key ) ) ) ?></option>
 <?php endforeach; ?>
 	</select>
 	</div>

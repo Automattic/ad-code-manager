@@ -224,15 +224,15 @@ class Ad_Code_Manager {
 		$default_provider = 'doubleclick_for_publishers';
 		// Make sure our default provider exists. Otherwise, the sky will fall on our head
 		if ( ! isset( $this->providers->$default_provider ) ) {
-			foreach( $this->providers as $slug => $provider ) {
+			foreach ( $this->providers as $slug => $provider ) {
 				$default_provider = $slug;
 				break;
 			}
 		}
 
 		$defaults = array(
-				'provider'          => $default_provider,
-			);
+			'provider'          => $default_provider,
+		);
 		$options = get_option( 'acm_options', array() );
 		return array_merge( $defaults, $options );
 	}
@@ -336,7 +336,7 @@ class Ad_Code_Manager {
 			break;
 		case 'update_options':
 			$options = $this->get_options();
-			foreach( $options as $key => $value ) {
+			foreach ( $options as $key => $value ) {
 				if ( isset( $_REQUEST[$key] ) )
 					$options[$key] = sanitize_text_field( $_REQUEST[$key] );
 			}
@@ -805,7 +805,7 @@ class Ad_Code_Manager {
 				/**
 				 * 'enable_ui_mapping' is a special argument which means this ad tag can be
 				 * mapped with ad codes through the admin interface. If that's the case, we
-				 * want to make sure those ad codes are only registered with the tag. 
+				 * want to make sure those ad codes are only registered with the tag.
 				 */
 				if ( isset( $default_tag['enable_ui_mapping'] ) && $default_tag['tag'] != $ad_code['url_vars']['tag'] )
 					continue;
