@@ -836,9 +836,13 @@ class Ad_Code_Manager {
 	 * @param string  $tag_id Unique ID for the ad tag
 	 */
 	function action_acm_tag( $tag_id ) {
-
-		// Don't show ads on preview; see http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
-		if ( is_preview() )
+		/**
+		 * See http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
+		 *
+		 * Configuration filter: acm_disable_ad_rendering
+		 * Should be boolean, defaulting to disabling ads on previews
+		 */
+		if ( apply_filters(  'acm_disable_ad_rendering',  is_preview() ) )
 			return;
 
 		$code_to_display = $this->get_matching_ad_code( $tag_id );
