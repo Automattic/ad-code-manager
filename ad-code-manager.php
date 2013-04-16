@@ -837,6 +837,10 @@ class Ad_Code_Manager {
 	 */
 	function action_acm_tag( $tag_id ) {
 
+		// Don't show ads on preview; see http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
+		if ( is_preview() )
+			return;
+
 		$code_to_display = $this->get_matching_ad_code( $tag_id );
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
