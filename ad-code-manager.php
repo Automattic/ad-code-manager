@@ -639,7 +639,7 @@ class Ad_Code_Manager {
 		if ( 5 > count( $sections ) )
 			return;
 
-		$useful = array( $sections[3], $sections[2], $sections[4] );
+		$useful = array(  $sections[2], $sections[4], $sections[7] );
 		foreach ( $useful as $i => $tab ) {
 			// Because WP.ORG Markdown has a different flavor
 			$useful[$i] = Markdown( str_replace( array( '= ', ' =' ), '**', $tab ) );
@@ -651,7 +651,7 @@ class Ad_Code_Manager {
 		global $pagenow;
 		if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
-		list( $installation, $description, $configuration ) = $this->parse_readme_into_contextual_help();
+		list( $description, $configuration, $filters ) = $this->parse_readme_into_contextual_help();
 		ob_start();
 ?>
 			<div id="conditionals-help">
@@ -690,16 +690,16 @@ class Ad_Code_Manager {
 		);
 		get_current_screen()->add_help_tab(
 			array(
-				'id' => 'acm-install',
-				'title' => 'Installation',
-				'content' => $installation,
+				'id' => 'acm-config',
+				'title' => 'Configuration',
+				'content' => $configuration,
 			)
 		);
 		get_current_screen()->add_help_tab(
 			array(
-				'id' => 'acm-config',
-				'title' => 'Configuration',
-				'content' => $configuration,
+				'id' => 'acm-filters',
+				'title' => 'Configuration Filters',
+				'content' => $filters,
 			)
 		);
 		get_current_screen()->add_help_tab(
