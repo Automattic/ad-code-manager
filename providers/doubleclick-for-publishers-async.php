@@ -7,25 +7,57 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		// Default ad zones for DFP Async
 		$this->ad_tag_ids = array(
 			array(
+				'tag'       => '728x90',
+				'url_vars'  => array(
 					'tag'       => '728x90',
-					'url_vars'  => array(
-							'tag'       => '728x90',
-							'sz'        => '728x90',
-							'height'    => '90',
-							'width'     => '728',
-						),
-					'enable_ui_mapping' => true,
+					'sz'        => '728x90',
+					'height'    => '90',
+					'width'     => '728',
 				),
+				'enable_ui_mapping' => true,
+			),
 			array(
+				'tag'       => '300x250',
+				'url_vars'  => array(
 					'tag'       => '300x250',
-					'url_vars'  => array(
-							'tag'       => '300x250',
-							'sz'        => '300x250',
-							'width'    => '300',
-							'height'     => '250',
-						),
-					'enable_ui_mapping' => true,
+					'sz'        => '300x250',
+					'width'    => '300',
+					'height'     => '250',
 				),
+				'enable_ui_mapping' => true,
+			),
+			array(
+				'tag'       => '120x600',
+				'url_vars'  => array(
+					'tag'       => '120x600',
+					'sz'        => '120x600',
+					'width'    => '120',
+					'height'     => '600',
+				),
+				'enable_ui_mapping' => true,
+			),
+			array(
+				'tag'       => '160x600',
+				'url_vars'  => array(
+					'tag'       => '160x600',
+					'sz'        => '160x600',
+					'width'    => '160',
+					'height'     => '600',
+				),
+				'enable_ui_mapping' => true,
+			),
+			array(
+				'tag'       => '300x600',
+				'url_vars'  => array(
+					'tag'       => '300x600',
+					'sz'        => '300x600',
+					'width'    => '300',
+					'height'     => '600',
+				),
+				'enable_ui_mapping' => true,
+			),
+
+
 			// An extra, special tag to make sure the <head> gets the output we need it to
 			array(
 				'tag'           => 'dfp_head',
@@ -42,8 +74,8 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 				'required'  => true,
 				'type'      => 'select',
 				'options'   => array(
-						// This is added later, through 'acm_ad_code_args' filter
-					),
+					// This is added later, through 'acm_ad_code_args' filter
+				),
 			),
 			array(
 				'key'       => 'tag_id',
@@ -81,13 +113,13 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 	public function filter_ad_code_args( $ad_code_args ) {
 		global $ad_code_manager;
 
-		foreach( $ad_code_args as $tag => $ad_code_arg ) {
+		foreach ( $ad_code_args as $tag => $ad_code_arg ) {
 
 			if ( 'tag' != $ad_code_arg['key'] )
 				continue;
 
 			// Get all of the tags that are registered, and provide them as options
-			foreach( (array)$ad_code_manager->ad_tag_ids as $ad_tag ) {
+			foreach ( (array)$ad_code_manager->ad_tag_ids as $ad_tag ) {
 				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] )
 					$ad_code_args[$tag]['options'][$ad_tag['tag']] = $ad_tag['tag'];
 			}
@@ -103,11 +135,11 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 	public function filter_output_html( $output_html, $tag_id ) {
 		global $ad_code_manager;
 
-		switch( $tag_id ) {
-			case 'dfp_head':
-				$ad_tags = $ad_code_manager->ad_tag_ids;
-				ob_start();
-?>			
+		switch ( $tag_id ) {
+		case 'dfp_head':
+			$ad_tags = $ad_code_manager->ad_tag_ids;
+			ob_start();
+?>
 	<!-- Include google_services.js -->
 <script type='text/javascript'>
 var googletag = googletag || {};
@@ -117,7 +149,7 @@ var gads = document.createElement('script');
 gads.async = true;
 gads.type = 'text/javascript';
 var useSSL = 'https:' == document.location.protocol;
-gads.src = (useSSL ? 'https:' : 'http:') + 
+gads.src = (useSSL ? 'https:' : 'http:') +
 '//www.googletagservices.com/tag/js/gpt.js';
 var node = document.getElementsByTagName('script')[0];
 node.parentNode.insertBefore(gads, node);
@@ -126,18 +158,21 @@ node.parentNode.insertBefore(gads, node);
 <script type='text/javascript'>
 googletag.cmd.push(function() {
 <?php
-foreach ( (array) $ad_tags as $tag ):
-	if ( $tag['tag'] == 'dfp_head' )
-		continue;
+			foreach ( (array) $ad_tags as $tag ):
+				if ( $tag['tag'] == 'dfp_head' )
+					continue;
 
-	$tt = $tag['url_vars'];
-	$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
-	if ( ! empty( $matching_ad_code ) ) {
+				$tt = $tag['url_vars'];
+			$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
+			if ( ! empty( $matching_ad_code ) ) {
+				// @todo There might be a case when there are two tags registered with the same dimensions
+				// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
+				// that tags are unique
 ?>
 googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
 <?php
-	}
-endforeach;
+			}
+			endforeach;
 ?>
 googletag.pubads().enableSingleRequest();
 googletag.pubads().collapseEmptyDivs();
@@ -145,9 +180,9 @@ googletag.enableServices();
 });
 </script>
 <?php
-		
+
 			$output_script = ob_get_clean();
-			break;	
+			break;
 		default:
 			$output_script = "
 		<div id='%tag_id%' style='width:%width%px; height:%height%px;'>
@@ -156,8 +191,8 @@ googletag.cmd.push(function() { googletag.display('%tag_id%'); });
 </script>
 		</div>
 		";
-	}
-	return $output_script;
+		}
+		return $output_script;
 
 	}
 
