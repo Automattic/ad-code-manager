@@ -169,7 +169,7 @@ googletag.cmd.push(function() {
 				// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
 				// that tags are unique
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
 <?php
 			}
 			endforeach;
@@ -185,9 +185,9 @@ googletag.enableServices();
 			break;
 		default:
 			$output_script = "
-		<div id='%tag_id%' style='width:%width%px; height:%height%px;'>
+		<div id='acm-ad-tag-%tag_id%' style='width:%width%px; height:%height%px;'>
 <script type='text/javascript'>
-googletag.cmd.push(function() { googletag.display('%tag_id%'); });
+googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 </script>
 		</div>
 		";
