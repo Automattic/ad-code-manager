@@ -3,7 +3,7 @@ Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, au
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
 Tested up to: 3.6-beta1
-Stable tag: 0.4
+Stable tag: 0.4.1
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
@@ -56,7 +56,7 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 == Changelog ==
 
-= 0.4.1 (??? ??, 2013) =
+= 0.4.1 (Apr. 27, 2013) =
 * Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
 * Bug fix: Corrected "medium rectangle" ad size for DFP Async Provider. Thanks [Marco](https://github.com/NRG-R9T)
 
