@@ -9,6 +9,8 @@ class Doubleclick_For_Publishers_Columns {
 }
 
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
+	public $crawler_user_agent = 'Mediapartners-Google';
+	
 	function __construct() {
 		// Default output HTML
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
