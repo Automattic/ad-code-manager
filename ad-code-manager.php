@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo
-Version: 0.4
+Version: 0.5-alpha
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.4' );
+define( 'AD_CODE_MANAGER_VERSION', '0.5-alpha' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -224,15 +224,15 @@ class Ad_Code_Manager {
 		$default_provider = 'doubleclick_for_publishers';
 		// Make sure our default provider exists. Otherwise, the sky will fall on our head
 		if ( ! isset( $this->providers->$default_provider ) ) {
-			foreach( $this->providers as $slug => $provider ) {
+			foreach ( $this->providers as $slug => $provider ) {
 				$default_provider = $slug;
 				break;
 			}
 		}
 
 		$defaults = array(
-				'provider'          => $default_provider,
-			);
+			'provider'          => $default_provider,
+		);
 		$options = get_option( 'acm_options', array() );
 		return array_merge( $defaults, $options );
 	}
@@ -336,7 +336,7 @@ class Ad_Code_Manager {
 			break;
 		case 'update_options':
 			$options = $this->get_options();
-			foreach( $options as $key => $value ) {
+			foreach ( $options as $key => $value ) {
 				if ( isset( $_REQUEST[$key] ) )
 					$options[$key] = sanitize_text_field( $_REQUEST[$key] );
 			}
@@ -639,7 +639,7 @@ class Ad_Code_Manager {
 		if ( 5 > count( $sections ) )
 			return;
 
-		$useful = array( $sections[3], $sections[2], $sections[4] );
+		$useful = array(  $sections[2], $sections[4], $sections[7] );
 		foreach ( $useful as $i => $tab ) {
 			// Because WP.ORG Markdown has a different flavor
 			$useful[$i] = Markdown( str_replace( array( '= ', ' =' ), '**', $tab ) );
@@ -651,7 +651,7 @@ class Ad_Code_Manager {
 		global $pagenow;
 		if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
-		list( $installation, $description, $configuration ) = $this->parse_readme_into_contextual_help();
+		list( $description, $configuration, $filters ) = $this->parse_readme_into_contextual_help();
 		ob_start();
 ?>
 			<div id="conditionals-help">
@@ -690,16 +690,16 @@ class Ad_Code_Manager {
 		);
 		get_current_screen()->add_help_tab(
 			array(
-				'id' => 'acm-install',
-				'title' => 'Installation',
-				'content' => $installation,
+				'id' => 'acm-config',
+				'title' => 'Configuration',
+				'content' => $configuration,
 			)
 		);
 		get_current_screen()->add_help_tab(
 			array(
-				'id' => 'acm-config',
-				'title' => 'Configuration',
-				'content' => $configuration,
+				'id' => 'acm-filters',
+				'title' => 'Configuration Filters',
+				'content' => $filters,
 			)
 		);
 		get_current_screen()->add_help_tab(
@@ -805,7 +805,7 @@ class Ad_Code_Manager {
 				/**
 				 * 'enable_ui_mapping' is a special argument which means this ad tag can be
 				 * mapped with ad codes through the admin interface. If that's the case, we
-				 * want to make sure those ad codes are only registered with the tag. 
+				 * want to make sure those ad codes are only registered with the tag.
 				 */
 				if ( isset( $default_tag['enable_ui_mapping'] ) && $default_tag['tag'] != $ad_code['url_vars']['tag'] )
 					continue;
@@ -836,6 +836,14 @@ class Ad_Code_Manager {
 	 * @param string  $tag_id Unique ID for the ad tag
 	 */
 	function action_acm_tag( $tag_id ) {
+		/**
+		 * See http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
+		 *
+		 * Configuration filter: acm_disable_ad_rendering
+		 * Should be boolean, defaulting to disabling ads on previews
+		 */
+		if ( apply_filters(  'acm_disable_ad_rendering',  is_preview() ) )
+			return;
 
 		$code_to_display = $this->get_matching_ad_code( $tag_id );
 
