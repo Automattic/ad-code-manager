@@ -1,6 +1,7 @@
 <?php
 
 class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
+	public $crawler_user_agent = 'Mediapartners-Google';
 
 	public function __construct() {
 

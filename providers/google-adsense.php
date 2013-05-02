@@ -3,6 +3,7 @@
  * Google AdSense Ad Provider for Ad Code manager
  */
 class Google_AdSense_ACM_Provider extends ACM_Provider {
+	public $crawler_user_agent = 'Mediapartners-Google';
 
 	/**
 	 * Register default options for Google AdSense

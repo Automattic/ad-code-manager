@@ -18,6 +18,7 @@ class ACM_Provider {
 	public $output_tokens = array();
 	public $ad_tag_ids;
 	public $ad_code_args = array();
+	public $crawler_user_agent;
 	function __construct() {
 		if ( empty( $this->ad_code_args ) ) {
 			// This is not actual data, but rather format:
@@ -39,6 +40,37 @@ class ACM_Provider {
 		// @see Ad_Code_Manager::action_acm_tag()
 		if ( empty( $this->output_html ) ) {
 			$this->output_html = '<script type="text/javascript" src="%url%"></script>';
+		}
+
+		if ( ! empty( $this->crawler_user_agent ) ) {
+			$should_do_robotstxt = apply_filters( 'acm_should_do_robotstxt', true, $this );
+
+			if ( true === $should_do_robotstxt )
+				add_action( 'do_robotstxt', array( $this, 'action_do_robotstxt' ), 10 );
+		}
+	}
+
+	public function action_do_robotstxt() {
+		$public = get_option( 'blog_public' );
+
+		$disallowed = array();
+
+		if ( '0' == $public ) {
+			$disallowed[] = '/';
+		} else {
+			$disallowed[] = '';
+		}
+
+		$disallowed = apply_filters( 'acm_robotstxt_disallow', $disallowed, $this );
+
+		// If we have no disallows to add, don't add anything (including User-agent)
+		if ( ! is_array( $disallowed ) || empty( $disallowed ) )
+			return;
+
+		echo 'User-agent: ' . $this->crawler_user_agent . PHP_EOL;
+
+		foreach ( $disallowed as $disallow ) {
+			echo 'Disallow: ' . $disallow . PHP_EOL;
 		}
 	}
 }

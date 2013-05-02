@@ -3,7 +3,7 @@ Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, au
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
 Tested up to: 3.6-beta1
-Stable tag: 0.4.1
+Stable tag: 0.4.2
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
@@ -55,6 +55,9 @@ Incorporated a new provider for Google AdSense and added bulk delete action for 
 Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
 
 == Changelog ==
+
+= 0.4.2 (May. 1, 2013) =
+* Added robots.txt entries for provider's crawlers
 
 = 0.4.1 (Apr. 27, 2013) =
 * Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
