@@ -72,5 +72,7 @@ class ACM_Provider {
 		foreach ( $disallowed as $disallow ) {
 			echo 'Disallow: ' . $disallow . PHP_EOL;
 		}
+
+		echo PHP_EOL;
 	}
 }
