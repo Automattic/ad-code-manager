@@ -886,9 +886,17 @@ class Ad_Code_Manager {
 	 * @since 0.4
 	 */
 	public function get_matching_ad_code( $tag_id ) {
+		global $wp_query;
 		// If there aren't any ad codes, it's not worth it for us to do anything.
 		if ( !isset( $this->ad_codes[$tag_id] ) )
 			return;
+
+		// This method might be expensive when there's a lot of ad codes
+		// So instead of executing over and over again, return cached matching ad code
+		$cache_key = "acm:{$tag_id}:" . md5( implode( ',', $wp_query->query_vars ) );
+
+		if ( false !== $ad_code = wp_cache_get( $cache_key, 'acm' ) )
+			return $ad_code;
 
 		// Run our ad codes through all of the conditionals to make sure we should
 		// be displaying it
@@ -989,6 +997,8 @@ class Ad_Code_Manager {
 		}
 		ksort( $prioritized_display_codes, SORT_NUMERIC );
 		$code_to_display = array_shift( array_shift( $prioritized_display_codes ) );
+
+		wp_cache_add( $cache_key, $code_to_display, 'acm', 600 );
 
 		return $code_to_display;
 	}
