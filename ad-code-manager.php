@@ -893,7 +893,7 @@ class Ad_Code_Manager {
 
 		// This method might be expensive when there's a lot of ad codes
 		// So instead of executing over and over again, return cached matching ad code
-		$cache_key = "acm:{$tag_id}:" . md5( implode( ',', $wp_query->query_vars ) );
+		$cache_key = "acm:{$tag_id}:" . md5( serialize( $wp_query->query_vars ) );
 
 		if ( false !== $ad_code = wp_cache_get( $cache_key, 'acm' ) )
 			return $ad_code;
