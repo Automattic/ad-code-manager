@@ -834,8 +834,9 @@ class Ad_Code_Manager {
 	 * @uses do_action( 'acm_tag, 'your_tag_id' )
 	 *
 	 * @param string  $tag_id Unique ID for the ad tag
+	 * @param bool $echo whether to echo or return ( defaults to echo )
 	 */
-	function action_acm_tag( $tag_id ) {
+	function action_acm_tag( $tag_id, $echo = true ) {
 		/**
 		 * See http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
 		 *
@@ -876,8 +877,11 @@ class Ad_Code_Manager {
 		 */
 		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
 
-		// Print the ad code
-		echo $output_html;
+		if ( $echo )
+			// Print the ad code
+			echo $output_html;
+		else
+			return $output_html;
 	}
 
 	/**
@@ -1067,7 +1071,7 @@ class Ad_Code_Manager {
 		if ( empty( $id ) )
 			return;
 
-		$this->action_acm_tag( $id );
+		return $this->action_acm_tag( $id, false );
 	}
 
 }
