@@ -97,7 +97,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns() {
+	function get_columns( $columns = null ) {
 		$columns = array(
 			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
