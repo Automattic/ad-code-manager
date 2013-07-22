@@ -168,11 +168,11 @@ googletag.cmd.push(function() {
 				global $wp_query;
 				$post_id = $wp_query->post->ID;
 				$args = array( 'fields' => 'names' );
-				$post_tags = wp_get_post_tags( $post_id, $args );
-				$post_tags = implode( "','", $post_tags );
-				$post_categories = wp_get_post_categories( $post_id, $args );
-				$post_categories = implode( "','", $post_categories );
-				$keyword_targeting = ".setTargeting('kw',['$post_tags','$post_categories'])";
+				$post_tags = wp_get_post_tags( $post_id, $args ); // get tag names
+				$post_categories = wp_get_post_categories( $post_id, $args ); // get category names
+				$post_keywords_arr = array_unique( array_merge( $post_tags, $post_categories ) ); // remove dupes and merge
+				$post_keywords = implode( "','", $post_keywords_arr ); // make keyword list for JS
+				$keyword_targeting = ".setTargeting('kw',['$post_keywords'])";
 			}
 			/**
 			 * Get extra parameters for targeting through DFP
