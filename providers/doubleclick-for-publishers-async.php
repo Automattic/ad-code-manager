@@ -139,26 +139,6 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		switch ( $tag_id ) {
 		case 'dfp_head':
 			$ad_tags = $ad_code_manager->ad_tag_ids;
-			ob_start();
-?>
-	<!-- Include google_services.js -->
-<script type='text/javascript'>
-var googletag = googletag || {};
-googletag.cmd = googletag.cmd || [];
-(function() {
-var gads = document.createElement('script');
-gads.async = true;
-gads.type = 'text/javascript';
-var useSSL = 'https:' == document.location.protocol;
-gads.src = (useSSL ? 'https:' : 'http:') +
-'//www.googletagservices.com/tag/js/gpt.js';
-var node = document.getElementsByTagName('script')[0];
-node.parentNode.insertBefore(gads, node);
-})();
-</script>
-<script type='text/javascript'>
-googletag.cmd.push(function() {
-<?php
 
 			/**
 			 * Get keywords for targeting through DFP
@@ -186,6 +166,26 @@ googletag.cmd.push(function() {
 
 			$targeting_string = $keyword_targeting . $title_targeting . $paths_targeting . $fullpath_targeting . $domain_targeting;
 
+			ob_start();
+?>
+	<!-- Include google_services.js -->
+<script type='text/javascript'>
+var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function() {
+var gads = document.createElement('script');
+gads.async = true;
+gads.type = 'text/javascript';
+var useSSL = 'https:' == document.location.protocol;
+gads.src = (useSSL ? 'https:' : 'http:') +
+'//www.googletagservices.com/tag/js/gpt.js';
+var node = document.getElementsByTagName('script')[0];
+node.parentNode.insertBefore(gads, node);
+})();
+</script>
+<script type='text/javascript'>
+googletag.cmd.push(function() {
+<?php
 			foreach ( (array) $ad_tags as $tag ):
 				if ( $tag['tag'] == 'dfp_head' )
 					continue;
