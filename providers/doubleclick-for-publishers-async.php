@@ -140,31 +140,8 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		case 'dfp_head':
 			$ad_tags = $ad_code_manager->ad_tag_ids;
 
-			/**
-			 * Get keywords for targeting through DFP
-			 */
-			$keyword_targeting = '';
-			if ( is_single() ) {
-				global $wp_query;
-				$post_id = $wp_query->post->ID;
-				$args = array( 'fields' => 'names' );
-				$post_tags = wp_get_post_tags( $post_id, $args ); // get tag names
-				$post_categories = wp_get_post_categories( $post_id, $args ); // get category names
-				$post_keywords_arr = array_unique( array_merge( $post_tags, $post_categories ) ); // remove dupes and merge
-				$post_keywords = implode( "','", $post_keywords_arr ); // make keyword list for JS
-				$keyword_targeting = ".setTargeting('kw',['$post_keywords'])";
-			}
-			/**
-			 * Get extra parameters for targeting through DFP
-			 */
-			$title_targeting = ".setTargeting('title','" . esc_js( get_the_title( $post_id ) ) . "')";
-			$paths_targeting = ".setTargeting('targetPaths','" . $_SERVER['REQUEST_URI'] . "')";
-			$fullpath_targeting = ".setTargeting('fullPath','" . get_option( 'siteurl' ) . $_SERVER['REQUEST_URI'] . "')";
-			$domain_parts = parse_url( get_option( 'siteurl' ) );
-			$domain_name = $domain_parts['host'];
-			$domain_targeting = ".setTargeting('domainName','" . $domain_name . "')";
-
-			$targeting_string = $keyword_targeting . $title_targeting . $paths_targeting . $fullpath_targeting . $domain_targeting;
+			// Allow users to set targeting parameters
+			$set_targeting = apply_filters( 'acm_add_set_targets', '' );
 
 			ob_start();
 ?>
@@ -197,7 +174,7 @@ googletag.cmd.push(function() {
 					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
 					// that tags are unique				
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $targeting_string; ?>;
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $set_targeting; ?>;
 <?php
 				}
 			endforeach;
