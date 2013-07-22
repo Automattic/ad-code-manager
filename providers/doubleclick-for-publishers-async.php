@@ -163,16 +163,35 @@ googletag.cmd.push(function() {
 				if ( $tag['tag'] == 'dfp_head' )
 					continue;
 
+				/**
+				 * Get keywords for targeting through DFP
+				 */
+				$keyword_targeting = '';
+				if ( is_single() ) {
+					global $wp_query;
+					$post_id = $wp_query->post->ID;
+					$args = array( 'fields' => 'names' );
+					$post_tags = wp_get_post_tags( $post_id, $args );
+					$post_tags = "['" . implode( "','", $post_tags ) . "']";
+					$keyword_targeting = ".setTargeting('kw',$post_tags)";
+				}
+				/**
+				 * Get extra parameters for targeting through DFP
+				 */
+				$title_targeting = ".setTargeting('title','" . get_the_title( $post_id ) . "')";
+				$paths_targeting = ".setTargeting('targetPaths','" . $_SERVER['REQUEST_URI'] . "')";
+				$fullpath_targeting = ".setTargeting('fullPath','" . get_option('siteurl') . $_SERVER['REQUEST_URI'] . "')";
+
 				$tt = $tag['url_vars'];
-			$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
-			if ( ! empty( $matching_ad_code ) ) {
-				// @todo There might be a case when there are two tags registered with the same dimensions
-				// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
-				// that tags are unique
+				$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
+				if ( ! empty( $matching_ad_code ) ) {
+					// @todo There might be a case when there are two tags registered with the same dimensions
+					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
+					// that tags are unique				
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $keyword_targeting . $title_targeting . $paths_targeting . $fullpath_targeting ?>;
 <?php
-			}
+				}
 			endforeach;
 ?>
 googletag.pubads().enableSingleRequest();
