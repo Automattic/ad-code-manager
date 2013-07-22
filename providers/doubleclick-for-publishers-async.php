@@ -169,8 +169,10 @@ googletag.cmd.push(function() {
 				$post_id = $wp_query->post->ID;
 				$args = array( 'fields' => 'names' );
 				$post_tags = wp_get_post_tags( $post_id, $args );
-				$post_tags = "['" . implode( "','", $post_tags ) . "']";
-				$keyword_targeting = ".setTargeting('kw',$post_tags)";
+				$post_tags = implode( "','", $post_tags );
+				$post_categories = wp_get_post_categories( $post_id, $args );
+				$post_categories = implode( "','", $post_categories );
+				$keyword_targeting = ".setTargeting('kw',['$post_tags','$post_categories'])";
 			}
 			/**
 			 * Get extra parameters for targeting through DFP
@@ -178,7 +180,7 @@ googletag.cmd.push(function() {
 			$title_targeting = ".setTargeting('title','" . get_the_title( $post_id ) . "')";
 			$paths_targeting = ".setTargeting('targetPaths','" . $_SERVER['REQUEST_URI'] . "')";
 			$fullpath_targeting = ".setTargeting('fullPath','" . get_option('siteurl') . $_SERVER['REQUEST_URI'] . "')";
-				
+
 			foreach ( (array) $ad_tags as $tag ):
 				if ( $tag['tag'] == 'dfp_head' )
 					continue;
