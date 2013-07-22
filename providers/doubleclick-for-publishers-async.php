@@ -177,9 +177,14 @@ googletag.cmd.push(function() {
 			/**
 			 * Get extra parameters for targeting through DFP
 			 */
-			$title_targeting = ".setTargeting('title','" . get_the_title( $post_id ) . "')";
+			$title_targeting = ".setTargeting('title','" . esc_js( get_the_title( $post_id ) ) . "')";
 			$paths_targeting = ".setTargeting('targetPaths','" . $_SERVER['REQUEST_URI'] . "')";
-			$fullpath_targeting = ".setTargeting('fullPath','" . get_option('siteurl') . $_SERVER['REQUEST_URI'] . "')";
+			$fullpath_targeting = ".setTargeting('fullPath','" . get_option( 'siteurl' ) . $_SERVER['REQUEST_URI'] . "')";
+			$domain_parts = parse_url( get_option( 'siteurl' ) );
+			$domain_name = $domain_parts['host'];
+			$domain_targeting = ".setTargeting('domainName','" . $domain_name . "')";
+
+			$targeting_string = $keyword_targeting . $title_targeting . $paths_targeting . $fullpath_targeting . $domain_targeting;
 
 			foreach ( (array) $ad_tags as $tag ):
 				if ( $tag['tag'] == 'dfp_head' )
@@ -192,7 +197,7 @@ googletag.cmd.push(function() {
 					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
 					// that tags are unique				
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $keyword_targeting . $title_targeting . $paths_targeting . $fullpath_targeting ?>;
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $targeting_string; ?>;
 <?php
 				}
 			endforeach;
