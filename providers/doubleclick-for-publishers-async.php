@@ -174,20 +174,11 @@ googletag.cmd.push(function() {
 					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
 					// that tags are unique	
 
-					/**
-					* Get unit size as array of widths x heights in case of flex spaces
-					*/
-					$unit_sizes_output = '';
-					if ( ! empty( $tt['sizes'] ) ) {
-						foreach( $tt['sizes'] as $unit_size ) {
-							$unit_sizes_output .= '[' . (int)$unit_size['width'] . ',' . (int)$unit_size['height'] . '],';
-						}
-						$unit_sizes_output = trim( $unit_sizes_output, ',' );
-					} else { // fallback for old style width x height
-						$unit_sizes_output = (int)$tt['width'] . ',' . (int)$tt['height'];
-					}
+					// Get unit size as array of widths x heights in case of flex spaces					
+					$unit_sizes = $ad_code_manager->parse_ad_tag_sizes( $tt );
+
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo $unit_sizes_output; ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $set_targeting; ?>;
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo $unit_sizes; ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $set_targeting; ?>;
 <?php
 				}
 			endforeach;

@@ -1074,6 +1074,27 @@ class Ad_Code_Manager {
 		return $this->action_acm_tag( $id, false );
 	}
 
+	/**
+	 * Allow ad sizes to be defined as arrays or as basic width x height.
+	 * The purpose of this is to solve for flex spaces, where multiple ad
+	 * sizes may be required to load in the same ad unit
+	 */
+	function parse_ad_tag_sizes( $url_vars ) {
+		if ( empty( $url_vars ) ) 
+			return;
+
+		$unit_sizes_output = '';
+		if ( ! empty( $url_vars['sizes'] ) ) {
+			foreach( $url_vars['sizes'] as $unit_size ) {
+				$unit_sizes_output .= '[' . (int)$unit_size['width'] . ',' . (int)$unit_size['height'] . '],';
+			}
+			$unit_sizes_output = trim( $unit_sizes_output, ',' );
+		} else { // fallback for old style width x height
+			$unit_sizes_output = (int)$url_vars['width'] . ',' . (int)$url_vars['height'];
+		}
+		return $unit_sizes_output;
+	}
+
 }
 
 global $ad_code_manager;
