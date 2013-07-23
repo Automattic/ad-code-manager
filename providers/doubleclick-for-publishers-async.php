@@ -214,11 +214,12 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 
 	/**
 	 * Format setTargeting string
-	 * @param  array  $params_array [description]
-	 * @return string               [description]
+	 * @param  array  $params_array Key value pair you'd like to target. Example: ["title"]=>"Your post's title"
+	 * @return string               The targeting string to append to slot definition
 	 */
 	function format_targeting_string( $params_array = array() ) {
 		$ret = '';
+		var_dump($params_array);
 		// Iterate over array of key value pairs and format a string
 		foreach( (array) $params_array as $key => $value ) {
 			if ( ! empty( $key ) && ! empty( $value ) ) {
