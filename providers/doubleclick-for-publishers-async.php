@@ -141,8 +141,11 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 			$ad_tags = $ad_code_manager->ad_tag_ids;
 
 			// Allow users to set targeting parameters
+			$targeting_string = '';
 			$targeting_params_array = apply_filters( 'acm_targeting_params', array() );
-			$targeting_string = $this->format_targeting_string( $targeting_params_array );
+			if ( ! empty( $targeting_params_array ) ) {
+				$targeting_string = $this->format_targeting_string( $targeting_params_array );
+			}
 
 			ob_start();
 ?>
@@ -175,7 +178,7 @@ googletag.cmd.push(function() {
 					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
 					// that tags are unique				
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $set_targeting; ?>;
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $targeting_string; ?>;
 <?php
 				}
 			endforeach;
@@ -216,10 +219,11 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 	 */
 	function format_targeting_string( $params_array = array() ) {
 		$ret = '';
-		var_dump($params_array);
 		// Iterate over array of key value pairs and format a string
 		foreach( (array) $params_array as $key => $value ) {
-			echo "$key is $value";
+			if ( ! empty( $key ) && ! empty( $value ) ) {
+				$ret .= ".setTargeting('" . esc_js( $key ) ."','" . esc_js( $value ) . "')";
+			}
 		}
  
 		return $ret;
