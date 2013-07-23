@@ -141,7 +141,8 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 			$ad_tags = $ad_code_manager->ad_tag_ids;
 
 			// Allow users to set targeting parameters
-			$set_targeting = apply_filters( 'acm_add_set_targets', '' );
+			$targeting_params_array = apply_filters( 'acm_targeting_params', array() );
+			$targeting_string = $this->format_targeting_string( $targeting_params_array );
 
 			ob_start();
 ?>
@@ -206,6 +207,22 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 	 */
 	public function action_wp_head() {
 		do_action( 'acm_tag', 'dfp_head' );
+	}
+
+	/**
+	 * Format setTargeting string
+	 * @param  array  $params_array [description]
+	 * @return string               [description]
+	 */
+	function format_targeting_string( $params_array = array() ) {
+		$ret = '';
+		var_dump($params_array);
+		// Iterate over array of key value pairs and format a string
+		foreach( (array) $params_array as $key => $value ) {
+			echo "$key is $value";
+		}
+ 
+		return $ret;
 	}
 
 }
