@@ -139,10 +139,6 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		switch ( $tag_id ) {
 		case 'dfp_head':
 			$ad_tags = $ad_code_manager->ad_tag_ids;
-
-			// Allow users to set targeting parameters
-			$set_targeting = apply_filters( 'acm_add_set_targets', '' );
-
 			ob_start();
 ?>
 	<!-- Include google_services.js -->

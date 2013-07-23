@@ -1076,8 +1076,8 @@ class Ad_Code_Manager {
 
 	/**
 	 * Allow ad sizes to be defined as arrays or as basic width x height.
-	 * The purpose of this is to solve for flex spaces, where multiple ad
-	 * sizes may be required to load in the same ad unit
+	 * The purpose of this is to solve for flex units, where multiple ad
+	 * sizes may be required to load in the same ad unit.
 	 */
 	function parse_ad_tag_sizes( $url_vars ) {
 		if ( empty( $url_vars ) ) 
