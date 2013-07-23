@@ -170,7 +170,7 @@ googletag.cmd.push(function() {
 					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
 					// that tags are unique	
 
-					// Get unit size as array of widths x heights in case of flex spaces					
+					// Parse ad tags to output flexible unit dimensions
 					$unit_sizes = $ad_code_manager->parse_ad_tag_sizes( $tt );
 
 ?>
