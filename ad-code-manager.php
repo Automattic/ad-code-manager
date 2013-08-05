@@ -943,7 +943,7 @@ class Ad_Code_Manager {
 				}
 
 				// Special trick: include '!' in front of the function name to reverse the result
-				if ( 4 === strpos( $cond_func, 'not_' ) ) {
+				if ( 0 === strpos( $cond_func, 'not_' ) ) {
 					$cond_func = ltrim( $cond_func, 'not_' );
 					$cond_result = false;
 				}
