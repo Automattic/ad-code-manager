@@ -1000,7 +1000,10 @@ class Ad_Code_Manager {
 			$prioritized_display_codes[$priority][] = $display_code;
 		}
 		ksort( $prioritized_display_codes, SORT_NUMERIC );
-		$code_to_display = array_shift( array_shift( $prioritized_display_codes ) );
+
+		$shifted_prioritized_display_codes = array_shift( $prioritized_display_codes );
+		
+		$code_to_display = array_shift( $shifted_prioritized_display_codes );
 
 		wp_cache_add( $cache_key, $code_to_display, 'acm', 600 );
 
