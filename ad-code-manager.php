@@ -902,6 +902,18 @@ class Ad_Code_Manager {
 		if ( false !== $ad_code = wp_cache_get( $cache_key, 'acm' ) )
 			return $ad_code;
 
+		/**
+		 * Prevent $post polution if ad code is getting rendered inside a loop:
+		 *
+		 * Most of conditionals are getting checked against global $post,
+		 * Getting matched ad code inside the loop might result in wrong ad code matched.
+		 *
+		 * Filter is for back compat since not thoroughly tested
+		 */
+		if ( apply_filters( 'acm_reset_postdata_before_match', false ) ) {
+			wp_reset_postdata();
+		}
+
 		// Run our ad codes through all of the conditionals to make sure we should
 		// be displaying it
 		$display_codes = array();
