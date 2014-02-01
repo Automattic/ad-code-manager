@@ -33,7 +33,7 @@ msgid "Name"
 msgstr ""
 
 #: common/lib/acm-widget.php:14
-msgid "Display an Ad Code Manger ad zone within a widget area"
+msgid "Display an Ad Code Manager ad zone within a widget area"
 msgstr ""
 
 #: common/lib/acm-widget.php:16
