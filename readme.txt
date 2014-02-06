@@ -58,6 +58,7 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 = 0.4.3 (??? ?? ????) =
 * Added robots.txt entries for provider's crawlers
+* New Italian translation courtesy of [sniperwolf](https://github.com/sniperwolf)
 
 = 0.4.1 (Apr. 27, 2013) =
 * Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
