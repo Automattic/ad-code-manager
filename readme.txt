@@ -58,6 +58,7 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 = 0.4.3 (??? ?? ????) =
 * Added robots.txt entries for provider's crawlers
+* Bug fix: Prevent global `$post` polution if ad code is getting rendered inside a loop
 * New Italian translation courtesy of [sniperwolf](https://github.com/sniperwolf)
 
 = 0.4.1 (Apr. 27, 2013) =
