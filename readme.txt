@@ -1,18 +1,13 @@
-# Ad Code Manager #
-
+=== Ad Code Manager ===
 Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo
-
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
-
 Requires at least: 3.1
-
 Tested up to: 3.6-beta3
-
 Stable tag: 0.4.2
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
-## Description ##
+== Description ==
 
 Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.
 
@@ -24,7 +19,7 @@ Once this configuration is in place, the Ad Code Manager admin interface will al
 
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
-## Installation ##
+== Installation ==
 
 Since the plugin is in its early stages, there are a couple additional configuration steps:
 
@@ -34,7 +29,7 @@ Since the plugin is in its early stages, there are a couple additional configura
 1. Implement filters to make the plugin work with your provider
 1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
 
-## Screenshots ##
+== Screenshots ==
 
 1. The ACM admin interface before adding ad codes.
 1. Adding an ad code with a site name, zone, and multiple conditionals.
@@ -42,71 +37,59 @@ Since the plugin is in its early stages, there are a couple additional configura
 1. Edit existing ad codes inline through the admin interface.
 1. Example of ad tag in use in a theme header template.
 
-## Upgrade Notice ##
+== Upgrade Notice ==
 
-### 0.4 ###
-
+= 0.4 =
 Easier, streamlined configuration for Doubleclick for Publishers Async and Google AdSense.
 
-### 0.3 ###
-
+= 0.3 =
 Conditional operator logic can be set on an ad code by ad code basis. Couple of bug fixes.
 
-### 0.2.3 ###
-
+= 0.2.3 =
 The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
 
-### 0.2.2 ###
-
+= 0.2.2 =
 Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
 
-### 0.2.1 ###
-
+= 0.2.1 =
 Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
 
-## Changelog ##
+== Changelog ==
 
-### 0.4.2 (May. 1, 2013) ###
-
+= 0.4.2 (May. 1, 2013) =
 * Added robots.txt entries for provider's crawlers
 
-### 0.4.1 (Apr. 27, 2013) ###
-
+= 0.4.1 (Apr. 27, 2013) =
 * Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
 * Bug fix: Corrected "medium rectangle" ad size for DFP Async Provider. Thanks [Marco](https://github.com/NRG-R9T)
 
-### 0.4 (Mar. 19, 2013) ###
-
+= 0.4 (Mar. 19, 2013) =
 * Streamlined configuration for Doubleclick for Publishers Async and Google AdSense
 * Faster, cleaner JavaScript thanks to [Jeremy Felt](https://github.com/jeremyfelt) and [Carl Danley](https://github.com/carldanley)
 * New filter 'acm_output_html_after_tokens_processed' for rare cases where you might want to filter html after the tokens are processed
 
-### 0.3 (October 25, 2012) ###
-
+= 0.3 (October 25, 2012) =
 * Conditional operator logic can be set on an ad code by ad code basis. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request!
 * Bug fix: If an ad tag doesn't need a URL, ignore the whitelist check
 * Bug fix: Make sure that all providers list tables call parent::get_columns to avoid conflicts with filters.
 * Coding standards cleanup
 
-### 0.2.3 (June 25,2012) ###
+= 0.2.3 (June 25,2012) =
 
 * Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
 * Remove acm_provider_columns filter
 
-### 0.2.2 (June 5, 2012) ###
-
+= 0.2.2 (June 5, 2012) =
 * New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
 * Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
 * New 'acm_register_provider_slug' for registering a provider that's included outside the plugin (e.g. a theme)
 * Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
 
-### 0.2.1 (May 14, 2012) ###
-
+= 0.2.1 (May 14, 2012) =
 * Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
 * Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
 
-### 0.2 (May 7, 2012) ###
-
+= 0.2 (May 7, 2012) =
 * UI reworked from the ground up to look and work much more like the WordPress admin (using WP List Table)
 * Abstracted ad network logic, so users can integrate other ad networks. Pull requests to add support to the plugin are always welcome
 * Added in-plugin contextual help
@@ -118,43 +101,38 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 * Bug fix: Setting the logical operator from OR to AND did not seem to result in the expected behaviour for displaying ads
 * Bug fix: Remove logical operator check when a conditional for an ad code is empty
 
-### 0.1.3 (February 13, 2012) ###
-
+= 0.1.3 (February 13, 2012) =
 * UI cleanup for the admin, including styling and information on applying conditionals
 
-### 0.1.2 (February 9, 2012) ###
-
+= 0.1.2 (February 9, 2012) =
 * Readme with full description and examples
 * Bug fix: Save the proper value when editing actions
 
-### 0.1.1 ###
-
+= 0.1.1 =
 * Bug fix release
 
-### 0.1 ###
-
+= 0.1 =
 * Initial release
 
-## Configuration Filters ##
+== Configuration Filters ==
 
 There are some filters which allow you to easily customize the output of the plugin. You should place these filters in your theme's functions.php file or in another appropriate place.
 
 [Check out this gist](https://gist.github.com/1631131) to see all of the filters in action.
 
-### acm_ad_tag_ids ###
+= acm_ad_tag_ids =
 
 Ad tag ids are used as a parameter when adding tags to your theme (e.g. do_action( 'acm_tag', 'my_top_leaderboard' )). The `url_vars` defined as part of each tag here will also be used to replace tokens in your default URL.
-
+ 
 Arguments:
+* array $tag_ids array of default tag ids
 
-* array `$tag_ids` array of default tag ids
-
-Example usage: Add a new ad tag called `my_top_leaderboard`
+Example usage: Add a new ad tag called 'my_top_leaderboard'
 
 	`add_filter( 'acm_ad_tag_ids', 'my_acm_ad_tag_ids' );
 	function my_acm_ad_tag_ids( $tag_ids ) {
 		$tag_ids[] = array(
-			'tag' => 'my_top_leaderboard', // tag_id
+			'tag' => 'my_top_leaderboard', // tag_id 
 			'url_vars' => array(
 				'sz' => '728x90', // %sz% token
 				'fold' => 'atf', // %fold% token
@@ -164,13 +142,12 @@ Example usage: Add a new ad tag called `my_top_leaderboard`
 		return $tag_ids;
 	}`
 
-### acm_default_url ###
+= acm_default_url =
 
 Set the default tokenized URL used when displaying your ad tags. This filter is required.
 
 Arguments:
-
-* string `$url` The tokenized url of Ad Code
+* string $url The tokenized url of Ad Code
 
 Example usage: Set your default ad code URL
 
@@ -181,16 +158,15 @@ Example usage: Set your default ad code URL
 		}
 	}`
 
-### acm_output_html ###
+= acm_output_html =
 
-The HTML outputted by the `do_action( 'acm_tag', 'ad_tag_id' );` call in your theme. Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags ) by adjusting the HTML rendered for a given ad tag.
+The HTML outputted by the `do_action( 'acm_tag', 'ad_tag_id' );` call in your theme. Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags ) by adjusting the HTML rendered for a given ad tag. 
 
 The `%url%` token used in this HTML will be filled in with the URL defined with `acm_default_url`.
 
 Arguments:
-
-* string `$output_html` The original output HTML
-* string `$tag_id` Ad tag currently being accessed
+* string $output_html The original output HTML
+* string $tag_id Ad tag currently being accessed
 
 Example usage:
 
@@ -209,34 +185,32 @@ Example usage:
 		return $output_html;
 	}`
 
-### acm_register_provider_slug ###
+= acm_register_provider_slug =
 
 Ad Code Manager has a built in list of providers that it gathers by scanning the 'providers' directory used by the plugin. Additional providers can be added by placing the appropriate files in that directory, or by using the `acm_register_provider_slug` filter to register those that may be included as part of your theme or another plugin.
 
 When using this plugin, you are defining the provider slug as part of the existing object as well as an array of classes associated with that provider slug.
 
 Arguments:
-
-* object `$providers` An object containing the current registered providers.
+* object $providers An object containing the current registered providers.
 
 Example usage:
 
 	`add_filter( 'acm_register_provider_slug', 'my_acm_register_provider_slug' );
 	function my_acm_register_provider_slug( $providers ) {
-		$providers->new_provider_slug = array(
-			'provider' => 'My_New_Ad_Company_ACM_Provider',
+		$providers->new_provider_slug = array( 
+			'provider' => 'My_New_Ad_Company_ACM_Provider', 
 			'table' => 'My_New_Ad_Company_ACM_WP_List_Table'
 		);
 		return $providers;
 	}`
 
-### acm_whitelisted_script_urls ###
+= acm_whitelisted_script_urls =
 
 A security filter to whitelist which ad code script URLs can be added in the admin
 
 Arguments:
-
-* array `$whitelisted_urls` Existing whitelisted ad code URLs
+* array $whitelisted_urls Existing whitelisted ad code URLs
 
 Example usage: Allow Doubleclick for Publishers ad codes to be used
 
@@ -246,15 +220,14 @@ Example usage: Allow Doubleclick for Publishers ad codes to be used
 		return $whitelisted_urls;
 	}`
 
-### acm_output_tokens ###
+= acm_output_tokens =
 
 Output tokens can be registered depending on the needs of your setup. Tokens defined here will be replaced in the ad tag's tokenized URL in addition to the tokens already registered with your tag id.
 
 Arguments:
-
-* array `$output_tokens` Any existing output tokens
-* string `$tag_id` Unique tag id
-* array `$code_to_display` Ad Code that matched conditionals
+* array $output_tokens Any existing output tokens
+* string $tag_id Unique tag id 
+* array $code_to_display Ad Code that matched conditionals
 
 Example usage: Test to determine whether you're in test or production by passing ?test=on query argument
 
@@ -264,13 +237,12 @@ Example usage: Test to determine whether you're in test or production by passing
 		return $output_tokens;
 	}`
 
-### acm_whitelisted_conditionals ###
+= acm_whitelisted_conditionals =
 
 Extend the list of usable conditional functions with your own awesome ones. We whitelist these so users can't execute random PHP functions.
 
-Arguments:
-
-* array `$conditionals` Default conditionals
+Arguments: 
+* array $conditionals Default conditionals
 
 Example usage: Register a few custom conditional callbacks
 
@@ -282,16 +254,15 @@ Example usage: Register a few custom conditional callbacks
 		return $conditionals;
 	}`
 
-### acm_conditional_args ###
+= acm_conditional_args =
 
-For certain conditionals (`has_tag`, `has_category`), you might need to pass additional arguments.
+For certain conditionals (has_tag, has_category), you might need to pass additional arguments.
 
 Arguments:
+* array $cond_args Existing conditional arguments
+* string $cond_func Conditional function (is_category, is_page, etc)
 
-* array `$cond_args` Existing conditional arguments
-* string `$cond_func` Conditional function (`is_category`, `is_page`, etc)
-
-Example usage: `has_category()` and `has_tag()` use `has_term()`, which requires the object ID to function properly
+Example usage: has_category() and has_tag() use has_term(), which requires the object ID to function properly
 
 	`add_filter( 'acm_conditional_args', 'my_acm_conditional_args', 10, 2 );
 	function my_acm_conditional_args( $cond_args, $cond_func ) {
@@ -307,23 +278,22 @@ Example usage: `has_category()` and `has_tag()` use `has_term()`, which requires
 		if ( in_array( $cond_func, array( 'my_page_is_child_of' ) ) && $wp_query->is_page ) {
 			$cond_args[] = $cond_args[] = $wp_query->queried_object->ID;
 		}
-
+	
 		return $cond_args;
 	}`
 
-### acm_display_ad_codes_without_conditionals ###
+= acm_display_ad_codes_without_conditionals =
 
 Change the behavior of Ad Code Manager so that ad codes without conditionals display on the frontend. The default behavior is that each ad code requires a conditional to be included in the presentation logic.
 
 Arguments:
-
-* bool `$behavior` Whether or not to display the ad codes that don't have conditionals
+* bool $behavior Whether or not to display the ad codes that don't have conditionals
 
 Example usage:
 
 	`add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );`
 
-### acm_provider_slug ###
+= acm_provider_slug =
 
 By default we use our bundled doubleclick_for_publishers config ( check it in /providers/doubleclick-for-publishers.php ). If you want to add your own flavor of DFP or even implement configuration for some another ad network, you'd have to apply a filter to correct the slug.
 
@@ -331,7 +301,7 @@ Example usage:
 
 	`add_filter( 'acm_provider_slug', function() { return 'my-ad-network-slug'; } );`
 
-### acm_logical_operator ###
+= acm_logical_operator =
 
 By default logical operator is set to "OR", that is, ad code will be displayed if at least one conditional returns true.
 You can change it to "AND", so that ad code will be displayed only if ALL of the conditionals match
@@ -340,7 +310,7 @@ Example usage:
 
 	`add_filter( 'acm_logical_operator', function() { return 'AND'; } );`
 
-### acm_manage_ads_cap ###
+= acm_manage_ads_cap =
 
 By default user has to have "manage_options" cap. This filter comes in handy, if you want to relax the requirements.
 
@@ -348,7 +318,7 @@ Example usage:
 
 	`add_filter( 'acm_manage_ads_cap', function( $cap ) { return 'edit_others_posts'; } );`
 
-### acm_allowed_get_posts_args ###
+= acm_allowed_get_posts_args =
 
 This filter is only for edge cases. Most likely you won't have to touch it. Allows to include additional query args for Ad_Code_Manager->get_ad_codes() method.
 
@@ -356,7 +326,7 @@ Example usage:
 
 	`add_filter( 'acm_allowed_get_posts_args', function( $args_array ) { return array( 'offset', 'exclude' ); } );`
 
-### acm_ad_code_count ###
+= acm_ad_code_count =
 
 By default the total number of ad codes to get is 50, which is reasonable for any small to mid site. However, in some certain cases you would want to increase the limit. This will affect Ad_Code_Manager->get_ad_codes() 'numberposts' query argument.
 
@@ -364,7 +334,7 @@ Example usage:
 
 	`add_filter( 'acm_ad_code_count', function( $total ) { return 100; } );`
 
-### acm_list_table_columns =###
+= acm_list_table_columns = 
 
 This filter can alter table columns that are displayed in ACM UI.
 
@@ -381,13 +351,10 @@ Example usage:
 		return $columns;
 	}`
 
-### acm_ad_code_args ###
+= acm_ad_code_args =
 
-This filter comes in pair with previous one, it should return array of ad network specific parameters.
-
-E.g. in `acm_list_table_columns` example we have `id`, `name`, `priority`, `conditionals`.
-All of them except name are generic for Ad Code Manager. Hence `acm_provider_columns` should return only "name".
-"editable" and "required" indicate whether this field should be editable and required.
+This filter comes in pair with previous one, it should return array of ad network specific parameters. E.g. in acm_list_table_columns example we have
+'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name". "editable" and "required" indicate whether this field should be editable and required.
 
 Example usage:
 
