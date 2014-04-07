@@ -962,7 +962,7 @@ class Ad_Code_Manager {
 
 				// Don't run the conditional if the conditional function doesn't exist or
 				// isn't in our whitelist
-				if ( !function_exists( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
+				if ( !is_callable( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
 					continue;
 
 				// Run our conditional and use any arguments that were passed
