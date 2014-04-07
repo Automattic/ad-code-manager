@@ -962,7 +962,7 @@ class Ad_Code_Manager {
 
 				// Don't run the conditional if the conditional function doesn't exist or
 				// isn't in our whitelist
-				if ( !is_callable( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
+				if ( !function_exists( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
 					continue;
 
 				// Run our conditional and use any arguments that were passed
@@ -1014,7 +1014,7 @@ class Ad_Code_Manager {
 		ksort( $prioritized_display_codes, SORT_NUMERIC );
 
 		$shifted_prioritized_display_codes = array_shift( $prioritized_display_codes );
-		
+
 		$code_to_display = array_shift( $shifted_prioritized_display_codes );
 
 		wp_cache_add( $cache_key, $code_to_display, 'acm', 600 );
