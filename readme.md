@@ -31,20 +31,20 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 ## Screenshots ##
 
-###1. The ACM admin interface before adding ad codes.###
-![The ACM admin interface before adding ad codes.](http://s.wordpress.org/plugins/ad-code-manager/screenshot-1.png)
+##### 1. The ACM admin interface before adding ad codes.###
+![The ACM admin interface before adding ad codes.](https://s.w.org/plugins/ad-code-manager/screenshot-1.jpg)
 
-###2. Adding an ad code with a site name, zone, and multiple conditionals.###
-![Adding an ad code with a site name, zone, and multiple conditionals.](http://s.wordpress.org/plugins/ad-code-manager/screenshot-2.png)
+##### 2. Adding an ad code with a site name, zone, and multiple conditionals.###
+![Adding an ad code with a site name, zone, and multiple conditionals.](https://s.w.org/plugins/ad-code-manager/screenshot-2.jpg)
 
-###3. Access the Help menu in the upper right for configuration assistance.###
-![Access the Help menu in the upper right for configuration assistance.](http://s.wordpress.org/plugins/ad-code-manager/screenshot-3.png)
+##### 3. Access the Help menu in the upper right for configuration assistance.###
+![Access the Help menu in the upper right for configuration assistance.](https://s.w.org/plugins/ad-code-manager/screenshot-3.jpg)
 
-###4. Edit existing ad codes inline through the admin interface.###
-![Edit existing ad codes inline through the admin interface.](http://s.wordpress.org/plugins/ad-code-manager/screenshot-4.png)
+##### 4. Edit existing ad codes inline through the admin interface.###
+![Edit existing ad codes inline through the admin interface.](https://s.w.org/plugins/ad-code-manager/screenshot-4.jpg)
 
-###5. Example of ad tag in use in a theme header template.###
-![Example of ad tag in use in a theme header template.](http://s.wordpress.org/plugins/ad-code-manager/screenshot-5.png)
+##### 5. Example of ad tag in use in a theme header template.###
+![Example of ad tag in use in a theme header template.](https://s.w.org/plugins/ad-code-manager/screenshot-5.jpg)
 
 
 ## Upgrade Notice ##
