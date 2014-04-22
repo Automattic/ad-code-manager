@@ -224,8 +224,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 			$column_id = 'acm-column[' . $slug . ']';
 			$output .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
 			// Support for select dropdowns
-			$ad_code_args = $ad_code_manager->current_provider->ad_code_args;
-			$ad_code_arg = array_shift( wp_filter_object_list( $ad_code_args, array( 'key' => $slug ) ) );
+			$ad_code_args = wp_filter_object_list( $ad_code_manager->current_provider->ad_code_args, array( 'key' => $slug ) );
+			$ad_code_arg = array_shift( $ad_code_args );
 			if ( isset( $ad_code_arg['type'] ) && 'select' == $ad_code_arg['type'] ) {
 				$output .= '<select name="' . esc_attr( $column_id ) . '">';
 				foreach ( $ad_code_arg['options'] as $key => $label ) {
