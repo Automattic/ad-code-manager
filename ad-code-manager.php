@@ -392,6 +392,8 @@ class Ad_Code_Manager {
 
 		$ad_codes_formatted = wp_cache_get( 'ad_codes' , 'acm' );
 		if ( false === $ad_codes_formatted ) {
+			// Store an empty array when no ad codes exist so this block doesn't run on each page load
+			$ad_codes_formatted = array();
 			$ad_codes = get_posts( $args );
 			foreach ( $ad_codes as $ad_code_cpt ) {
 				$provider_url_vars = array();
