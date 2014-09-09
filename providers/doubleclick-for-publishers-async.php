@@ -139,6 +139,14 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		switch ( $tag_id ) {
 		case 'dfp_head':
 			$ad_tags = $ad_code_manager->ad_tag_ids;
+
+			// Allow users to set targeting parameters
+			$targeting_string = '';
+			$targeting_params_array = apply_filters( 'acm_targeting_params', array() );
+			if ( ! empty( $targeting_params_array ) ) {
+				$targeting_string = $this->format_targeting_string( $targeting_params_array );
+			}
+
 			ob_start();
 ?>
 	<!-- Include google_services.js -->
@@ -164,15 +172,15 @@ googletag.cmd.push(function() {
 					continue;
 
 				$tt = $tag['url_vars'];
-			$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
-			if ( ! empty( $matching_ad_code ) ) {
-				// @todo There might be a case when there are two tags registered with the same dimensions
-				// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
-				// that tags are unique
+				$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
+				if ( ! empty( $matching_ad_code ) ) {
+					// @todo There might be a case when there are two tags registered with the same dimensions
+					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
+					// that tags are unique				
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads())<?php echo $targeting_string; ?>;
 <?php
-			}
+				}
 			endforeach;
 ?>
 googletag.pubads().enableSingleRequest();
@@ -202,6 +210,24 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 	 */
 	public function action_wp_head() {
 		do_action( 'acm_tag', 'dfp_head' );
+	}
+
+	/**
+	 * Format setTargeting string
+	 * @param  array  $params_array Key value pair you'd like to target. Example: ["title"]=>"Your post's title"
+	 * @return string               The targeting string to append to slot definition
+	 */
+	function format_targeting_string( $params_array = array() ) {
+		$ret = '';
+		var_dump($params_array);
+		// Iterate over array of key value pairs and format a string
+		foreach( (array) $params_array as $key => $value ) {
+			if ( ! empty( $key ) && ! empty( $value ) ) {
+				$ret .= ".setTargeting('" . esc_js( $key ) ."','" . esc_js( $value ) . "')";
+			}
+		}
+ 
+		return $ret;
 	}
 
 }
