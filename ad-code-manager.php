@@ -1037,7 +1037,9 @@ class Ad_Code_Manager {
 
 		foreach ( $code_to_display['url_vars'] as $url_var => $val ) {
 			$new_key = '%' . $url_var . '%';
-			$output_tokens[$new_key] = $val;
+			if ( is_string( $val ) ) {
+				$output_tokens[$new_key] = $val;
+			}
 		}
 
 		return $output_tokens;
