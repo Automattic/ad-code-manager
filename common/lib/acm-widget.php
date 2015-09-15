@@ -8,12 +8,12 @@
 class ACM_Ad_Zones extends WP_Widget {
 
 	// Process the new widget
-	function ACM_Ad_Zones() {
+	function __construct() {
 		$widget_ops = array(
 			'classname' => 'acm_ad_zones',
 			'description' => __( 'Display an Ad Code Manager ad zone within a widget area', 'ad-code-manager' ),
 		);
-		$this->WP_Widget( 'ACM_Ad_Zones', __( 'Ad Code Manager Ad Zone', 'ad-code-manager' ), $widget_ops );
+		parent::__construct( 'ACM_Ad_Zones', __( 'Ad Code Manager Ad Zone', 'ad-code-manager' ), $widget_ops );
 	}
 
 	// Build the widget settings form
