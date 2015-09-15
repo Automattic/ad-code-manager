@@ -174,7 +174,7 @@ googletag.cmd.push(function() {
 					$unit_sizes = $this->parse_ad_tag_sizes( $tt );
 
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo $unit_sizes; ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', <?php echo json_encode( $unit_sizes ); ?>, "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
 <?php
 				}
 			endforeach;
@@ -220,11 +220,16 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 		$unit_sizes_output = '';
 		if ( ! empty( $url_vars['sizes'] ) ) {
 			foreach( $url_vars['sizes'] as $unit_size ) {
-				$unit_sizes_output .= '[' . (int)$unit_size['width'] . ',' . (int)$unit_size['height'] . '],';
-			}
-			$unit_sizes_output = trim( $unit_sizes_output, ',' );
+				$unit_sizes_output[] = array(
+					(int) $unit_size['width'],
+					(int) $unit_size['height'],
+				);
+			}			
 		} else { // fallback for old style width x height
-			$unit_sizes_output = (int)$url_vars['width'] . ',' . (int)$url_vars['height'];
+			$unit_sizes_output = array(
+				(int) $url_vars['width'],
+				(int) $url_vars['height'],
+			);
 		}
 		return $unit_sizes_output;
 	}
