@@ -245,12 +245,11 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 			) );
 	}
 
-
 	/**
-	 * This is nuts and bolts of table representation
+	 * @return array The columns that shall be used
 	 */
-	function get_columns( $columns = null ) {
-		$columns = array(
+	function filter_columns() {
+		return array(
 			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
 			'tag'            => __( 'Tag', 'ad-code-manager' ),
@@ -261,7 +260,14 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
-		return parent::get_columns( $columns );
+	}
+
+	/**
+	 * This is nuts and bolts of table representation
+	 */
+	function get_columns() {
+		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
+		return parent::get_columns();
 	}
 
 	/**
