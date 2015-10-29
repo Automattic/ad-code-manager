@@ -956,7 +956,7 @@ class Ad_Code_Manager {
 					$cond_result = true;
 				}
 
-				// Special trick: include '!' in front of the function name to reverse the result
+				// Special trick: include 'not_' in front of the function name to reverse the result
 				if ( 0 === strpos( $cond_func, 'not_' ) ) {
 					$cond_func = ltrim( $cond_func, 'not_' );
 					$cond_result = false;
