@@ -118,10 +118,6 @@ class Markdown_Parser {
 		asort( $this->span_gamut );
 	}
 
-	function Markdown_Parser() {
-		self::__construct();
-	}
-
 	// Internal hashes used during transformation.
 	var $urls = array();
 	var $titles = array();
@@ -1575,10 +1571,6 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		);
 
 		parent::Markdown_Parser();
-	}
-
-	function MarkdownExtra_Parser() {
-		self::__construct();
 	}
 
 	// Extra variables used during extra transformations.
