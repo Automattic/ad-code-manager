@@ -135,9 +135,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function single_row( $item ) {
 		static $alternate_class = '';
 		$alternate_class = ( $alternate_class == '' ? ' alternate' : '' );
-		$row_class = ' class="term-static' . $alternate_class . '"';
+		$row_class = ' class="term-static' . esc_attr( $alternate_class ) . '"';
 
-		echo '<tr id="ad-code-' . $item['post_id'] . '"' . $row_class . '>';
+		echo '<tr id="ad-code-' . esc_attr( $item['post_id'] ) . '"' . $row_class . '>';
 		echo $this->single_row_columns( $item );
 		echo '</tr>';
 	}
@@ -181,7 +181,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function column_cb( $item ) {
 		$id = $item['post_id'];
-		$output = "<input type='checkbox' name='ad-codes[]' id='ad_code_{$id}' value='{$id}' />";
+		$output = "<input type='checkbox' name='ad-codes[]' id='ad_code_".esc_attr( $id )."' value='".esc_attr( $id )."' />";
 		return $output;
 	}
 
@@ -190,8 +190,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function column_id( $item ) {
 		global $ad_code_manager;
-		$output = '<div id="inline_' . $item['post_id'] . '" style="display:none;">';
-		$output .= '<div class="id">' . $item['post_id'] . '</div>';
+		$output = '<div id="inline_' . esc_attr( $item['post_id'] ) . '" style="display:none;">';
+		$output .= '<div class="id">' . esc_attr( $item['post_id'] ) . '</div>';
 		// Build the fields for the conditionals
 		$output .= '<div class="acm-conditional-fields"><div class="form-new-row">';
 		$output .= '<h4 class="acm-section-label">' . __( 'Conditionals', 'ad-code-manager' ) . '</h4>';
@@ -294,7 +294,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 		$output = '';
 		// $row_actions['preview-ad-code'] = '<a class="acm-ajax-preview" id="acm-preview-' . $item[ 'post_id' ] . '" href="#">' . __( 'Preview Ad Code', 'ad-code-manager' ) . '</a>';
-		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . $item[ 'post_id' ] . '" href="#">' . __( 'Edit Ad Code', 'ad-code-manager' ) . '</a>';
+		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . esc_attr( $item[ 'post_id' ] ) . '" href="#">' . __( 'Edit Ad Code', 'ad-code-manager' ) . '</a>';
 
 		$args = array(
 			'action' => 'acm_admin_action',
@@ -303,7 +303,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			'nonce' => wp_create_nonce( 'acm-admin-action' ),
 		);
 		$delete_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
-		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . $item[ 'post_id' ] . '" href="' . esc_url( $delete_link ) . '">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
+		$row_actions['delete'] = '<a class="acm-ajax-delete" id="acm-delete-' . esc_attr( $item[ 'post_id' ] ) . '" href="' . esc_url( $delete_link ) . '">' . __( 'Delete', 'ad-code-manager' ) . '</a>';
 
 		$output .= $this->row_actions( $row_actions );
 		return $output;
@@ -316,8 +316,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function inline_edit() {
 ?>
-	<form method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>"><table style="display: none"><tbody id="inlineedit">
-		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
+	<form method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"><table style="display: none"><tbody id="inlineedit">
+		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo intval( $this->get_column_count() ); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
 				<input type="hidden" name="id" value="" />
 				<input type="hidden" name="action" value="acm_admin_action" />
