@@ -56,7 +56,7 @@ if ( ! apply_filters( 'acm_provider_slug', false ) ) : ?>
 <div class="acm-global-options">
 	<h3><?php _e( 'Configuration', 'ad-code-manager' ); ?></h3>
 	<div class="form-wrap">
-	<form action="<?php echo admin_url( 'admin-ajax.php' ); ?>" method="post" name="updatesettings" id="updatesettings">
+	<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" name="updatesettings" id="updatesettings">
 	<div id="provider-field" class="form-field form-required">
 		<label for="provider"><?php _e( 'Select a provider:', 'ad-code-manager' ); ?></label>
 		<select name="provider" id="provider">
@@ -81,7 +81,7 @@ foreach ( $this->providers as $slug => $provider ) :
 </div>
 <?php endif; ?>
 <h3><?php _e( 'Add New Ad Code', 'ad-code-manager' ); ?></h3>
-<form id="add-adcode" method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="validate">
+<form id="add-adcode" method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" class="validate">
 <input type="hidden" name="action" value="acm_admin_action" />
 <input type="hidden" name="method" value="add" />
 <input type="hidden" name="priority" value="10" />
@@ -114,7 +114,7 @@ else : // field_type conditional
 ?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
-	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo $arg['required'] ?>">
+	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo esc_url( $arg['required'] ); ?>">
 </div>
 <?php
 	endif;
