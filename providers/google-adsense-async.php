@@ -13,7 +13,7 @@ class Google_AdSense_Async_ACM_Provider extends ACM_Provider {
 	 */
 	public function __construct() {
 		// Default output HTML
-		$this->output_html ='<div id="acm-ad-tag-%tag%"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+		$this->output_html ='<div id="acm-ad-tag-%tag%"><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <ins class="adsbygoogle"
 style="display:inline-block;width:%width%px;height:%height%px"
 data-ad-client="%publisher_id%";
