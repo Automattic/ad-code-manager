@@ -70,12 +70,12 @@ class ACM_Provider {
 			return;
 		}
 
-		echo esc_html( 'User-agent: ' . $this->crawler_user_agent . PHP_EOL );
+		echo 'User-agent: ' . esc_html( $this->crawler_user_agent ) . PHP_EOL;
 
 		foreach ( $disallowed as $disallow ) {
-			echo esc_html( 'Disallow: ' . $disallow . PHP_EOL );
+			echo 'Disallow: ' . esc_html( $disallow ) . PHP_EOL;
 		}
 
-		echo esc_html( PHP_EOL );
+		echo PHP_EOL;
 	}
 }
