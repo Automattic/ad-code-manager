@@ -2,7 +2,7 @@
 Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
-Tested up to: 4.5
+Tested up to: 4.8
 Stable tag: 0.5
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
