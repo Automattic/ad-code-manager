@@ -272,52 +272,52 @@ class Ad_Code_Manager {
 	 */
 	function handle_admin_action() {
 
-		if ( !wp_verify_nonce( $_REQUEST['nonce'], 'acm-admin-action' ) )
-			wp_die( __( 'Doing something fishy, eh?', 'ad-code-manager' ) );
+		if ( isset( $_REQUEST['nonce'] ) && ! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), 'acm-admin-action' ) ) // Input var okay.
+			wp_die( esc_html( __( 'Doing something fishy, eh?', 'ad-code-manager' ) ) );
 
 		if ( !current_user_can( $this->manage_ads_cap ) )
-			wp_die( __( 'You do not have the necessary permissions to perform this action', 'ad-code-manager' ) );
+			wp_die( esc_html( __( 'You do not have the necessary permissions to perform this action', 'ad-code-manager' ) ) );
 
 		// Depending on the method we're performing, sanitize the requisite data and do it
-		switch ( $_REQUEST['method'] ) {
+		switch ( sanitize_text_field( $_REQUEST['method'] ) ) { // Input var okay.
 		case 'add':
 		case 'edit':
-			$id = ( isset( $_REQUEST['id'] ) ) ? (int)$_REQUEST['id'] : 0;
-			$priority = ( isset( $_REQUEST['priority'] ) ) ? (int)$_REQUEST['priority'] : 10;
-			$operator = ( isset( $_REQUEST['operator'] ) && in_array( $_REQUEST['operator'], array( 'AND', 'OR' ) ) ) ? $_REQUEST['operator'] : $this->logical_operator;
+			$id = ( isset( $_REQUEST['id'] ) ) ? absint( $_REQUEST['id'] ) : 0; // Input var okay.
+			$priority = ( isset( $_REQUEST['priority'] ) ) ? absint( $_REQUEST['priority'] ) : 10; // Input var okay.
+			$operator = ( isset( $_REQUEST['operator'] ) && in_array( $_REQUEST['operator'], array( 'AND', 'OR' ) ) ) ? sanitize_text_field( $_REQUEST['operator'] ) : $this->logical_operator; // Input var okay.
 			$ad_code_vals = array(
 				'priority' => $priority,
 				'operator' => $operator,
 			);
 			foreach ( $this->current_provider->ad_code_args as $arg ) {
-				$ad_code_vals[$arg['key']] = sanitize_text_field( $_REQUEST['acm-column'][$arg['key']] );
+				$ad_code_vals[$arg['key']] = sanitize_text_field( $_REQUEST['acm-column'][$arg['key']] ); // Input var okay.
 			}
-			if ( $_REQUEST['method'] == 'add' )
+			if ( isset( $_REQUEST['method'] ) && 'add' == sanitize_text_field( $_REQUEST['method'] ) ) // Input var okay.
 				$id = $this->create_ad_code( $ad_code_vals );
 			else
 				$id = $this->edit_ad_code( $id, $ad_code_vals );
 			if ( is_wp_error( $id ) ) {
 				// We can die with an error if this is an edit/ajax request
 				if ( isset( $id->errors['edit-error'][0] ) )
-					die( '<div class="error">' . $id->errors['edit-error'][0] . '</div>' );
+					die( '<div class="error">' . esc_html( $id->errors['edit-error'][0] ) . '</div>' );
 				else
 					$message = 'error-adding-editing-ad-code';
 				break;
 			}
 			$new_conditionals = array();
-			$unsafe_conditionals = ( isset( $_REQUEST['acm-conditionals'] ) ) ? $_REQUEST['acm-conditionals'] : array();
+			$unsafe_conditionals = ( isset( $_REQUEST['acm-conditionals'] ) ) ? $_REQUEST['acm-conditionals'] : array(); // Input var okay.
 			foreach ( $unsafe_conditionals as $index => $unsafe_conditional ) {
 				$index = (int)$index;
-				$arguments = ( isset( $_REQUEST['acm-arguments'][$index] ) ) ? sanitize_text_field( $_REQUEST['acm-arguments'][$index] ) : '';
+				$arguments = ( isset( $_REQUEST['acm-arguments'][$index] ) ) ? sanitize_text_field( $_REQUEST['acm-arguments'][$index] ) : ''; // Input var okay.
 				$conditional = array(
 					'function' => sanitize_key( $unsafe_conditional ),
 					'arguments' => $arguments,
 				);
-				if ( !empty( $conditional['function'] ) ) {
+				if ( ! empty( $conditional['function'] ) ) {
 					$new_conditionals[] = $conditional;
 				}
 			}
-			if ( $_REQUEST['method'] == 'add' ) {
+			if ( isset( $_REQUEST['method'] ) && 'add' === sanitize_text_field( $_REQUEST['method'] ) ) { // Input var okay.
 				foreach ( $new_conditionals as $new_conditional ) {
 					$this->create_conditional( $id, $new_conditional );
 				}
@@ -329,7 +329,7 @@ class Ad_Code_Manager {
 			$this->flush_cache();
 			break;
 		case 'delete':
-			$id = (int)$_REQUEST['id'];
+			$id = absint( $_REQUEST['id'] );
 			$this->delete_ad_code( $id );
 			$this->flush_cache();
 			$message = 'ad-code-deleted';
@@ -345,8 +345,8 @@ class Ad_Code_Manager {
 			break;
 		}
 
-		if ( isset( $_REQUEST['doing_ajax'] ) && $_REQUEST['doing_ajax'] ) {
-			switch ( $_REQUEST['method'] ) {
+		if ( isset( $_REQUEST['doing_ajax'] ) && sanitize_text_field( $_REQUEST['doing_ajax'] ) ) { // Input var okay.
+			switch ( sanitize_text_field( $_REQUEST['method'] ) ) { // Input var okay.
 			case 'edit':
 				set_current_screen( 'ad-code-manager' );
 				$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
@@ -359,6 +359,7 @@ class Ad_Code_Manager {
 			// @todo support ajax and non-ajax requests
 			$redirect_url = add_query_arg( 'message', $message, remove_query_arg( 'message', wp_get_referer() ) );
 			wp_safe_redirect( $redirect_url );
+			exit();
 		}
 		exit;
 	}
@@ -614,7 +615,7 @@ class Ad_Code_Manager {
 		switch ( $this->wp_list_table->current_action() ) {
 		case 'delete':
 			check_admin_referer( 'acm-bulk-action', 'bulk-action-nonce' );
-			$ad_code_ids = array_map( 'intval', $_REQUEST['ad-codes'] );
+			$ad_code_ids = array_map( 'intval', sanitize_key( $_REQUEST['ad-codes'] ) ); // Input var okay.
 			foreach ( $ad_code_ids as $ad_code_id ) {
 				$this->delete_ad_code( $ad_code_id );
 			}
@@ -729,7 +730,7 @@ class Ad_Code_Manager {
 		global $pagenow;
 
 		// Only load this on the proper page
-		if ( 'tools.php' != $pagenow || !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
+		if ( 'tools.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
 		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . '/common/css/acm.css' );
@@ -1055,7 +1056,7 @@ class Ad_Code_Manager {
 		if ( empty( $url ) )
 			return true;
 
-		$domain = parse_url( $url, PHP_URL_HOST );
+		$domain = wp_parse_url( $url, PHP_URL_HOST );
 
 		// Check if we match the domain exactly
 		if ( in_array( $domain, $this->current_provider->whitelisted_script_urls ) )
