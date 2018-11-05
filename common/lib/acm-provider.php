@@ -67,10 +67,10 @@ class ACM_Provider {
 		if ( ! is_array( $disallowed ) || empty( $disallowed ) )
 			return;
 
-		echo 'User-agent: ' . $this->crawler_user_agent . PHP_EOL;
+		echo esc_textarea( 'User-agent: ' . $this->crawler_user_agent . PHP_EOL );
 
 		foreach ( $disallowed as $disallow ) {
-			echo 'Disallow: ' . $disallow . PHP_EOL;
+			echo esc_textarea( 'Disallow: ' . $disallow . PHP_EOL );
 		}
 
 		echo PHP_EOL;

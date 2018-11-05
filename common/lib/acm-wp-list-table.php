@@ -124,7 +124,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @since 0.2
 	 */
 	function no_items() {
-		_e( 'No ad codes have been configured.', 'ad-code-manager' );
+		esc_html_e( 'No ad codes have been configured.', 'ad-code-manager' );
 	}
 
 	/**
@@ -137,7 +137,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$alternate_class = ( $alternate_class == '' ? ' alternate' : '' );
 		$row_class = ' class="term-static' . $alternate_class . '"';
 
-		echo '<tr id="ad-code-' . $item['post_id'] . '"' . $row_class . '>';
+		echo '<tr id="ad-code-' . esc_attr( $item['post_id'] . '"' . $row_class ) . '>';
 		echo $this->single_row_columns( $item );
 		echo '</tr>';
 	}
@@ -316,8 +316,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function inline_edit() {
 ?>
-	<form method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>"><table style="display: none"><tbody id="inlineedit">
-		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
+	<form method="POST" action="<?php echo esc_attr( admin_url( 'admin-ajax.php' ) ); ?>"><table style="display: none"><tbody id="inlineedit">
+		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo esc_attr( $this->get_column_count() ); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
 				<input type="hidden" name="id" value="" />
 				<input type="hidden" name="action" value="acm_admin_action" />
