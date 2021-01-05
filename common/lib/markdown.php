@@ -1785,7 +1785,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			//
 			// Check for: Code span marker
 			//
-			if ( $tag{0} == "`" ) {
+			if ( $tag[0] == "`" ) {
 				// Find corresponding end marker.
 				$tag_re = preg_quote( $tag );
 				if ( preg_match( '{^(?>.+?|\n(?!\n))*?(?<!`)'.$tag_re.'(?!`)}',
@@ -1819,7 +1819,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 			//
 			// Check for: Indented code block.
 			//
-			else if ( $tag{0} == "\n" || $tag{0} == " " ) {
+			else if ( $tag[0] == "\n" || $tag[0] == " " ) {
 				// Indented code block: pass it unchanged, will be handled
 				// later.
 				$parsed .= $tag;
@@ -1968,7 +1968,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 				// first character as filtered to prevent an infinite loop in the
 				// parent function.
 				//
-				return array( $original_text{0}, substr( $original_text, 1 ) );
+				return array( $original_text[0], substr( $original_text, 1 ) );
 			}
 
 			$block_text .= $parts[0]; // Text before current tag.
@@ -2114,7 +2114,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	function _doHeaders_callback_setext( $matches ) {
 		if ( $matches[3] == '-' && preg_match( '{^- }', $matches[1] ) )
 			return $matches[0];
-		$level = $matches[3]{0} == '=' ? 1 : 2;
+		$level = $matches[3][0] == '=' ? 1 : 2;
 		$attr  = $this->_doHeaders_attr( $id =& $matches[2] );
 		$block = "<h$level$attr>".$this->runSpanGamut( $matches[1] )."</h$level>";
 		return "\n" . $this->hashBlock( $block ) . "\n\n";
