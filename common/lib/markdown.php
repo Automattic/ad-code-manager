@@ -1864,7 +1864,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 					// Increase/decrease nested tag count.
 					//
 					if ( $tag[1] == '/' )      $depth--;
-					else if ( $tag{strlen( $tag )-2} != '/' ) $depth++;
+					else if ( $tag[strlen( $tag )-2] != '/' ) $depth++;
 
 					if ( $depth < 0 ) {
 						//
@@ -1991,7 +1991,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 				//
 				if ( preg_match( '{^</?'.$base_tag_name_re.'\b}', $tag ) ) {
 					if ( $tag[1] == '/' )      $depth--;
-					else if ( $tag{strlen( $tag )-2} != '/' ) $depth++;
+					else if ( $tag[strlen( $tag )-2] != '/' ) $depth++;
 				}
 
 				//
