@@ -1437,7 +1437,7 @@ class Markdown_Parser {
 		//
 		switch ( $token[0] ) {
 		case "\\":
-			return $this->hashPart( "&#". ord($token[1]). ";" );
+			return $this->hashPart( "&#". ord( $token[1] ). ";" );
 		case "`":
 			// Search for end marker in remaining text.
 			if ( preg_match( '/^(.*?[^`])'.preg_quote( $token ).'(?!`)(.*)$/sm',
@@ -1503,7 +1503,7 @@ class Markdown_Parser {
 		// regular expression.
 		//
 		if ( function_exists( $this->utf8_strlen ) ) return;
-		$this->utf8_strlen = function ( $text ) {
+		$this->utf8_strlen = function( $text ) {
 			return preg_match_all(
 				"/[\\x00-\\xBF]|[\\xC0-\\xFF][\\x80-\\xBF]*/",
 				$text, $m
