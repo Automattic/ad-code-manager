@@ -27,23 +27,23 @@ class ACM_Ad_Zones extends WP_Widget {
 		$zone = $instance['ad_zone'];
 		global $ad_code_manager;
 ?>
-			<p><label>Title: <input class="widefat" name="<?php echo $this->get_field_name( 'title' ); ?>"  type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
+			<p><label>Title: <input class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"  type="text" value="<?php echo esc_attr( $title ); ?>" /></label></p>
 
 			<p>
 			<?php if ( !empty( $ad_code_manager->ad_codes ) ): ?>
-			<label for="<?php echo $this->get_field_id( 'ad_zone' ); ?>">Choose Ad Zone</label>
-			<select id="<?php echo $this->get_field_id( 'ad_zone' ); ?>" name="<?php echo $this->get_field_name( 'ad_zone' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'ad_zone' ) ); ?>">Choose Ad Zone</label>
+			<select id="<?php echo esc_attr( $this->get_field_id( 'ad_zone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'ad_zone' ) ); ?>">
 				<?php
 		foreach ( $ad_code_manager->ad_codes as $key => $value ) {
 ?>
-					<option value="<?php echo $key; ?>" <?php selected( $key, $zone ); ?>><?php echo $key; ?></option>
+					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $key, $zone ); ?>><?php echo esc_html( $key ); ?></option>
 					<?php
 		}
 ?>
 			</select>
 			<?php else: ?>
 			<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'tools.php' ) ); ?>
-			<span class="description"><?php echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), $create_url ); ?></span>
+			<span class="description"><?php echo wp_kses( sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), $create_url ), [ 'a' => [ 'href' => true ] ] ); ?></span>
 			<?php endif; ?>
 			</p>
 
@@ -61,13 +61,15 @@ class ACM_Ad_Zones extends WP_Widget {
 	// Display the widget
 	function widget( $args, $instance ) {
 		extract( $args );
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $before_widget;
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( !empty( $title ) ) {
-			echo $before_title . $title . $after_title;
+			echo $before_title . esc_html( $title ) . $after_title;
 		}
 		do_action( 'acm_tag', $instance['ad_zone'] );
 		echo $after_widget;
+		// phpcs:enable
 	}
 }

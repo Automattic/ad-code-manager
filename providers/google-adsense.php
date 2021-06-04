@@ -193,4 +193,3 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 		return $output;
 	}
 }
-?>

@@ -272,14 +272,16 @@ class Ad_Code_Manager {
 	 */
 	function handle_admin_action() {
 
-		if ( !wp_verify_nonce( $_REQUEST['nonce'], 'acm-admin-action' ) )
-			wp_die( __( 'Doing something fishy, eh?', 'ad-code-manager' ) );
+		if ( ! isset( $_REQUEST['nonce'] ) || !wp_verify_nonce( $_REQUEST['nonce'], 'acm-admin-action' ) )
+			wp_die( esc_html__( 'Doing something fishy, eh?', 'ad-code-manager' ) );
 
 		if ( !current_user_can( $this->manage_ads_cap ) )
-			wp_die( __( 'You do not have the necessary permissions to perform this action', 'ad-code-manager' ) );
+			wp_die( esc_html__( 'You do not have the necessary permissions to perform this action', 'ad-code-manager' ) );
+
+		$method = isset( $_REQUEST['method'] ) ? $_REQUEST['method'] : '';
 
 		// Depending on the method we're performing, sanitize the requisite data and do it
-		switch ( $_REQUEST['method'] ) {
+		switch ( $method ) {
 		case 'add':
 		case 'edit':
 			$id = ( isset( $_REQUEST['id'] ) ) ? (int)$_REQUEST['id'] : 0;
@@ -290,16 +292,16 @@ class Ad_Code_Manager {
 				'operator' => $operator,
 			);
 			foreach ( $this->current_provider->ad_code_args as $arg ) {
-				$ad_code_vals[$arg['key']] = sanitize_text_field( $_REQUEST['acm-column'][$arg['key']] );
+				$ad_code_vals[$arg['key']] = sanitize_text_field( isset( $_REQUEST['acm-column'][$arg['key']] ) ? $_REQUEST['acm-column'][$arg['key']] : '' );
 			}
-			if ( $_REQUEST['method'] == 'add' )
+			if ( $method == 'add' )
 				$id = $this->create_ad_code( $ad_code_vals );
 			else
 				$id = $this->edit_ad_code( $id, $ad_code_vals );
 			if ( is_wp_error( $id ) ) {
 				// We can die with an error if this is an edit/ajax request
 				if ( isset( $id->errors['edit-error'][0] ) )
-					die( '<div class="error">' . $id->errors['edit-error'][0] . '</div>' );
+					die( '<div class="error">' . esc_html( $id->errors['edit-error'][0] ) . '</div>' );
 				else
 					$message = 'error-adding-editing-ad-code';
 				break;
@@ -317,7 +319,7 @@ class Ad_Code_Manager {
 					$new_conditionals[] = $conditional;
 				}
 			}
-			if ( $_REQUEST['method'] == 'add' ) {
+			if ( $method == 'add' ) {
 				foreach ( $new_conditionals as $new_conditional ) {
 					$this->create_conditional( $id, $new_conditional );
 				}
@@ -346,12 +348,13 @@ class Ad_Code_Manager {
 		}
 
 		if ( isset( $_REQUEST['doing_ajax'] ) && $_REQUEST['doing_ajax'] ) {
-			switch ( $_REQUEST['method'] ) {
+			switch ( $method ) {
 			case 'edit':
 				set_current_screen( 'ad-code-manager' );
 				$this->wp_list_table = new $this->providers->{$this->current_provider_slug}['table'];
 				$this->wp_list_table->prepare_items();
 				$new_ad_code = $this->get_ad_code( $id );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- escaped in function
 				echo $this->wp_list_table->single_row( $new_ad_code );
 				break;
 			}
@@ -359,6 +362,7 @@ class Ad_Code_Manager {
 			// @todo support ajax and non-ajax requests
 			$redirect_url = add_query_arg( 'message', $message, remove_query_arg( 'message', wp_get_referer() ) );
 			wp_safe_redirect( $redirect_url );
+			exit; // satisfy phpcs
 		}
 		exit;
 	}
@@ -459,6 +463,7 @@ class Ad_Code_Manager {
 	 * Flush cache
 	 */
 	function flush_cache() {
+		echo 'hello';
 		wp_cache_delete( 'ad_codes', 'acm' );
 	}
 
@@ -614,7 +619,7 @@ class Ad_Code_Manager {
 		switch ( $this->wp_list_table->current_action() ) {
 		case 'delete':
 			check_admin_referer( 'acm-bulk-action', 'bulk-action-nonce' );
-			$ad_code_ids = array_map( 'intval', $_REQUEST['ad-codes'] );
+			$ad_code_ids = array_map( 'intval', ( isset( $_REQUEST['ad-codes'] ) ? $_REQUEST['ad-codes'] : [] ) );
 			foreach ( $ad_code_ids as $ad_code_id ) {
 				$this->delete_ad_code( $ad_code_id );
 			}
@@ -633,9 +638,7 @@ class Ad_Code_Manager {
 	}
 
 	function parse_readme_into_contextual_help() {
-		ob_start();
-		include_once AD_CODE_MANAGER_ROOT . '/readme.txt';
-		$readme = ob_get_clean();
+		$readme = file_get_contents( AD_CODE_MANAGER_ROOT . '/readme.txt' );
 		$sections = preg_split( "/==(.*)==/", $readme );
 		// Something's wrong with readme, fail silently
 		if ( 5 > count( $sections ) )
@@ -881,6 +884,7 @@ class Ad_Code_Manager {
 
 		if ( $echo )
 			// Print the ad code
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			echo $output_html;
 		else
 			return $output_html;

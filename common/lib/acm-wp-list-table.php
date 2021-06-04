@@ -135,9 +135,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 	function single_row( $item ) {
 		static $alternate_class = '';
 		$alternate_class = ( $alternate_class == '' ? ' alternate' : '' );
-		$row_class = ' class="term-static' . $alternate_class . '"';
 
-		echo '<tr id="ad-code-' . $item['post_id'] . '"' . $row_class . '>';
+		echo '<tr id="ad-code-' . esc_attr( $item['post_id'] ) . '" class="term-static' . esc_attr( $row_class ) . '">';
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo $this->single_row_columns( $item );
 		echo '</tr>';
 	}
@@ -228,7 +228,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			if ( isset( $ad_code_arg['type'] ) && 'select' == $ad_code_arg['type'] ) {
 				$output .= '<select name="' . esc_attr( $column_id ) . '">';
 				foreach ( $ad_code_arg['options'] as $key => $label ) {
-					$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_attr( $label ) . '</option>';
+					$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_html( $label ) . '</option>';
 				}
 				$output .= '</select>';
 			} else {
@@ -251,7 +251,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			'AND'    => __( 'AND', 'ad-code-manager' ),
 		);
 		foreach ( $operators as $key => $label ) {
-			$output .= '<option ' . selected( $item['operator'], $key ) . '>' . esc_attr( $label ) . '</option>';
+			$output .= '<option ' . selected( $item['operator'], $key ) . '>' . esc_html( $label ) . '</option>';
 		}
 		$output .= '</select>';
 		$output .= '</div>';
@@ -316,8 +316,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function inline_edit() {
 ?>
-	<form method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>"><table style="display: none"><tbody id="inlineedit">
-		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo $this->get_column_count(); ?>" class="colspanchange">
+	<form method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"><table style="display: none"><tbody id="inlineedit">
+		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo (int) $this->get_column_count(); ?>" class="colspanchange">
 			<fieldset><div class="inline-edit-col">
 				<input type="hidden" name="id" value="" />
 				<input type="hidden" name="action" value="acm_admin_action" />

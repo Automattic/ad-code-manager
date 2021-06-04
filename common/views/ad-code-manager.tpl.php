@@ -56,9 +56,9 @@ if ( ! apply_filters( 'acm_provider_slug', false ) ) : ?>
 <div class="acm-global-options">
 	<h3><?php _e( 'Configuration', 'ad-code-manager' ); ?></h3>
 	<div class="form-wrap">
-	<form action="<?php echo admin_url( 'admin-ajax.php' ); ?>" method="post" name="updatesettings" id="updatesettings">
+	<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" name="updatesettings" id="updatesettings">
 	<div id="provider-field" class="form-field form-required">
-		<label for="provider"><?php _e( 'Select a provider:', 'ad-code-manager' ); ?></label>
+		<label for="provider"><?php esc_html_e( 'Select a provider:', 'ad-code-manager' ); ?></label>
 		<select name="provider" id="provider">
 		<?php $current_provider = $this->get_option( 'provider' );
 foreach ( $this->providers as $slug => $provider ) :
@@ -81,7 +81,7 @@ foreach ( $this->providers as $slug => $provider ) :
 </div>
 <?php endif; ?>
 <h3><?php _e( 'Add New Ad Code', 'ad-code-manager' ); ?></h3>
-<form id="add-adcode" method="POST" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" class="validate">
+<form id="add-adcode" method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" class="validate">
 <input type="hidden" name="action" value="acm_admin_action" />
 <input type="hidden" name="method" value="add" />
 <input type="hidden" name="priority" value="10" />
@@ -102,8 +102,8 @@ foreach ( $this->current_provider->ad_code_args as $arg ):
 if ( isset( $arg['type'] ) && 'select' == $arg['type'] ) :
 ?>
 <div class="form-field form-required">
-	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
-	<select name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" aria-required="<?php echo $arg['required'] ?>">
+	<label for="<?php echo esc_attr( $column_id ); ?>"><?php echo esc_html( $arg['label'] ); ?></label>
+	<select name="<?php echo esc_attr( $column_id ); ?>" id="<?php echo esc_attr( $column_id ); ?>" aria-required="<?php echo esc_attr( $arg['required'] ); ?>">
 		<?php foreach ( $arg['options'] as $value => $label ) : ?>
 		<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 		<?php endforeach; ?>
@@ -113,8 +113,8 @@ if ( isset( $arg['type'] ) && 'select' == $arg['type'] ) :
 else : // field_type conditional
 ?>
 <div class="form-field form-required">
-	<label for="<?php echo esc_attr( $column_id ) ?>"><?php echo esc_html( $arg['label'] ) ?></label>
-	<input name="<?php echo esc_attr( $column_id ) ?>" id="<?php echo esc_attr( $column_id ) ?>" type="text" value="" size="40" aria-required="<?php echo $arg['required'] ?>">
+	<label for="<?php echo esc_attr( $column_id ); ?>"><?php echo esc_html( $arg['label'] ); ?></label>
+	<input name="<?php echo esc_attr( $column_id ); ?>" id="<?php echo esc_attr( $column_id ); ?>" type="text" value="" size="40" aria-required="<?php echo esc_attr( $arg['required'] ); ?>">
 </div>
 <?php
 	endif;
@@ -126,11 +126,11 @@ endforeach;
 	<div class="conditional-single-field" id="conditional-single-field-master">
 	<div class="conditional-function">
 	<select name="acm-conditionals[]">
-<option value=""><?php _e( 'Select conditional', 'ad-code-manager' ); ?></option>
+<option value=""><?php esc_html_e( 'Select conditional', 'ad-code-manager' ); ?></option>
 <?php
 foreach ( $this->whitelisted_conditionals as $key ):
 ?>
-<option value="<?php echo esc_attr( $key ) ?>"><?php echo esc_html( ucfirst( str_replace( '_', ' ', $key ) ) ) ?></option>
+<option value="<?php echo esc_attr( $key ); ?>"><?php echo esc_html( ucfirst( str_replace( '_', ' ', $key ) ) ); ?></option>
 <?php endforeach; ?>
 	</select>
 	</div>

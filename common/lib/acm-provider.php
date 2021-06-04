@@ -67,11 +67,13 @@ class ACM_Provider {
 		if ( ! is_array( $disallowed ) || empty( $disallowed ) )
 			return;
 
+		// phpcs:disable WordPress.Security.EscapeOutput.OutputNotEscaped
 		echo 'User-agent: ' . $this->crawler_user_agent . PHP_EOL;
 
 		foreach ( $disallowed as $disallow ) {
 			echo 'Disallow: ' . $disallow . PHP_EOL;
 		}
+		// phpcs:enable
 
 		echo PHP_EOL;
 	}
