@@ -168,7 +168,7 @@ googletag.cmd.push(function() {
 				if ( ! empty( $matching_ad_code ) ) {
 					// @todo There might be a case when there are two tags registered with the same dimensions
 					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
-					// that tags are unique	
+					// that tags are unique
 
 					// Parse ad tags to output flexible unit dimensions
 					$unit_sizes = $this->parse_ad_tag_sizes( $tt );
@@ -214,17 +214,17 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 	 * sizes may be required to load in the same ad unit.
 	 */
 	public function parse_ad_tag_sizes( $url_vars ) {
-		if ( empty( $url_vars ) ) 
+		if ( empty( $url_vars ) )
 			return;
 
-		$unit_sizes_output = '';
+		$unit_sizes_output = array();
 		if ( ! empty( $url_vars['sizes'] ) ) {
 			foreach( $url_vars['sizes'] as $unit_size ) {
 				$unit_sizes_output[] = array(
 					(int) $unit_size['width'],
 					(int) $unit_size['height'],
 				);
-			}			
+			}
 		} else { // fallback for old style width x height
 			$unit_sizes_output = array(
 				(int) $url_vars['width'],
