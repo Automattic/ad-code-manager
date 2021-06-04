@@ -1,4 +1,6 @@
 .svn
 wpcom-helper.php
-
 .DS_Store
+.vscode/
+composer.lock
+vendor/
