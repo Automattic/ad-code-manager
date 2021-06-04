@@ -6,8 +6,8 @@
 class AdCodeManager_TestCase extends WP_UnitTestCase {
 	public function setUp() {
 		parent::setUp();
-
-		global $ad_code_manager;
-		$this->_toc = $ad_code_manager;
+		$this->acm = $GLOBALS['ad_code_manager'];
+		$this->acm->action_load_providers();
+		$this->acm->action_init();
 	}
 }
