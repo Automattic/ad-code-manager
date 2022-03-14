@@ -4,6 +4,8 @@ Stable tag: 0.5
 Requires at least: 3.1  
 Tested up to: 5.0  
 Requires PHP: 5.0  
+License: GPLv2 or later  
+License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers  
 Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo
 
@@ -47,89 +49,6 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 5. Example of ad tag in use in a theme header template.
    ![Example of ad tag in use in a theme header template.](.wordpress-org/screenshot-5.jpg)
-
-## Upgrade Notice
-
-### 0.5
-DFP Async provider now supports multiple sizes. [Check out this snippet to see implementation](http://pastie.org/10422227)
-
-### 0.4
-Easier, streamlined configuration for Doubleclick for Publishers Async and Google AdSense.
-
-### 0.3
-Conditional operator logic can be set on an ad code by ad code basis. Couple of bug fixes.
-
-### 0.2.3
-The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
-
-### 0.2.2
-Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
-
-### 0.2.1
-Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
-
-## Changelog
-
-### 0.5 (Sep 15, 2015)
-* Added support for flex sized DFP Async ads (see upgrade notice)
-* Added robots.txt entries for provider's crawlers
-* Bug fix: Prevent global `$post` polution if ad code is getting rendered inside a loop
-* New Italian translation courtesy of [sniperwolf](https://github.com/sniperwolf)
-* Using PHP5 constructs when initializing the widget
-
-### 0.4.1 (Apr. 27, 2013)
-* Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
-* Bug fix: Corrected "medium rectangle" ad size for DFP Async Provider. Thanks [Marco](https://github.com/NRG-R9T)
-
-### 0.4 (Mar. 19, 2013)
-* Streamlined configuration for Doubleclick for Publishers Async and Google AdSense
-* Faster, cleaner JavaScript thanks to [Jeremy Felt](https://github.com/jeremyfelt) and [Carl Danley](https://github.com/carldanley)
-* New filter 'acm_output_html_after_tokens_processed' for rare cases where you might want to filter html after the tokens are processed
-
-### 0.3 (October 25, 2012)
-* Conditional operator logic can be set on an ad code by ad code basis. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request!
-* Bug fix: If an ad tag doesn't need a URL, ignore the whitelist check
-* Bug fix: Make sure that all providers list tables call parent::get_columns to avoid conflicts with filters.
-* Coding standards cleanup
-
-### 0.2.3 (June 25,2012)
-* Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
-* Remove acm_provider_columns filter
-
-### 0.2.2 (June 5, 2012)
-* New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
-* Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
-* New 'acm_register_provider_slug' for registering a provider that's included outside the plugin (e.g. a theme)
-* Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
-
-### 0.2.1 (May 14, 2012)
-* Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
-* Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
-
-### 0.2 (May 7, 2012)
-* UI reworked from the ground up to look and work much more like the WordPress admin (using WP List Table)
-* Abstracted ad network logic, so users can integrate other ad networks. Pull requests to add support to the plugin are always welcome
-* Added in-plugin contextual help
-* Implemented priority for ad code (allows to workaround ad code conflicts if any)
-* Implemented the [acm-tag] shortcode
-* Implemented ACM Widget. Thanks to [Justin Sternburg](https://github.com/jtsternberg) at WebDevStudios for the contribution
-* Initial loading of the ad codes is now cached using object cache
-* Bug fix: Enable using ad codes with empty filters using a filter
-* Bug fix: Setting the logical operator from OR to AND did not seem to result in the expected behaviour for displaying ads
-* Bug fix: Remove logical operator check when a conditional for an ad code is empty
-
-### 0.1.3 (February 13, 2012)
-* UI cleanup for the admin, including styling and information on applying conditionals
-
-### 0.1.2 (February 9, 2012)
-* Readme with full description and examples
-* Bug fix: Save the proper value when editing actions
-
-### 0.1.1
-* Bug fix release
-
-### 0.1
-* Initial release
 
 ## Configure Ad Code Manager to manage the advertisements on your site
 
@@ -263,7 +182,7 @@ function acmx_ad_tags_ids( $ad_tag_ids ) {
 
 add_filter( 'acm_output_html','acmx_filter_output_html', 5, 2 );
 /**
- * Register the full `<script>` output to use with each ad tag.
+ * Register the full script output to use with each ad tag.
  */
 function acmx_filter_output_html( $output_html, $tag_id ) {
 	$output_html = '<!-- DFP %pos% %sz% ad tag --> 
@@ -292,18 +211,18 @@ function acmx_filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) 
 	
 	// We can't really rely on get_permalink() so use $_SERVER['REQUEST_URI] as bulletproof solution for generating unique pids
 	$link = strlen( $_SERVER['REQUEST_URI'] ) > 1 ? sanitize_key( $_SERVER['REQUEST_URI'] ) : home_url();
-	$output_tokens['%permalink%'] = str_replace( array( '/',':', '.' ), ", $link ); 
-	$output_tokens['%random%'] = $dfp_ord;
-	$output_tokens['%tile%'] = ++$dfp_tile;
+	$output_tokens['%permalink%'] = str_replace( array( '/',':', '.' ), '', $link ); 
+	$output_tokens['%random%']    = $dfp_ord;
+	$output_tokens['%tile%']      = ++$dfp_tile;
 	if (  false === $dfp_pos[ $code_to_display['url_vars']['sz'] ] ) {
-		$output_tokens['%pos%'] = 'top';
+		$output_tokens['%pos%']                        = 'top';
 		$dfp_pos[ $code_to_display['url_vars']['sz'] ] = true;
 	} else {
 		$output_tokens['%pos%'] = 'bottom';
 	}
 	if ( ! $dfp_dcopt ) {
 		$output_tokens['%dcopt%'] = 'ist';
-		$dfp_dcopt = true;
+		$dfp_dcopt                = true;
 	} else {
 		$output_tokens['%dcopt%'] = '';
 	}
@@ -333,10 +252,10 @@ Example usage: Add a new ad tag called 'my_top_leaderboard'
 add_filter( 'acm_ad_tag_ids', 'my_acm_ad_tag_ids' );
 function my_acm_ad_tag_ids( $tag_ids ) {
 	$tag_ids[] = array(
-		'tag' => 'my_top_leaderboard', // tag_id
+		'tag'      => 'my_top_leaderboard', // tag_id
 		'url_vars' => array(
-			'sz' => '728x90', // %sz% token
-			'fold' => 'atf', // %fold% token
+			'sz'              => '728x90', // %sz% token
+			'fold'            => 'atf', // %fold% token
 			'my_custom_token' => 'something' // %my_custom_token% will be replaced with 'something'
 		),
 	);
@@ -356,7 +275,7 @@ Example usage: Set your default ad code URL
 ~~~php
 add_filter( 'acm_default_url', 'my_acm_default_url' );
 function my_acm_default_url( $url ) {
-	if ( 0 === strlen( $url )  ) {
+	if ( 0 === strlen( $url ) ) {
 		return "http://ad.doubleclick.net/adj/%site_name%/%zone1%;s1=%zone1%;s2=;pid=%permalink%;fold=%fold%;kw=;test=%test%;ltv=ad;pos=%pos%;dcopt=%dcopt%;tile=%tile%;sz=%sz%;";
 	}
 }
@@ -407,8 +326,9 @@ add_filter( 'acm_register_provider_slug', 'my_acm_register_provider_slug' );
 function my_acm_register_provider_slug( $providers ) {
 	$providers->new_provider_slug = array(
 		'provider' => 'My_New_Ad_Company_ACM_Provider',
-		'table' => 'My_New_Ad_Company_ACM_WP_List_Table'
+		'table'    => 'My_New_Ad_Company_ACM_WP_List_Table'
 	);
+
 	return $providers;
 }
 ~~~
@@ -464,6 +384,7 @@ function my_acm_safelisted_conditionals( $conditionals ) {
 	$conditionals[] = 'my_is_post_type';
 	$conditionals[] = 'is_post_type_archive';
 	$conditionals[] = 'my_page_is_child_of';
+
 	return $conditionals;
 }
 ~~~
@@ -482,13 +403,13 @@ Example usage: `has_category()` and `has_tag()` use `has_term()`, which requires
 add_filter( 'acm_conditional_args', 'my_acm_conditional_args', 10, 2 );
 function my_acm_conditional_args( $cond_args, $cond_func ) {
 	global $wp_query;
+
 	// The `has_category()` and `has_tag()` functions call the `has_term()` function.
 	// We should pass queried object id for it to produce correct result.
-	if ( in_array( $cond_func, array( 'has_category', 'has_tag' ) ) ) {
-		if ( $wp_query->is_single == true ) {
-			$cond_args[] = $wp_query->queried_object->ID;
-		}
+	if ( in_array( $cond_func, array( 'has_category', 'has_tag' ) ) && $wp_query->is_single == true ) {
+		$cond_args[] = $wp_query->queried_object->ID;
 	}
+
 	// my_page_is_child_of is our custom WP conditional tag and we have to pass queried object ID to it.
 	if ( in_array( $cond_func, array( 'my_page_is_child_of' ) ) && $wp_query->is_page ) {
 		$cond_args[] = $cond_args[] = $wp_query->queried_object->ID;
@@ -537,7 +458,7 @@ Example usage:
 add_filter(
 	'acm_logical_operator',
 	function() {
-	return 'AND';
+		return 'AND';
 	}
 );
 ~~~
@@ -630,3 +551,86 @@ function my_acm_ad_code_args( $args ) {
 	return $args;
 }
 ~~~
+
+## Upgrade Notice
+
+### 0.5
+DFP Async provider now supports multiple sizes. [Check out this snippet to see implementation](http://pastie.org/10422227)
+
+### 0.4
+Easier, streamlined configuration for Doubleclick for Publishers Async and Google AdSense.
+
+### 0.3
+Conditional operator logic can be set on an ad code by ad code basis. Couple of bug fixes.
+
+### 0.2.3
+The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
+
+### 0.2.2
+Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
+
+### 0.2.1
+Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
+
+## Changelog
+
+### 0.5 (Sep 15, 2015)
+* Added support for flex sized DFP Async ads (see upgrade notice)
+* Added robots.txt entries for provider's crawlers
+* Bug fix: Prevent global `$post` polution if ad code is getting rendered inside a loop
+* New Italian translation courtesy of [sniperwolf](https://github.com/sniperwolf)
+* Using PHP5 constructs when initializing the widget
+
+### 0.4.1 (Apr. 27, 2013)
+* Disabled rendering of ads on preview to avoid crawling errors. Thanks [Paul Gibbs](https://github.com/paulgibbs)
+* Bug fix: Corrected "medium rectangle" ad size for DFP Async Provider. Thanks [Marco](https://github.com/NRG-R9T)
+
+### 0.4 (Mar. 19, 2013)
+* Streamlined configuration for Doubleclick for Publishers Async and Google AdSense
+* Faster, cleaner JavaScript thanks to [Jeremy Felt](https://github.com/jeremyfelt) and [Carl Danley](https://github.com/carldanley)
+* New filter 'acm_output_html_after_tokens_processed' for rare cases where you might want to filter html after the tokens are processed
+
+### 0.3 (October 25, 2012)
+* Conditional operator logic can be set on an ad code by ad code basis. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request!
+* Bug fix: If an ad tag doesn't need a URL, ignore the whitelist check
+* Bug fix: Make sure that all providers list tables call parent::get_columns to avoid conflicts with filters.
+* Coding standards cleanup
+
+### 0.2.3 (June 25,2012)
+* Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
+* Remove acm_provider_columns filter
+
+### 0.2.2 (June 5, 2012)
+* New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
+* Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
+* New 'acm_register_provider_slug' for registering a provider that's included outside the plugin (e.g. a theme)
+* Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
+
+### 0.2.1 (May 14, 2012)
+* Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
+* Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
+
+### 0.2 (May 7, 2012)
+* UI reworked from the ground up to look and work much more like the WordPress admin (using WP List Table)
+* Abstracted ad network logic, so users can integrate other ad networks. Pull requests to add support to the plugin are always welcome
+* Added in-plugin contextual help
+* Implemented priority for ad code (allows to workaround ad code conflicts if any)
+* Implemented the [acm-tag] shortcode
+* Implemented ACM Widget. Thanks to [Justin Sternburg](https://github.com/jtsternberg) at WebDevStudios for the contribution
+* Initial loading of the ad codes is now cached using object cache
+* Bug fix: Enable using ad codes with empty filters using a filter
+* Bug fix: Setting the logical operator from OR to AND did not seem to result in the expected behaviour for displaying ads
+* Bug fix: Remove logical operator check when a conditional for an ad code is empty
+
+### 0.1.3 (February 13, 2012)
+* UI cleanup for the admin, including styling and information on applying conditionals
+
+### 0.1.2 (February 9, 2012)
+* Readme with full description and examples
+* Bug fix: Save the proper value when editing actions
+
+### 0.1.1
+* Bug fix release
+
+### 0.1
+* Initial release
