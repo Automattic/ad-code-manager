@@ -1,9 +1,9 @@
 # Ad Code Manager
 
 Stable tag: 0.5  
-Requires at least: 3.1  
-Tested up to: 5.0  
-Requires PHP: 5.0  
+Requires at least: 5.5  
+Tested up to: 5.9  
+Requires PHP: 7.1  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers  
@@ -24,6 +24,8 @@ Once this configuration is in place, the Ad Code Manager admin interface will al
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
 ## Installation
+
+The plugin requires PHP 7.1 or later. It is also test on WordPress 5.5 and later, though it may run on older versions.
 
 Since the plugin is in its early stages, there are a couple additional configuration steps:
 
