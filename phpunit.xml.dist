@@ -1,17 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <phpunit
-	bootstrap="tests/bootstrap.php"
-	backupGlobals="false"
-	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	>
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+		bootstrap="./tests/Integration/bootstrap.php"
+		backupGlobals="false"
+		beStrictAboutCoversAnnotation="true"
+		beStrictAboutTestsThatDoNotTestAnything="true"
+		colors="true"
+		convertDeprecationsToExceptions="true"
+		testdox="true"
+>
 	<php>
-		<const name="WP_TESTS_MULTISITE" value="1" />
+		<server name="SERVER_PORT" value="80"/>
+		<server name="HTTP_HOST" value="localhost"/>
+		<server name="REMOTE_ADDR" value="127.0.0.1"/>
 	</php>
 	<testsuites>
-		<testsuite name="WP_Tests">
-			<directory prefix="test-" suffix=".php">./tests/</directory>
+		<testsuite name="integration">
+			<directory>./tests/Integration</directory>
 		</testsuite>
 	</testsuites>
+	<coverage>
+		<include>
+			<directory suffix=".php">common</directory>
+			<directory suffix=".php">providers</directory>
+			<file>ad-code-manager.php</file>
+		</include>
+		<report>
+			<text outputFile="php://stdout"/>
+		</report>
+	</coverage>
 </phpunit>
