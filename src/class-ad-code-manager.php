@@ -53,11 +53,11 @@ class Ad_Code_Manager {
 	 * which holds all necessary configuration properties
 	 */
 	function action_load_providers() {
-		$module_dirs = array_diff( scandir( AD_CODE_MANAGER_ROOT . '/providers/' ), array( '..', '.' ) );
+		$module_dirs = array_diff( scandir( dirname( AD_CODE_MANAGER_FILE ) . '/providers/' ), array( '..', '.' ) );
 		foreach ( $module_dirs as $module_dir ) {
 			$module_dir = str_replace( '.php', '', $module_dir );
-			if ( file_exists( AD_CODE_MANAGER_ROOT . "/providers/$module_dir.php" ) ) {
-				include_once AD_CODE_MANAGER_ROOT . "/providers/$module_dir.php";
+			if ( file_exists( dirname( AD_CODE_MANAGER_FILE ) . "/providers/$module_dir.php" ) ) {
+				include_once dirname( AD_CODE_MANAGER_FILE ) . "/providers/$module_dir.php";
 			}
 
 			$tmp = explode( '-', $module_dir );
@@ -607,12 +607,12 @@ class Ad_Code_Manager {
 	 * Print the admin interface for managing the ad codes.
 	 */
 	function admin_view_controller() {
-		require_once AD_CODE_MANAGER_ROOT . '/common/views/ad-code-manager.tpl.php';
+		require_once dirname( AD_CODE_MANAGER_FILE ) . '/common/views/ad-code-manager.tpl.php';
 	}
 
 	function parse_readme_into_contextual_help() {
 		ob_start();
-		include_once AD_CODE_MANAGER_ROOT . '/readme.txt';
+		include_once dirname( AD_CODE_MANAGER_FILE ) . '/readme.txt';
 		$readme = ob_get_clean();
 		$sections = preg_split( "/==(.*)==/", $readme );
 		// Something's wrong with readme, fail silently
@@ -708,8 +708,8 @@ class Ad_Code_Manager {
 		if ( 'tools.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
-		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . '/common/css/acm.css' );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery' ), false, true );
+		wp_enqueue_style( 'acm-style', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/common/css/acm.css' );
+		wp_enqueue_script( 'acm', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/common/js/acm.js', array( 'jquery' ), false, true );
 	}
 
 	/**

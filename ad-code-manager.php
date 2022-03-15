@@ -24,16 +24,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.5' );
-define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
-define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
-define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
+const AD_CODE_MANAGER_VERSION = '0.5';
+const AD_CODE_MANAGER_FILE    = __FILE__;
 
-require_once AD_CODE_MANAGER_ROOT .'/common/lib/acm-provider.php';
-require_once AD_CODE_MANAGER_ROOT .'/common/lib/acm-wp-list-table.php';
-require_once AD_CODE_MANAGER_ROOT .'/common/lib/acm-widget.php';
-require_once AD_CODE_MANAGER_ROOT .'/common/lib/markdown.php';
-require_once AD_CODE_MANAGER_ROOT .'/src/class-ad-code-manager.php';
+require_once __DIR__ .'/common/lib/acm-provider.php';
+require_once __DIR__ .'/common/lib/acm-wp-list-table.php';
+require_once __DIR__ .'/common/lib/acm-widget.php';
+require_once __DIR__ .'/common/lib/markdown.php';
+require_once __DIR__ .'/src/class-ad-code-manager.php';
 
 global $ad_code_manager;
 $ad_code_manager = new Ad_Code_Manager();
