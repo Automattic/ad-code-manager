@@ -1,0 +1,65 @@
+{
+	"name": "automattic/ad-code-manager",
+	"type": "wordpress-plugin",
+	"description": "Easy ad code management",
+	"homepage": "https://github.com/Automattic/ad-code-manager/",
+	"license": "GPL-2.0-or-later",
+	"authors": [
+		{
+			"name": "Automattic",
+			"homepage": "https://automattic.com/"
+		}
+	],
+	"require": {
+		"php": ">=7.1",
+		"composer/installers": "^1.0 || ^2.0"
+	},
+	"require-dev": {
+		"automattic/vipwpcs": "^2.2",
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.4.1 || ^0.5 || ^0.6.2 || ^0.7",
+		"php-parallel-lint/php-parallel-lint": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"wp-coding-standards/wpcs": "^2.3.0",
+		"yoast/wp-test-utils": "^1"
+	},
+	"config": {
+		"allow-plugins": {
+			"composer/installers": true,
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"scripts": {
+		"cbf": [
+			"@php ./vendor/bin/phpcbf"
+		],
+		"coverage": [
+			"@php ./vendor/bin/phpunit --coverage-html ./build/coverage-html"
+		],
+		"coverage-ci": [
+			"@php ./vendor/bin/phpunit"
+		],
+		"cs": [
+			"@php ./vendor/bin/phpcs"
+		],
+		"lint": [
+			"@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git"
+		],
+		"lint-ci": [
+			"@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git --checkstyle"
+		],
+		"prepare-ci": [
+			"bash bin/install-wp-tests.sh wordpress_test root root localhost"
+		],
+		"test": [
+			"@php ./vendor/bin/phpunit --no-coverage --order-by=random"
+		],
+		"test-ms": [
+			"@putenv WP_MULTISITE=1",
+			"@composer test"
+		]
+	},
+	"support": {
+		"issues": "https://github.com/Automattic/ad-code-manager/issues",
+		"source": "https://github.com/Automattic/ad-code-manager"
+	}
+}

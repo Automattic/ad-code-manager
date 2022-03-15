@@ -1,0 +1,77 @@
+name: Lint PHP & XML
+
+on:
+  # Run on all pushes and on all pull requests.
+  # Prevent the "push" build from running when there are only irrelevant changes.
+  push:
+    paths-ignore:
+      - "**.md"
+  pull_request:
+
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+jobs:
+  checkcs:
+    name: Lint checks for PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+
+    env:
+      XMLLINT_INDENT: "	"
+
+    strategy:
+      matrix:
+        php: ['7.1', '8.1']
+        experimental: [false]
+        include:
+          - php: '8.2'
+            experimental: true
+      fail-fast: false
+
+    continue-on-error: ${{ matrix.experimental }}
+
+    steps:
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: cs2pr
+
+      # Show PHP lint violations inline in the file diff.
+      # @link https://github.com/marketplace/actions/xmllint-problem-matcher
+      - name: Register PHP lint violations to appear as file diff comments
+        uses: korelstar/phplint-problem-matcher@v1
+
+      # Show XML violations inline in the file diff.
+      # @link https://github.com/marketplace/actions/xmllint-problem-matcher
+      - name: Register XML violations to appear as file diff comments
+        uses: korelstar/xmllint-problem-matcher@v1
+
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Install dependencies and handle caching in one go.
+      # @link https://github.com/marketplace/actions/install-php-dependencies-with-composer
+      - name: Install Composer dependencies
+        if: ${{ matrix.php < 8.2 }}
+        uses: ramsey/composer-install@v2
+
+      - name: Install Composer dependencies for PHP >= 8.2
+        if: ${{ matrix.php >= 8.2 }}
+        uses: ramsey/composer-install@v2
+        with:
+          composer-options: --ignore-platform-reqs
+
+      # Lint PHP.
+      - name: Lint PHP against parse errors
+        run: composer lint-ci --no-interaction | cs2pr
+
+      # Needed as runs-on: system doesn't have xml-lint by default.
+      # @link https://github.com/marketplace/actions/xml-lint
+      - name: Lint phpunit.xml.dist
+        if: ${{ matrix.php >= 7.3 }}
+        uses: ChristophWurst/xmllint-action@v1
+        with:
+          xml-file: ./phpunit.xml.dist
+          xml-schema-file: ./vendor/phpunit/phpunit/phpunit.xsd
