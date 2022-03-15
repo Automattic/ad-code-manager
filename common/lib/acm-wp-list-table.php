@@ -3,7 +3,7 @@
  * Skeleton child class of WP_List_Table
  *
  * You need to extend it for a specific provider
- * Check /providers/doubleclick-for-publishers.php
+ * Check /Providers/class-doubleclick-for-publishers.php
  * to see example of implementation
  *
  * @since v0.1.3

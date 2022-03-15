@@ -49,22 +49,25 @@ class Ad_Code_Manager {
 
 	/**
 	 * Load all available ad providers
-	 * and set selected as ACM_Provider $current_provider
-	 * which holds all necessary configuration properties
+	 *
+	 * Also, set selected as ACM_Provider $current_provider which holds all necessary configuration properties.
 	 */
 	function action_load_providers() {
-		$module_dirs = array_diff( scandir( dirname( AD_CODE_MANAGER_FILE ) . '/providers/' ), array( '..', '.' ) );
-		foreach ( $module_dirs as $module_dir ) {
-			$module_dir = str_replace( '.php', '', $module_dir );
-			if ( file_exists( dirname( AD_CODE_MANAGER_FILE ) . "/providers/$module_dir.php" ) ) {
-				include_once dirname( AD_CODE_MANAGER_FILE ) . "/providers/$module_dir.php";
-			}
+		$providers_dir   = dirname( AD_CODE_MANAGER_FILE ) . '/src/Providers/';
+		$providers_files = array_diff( scandir( $providers_dir ), array( '..', '.' ) );
+
+		foreach ( $providers_files as $providers_file ) {
+			include_once $providers_dir . '/' . $providers_file;
+			$module_dir = str_replace( array( 'class-', '.php' ), '', $providers_file );
 
 			$tmp = explode( '-', $module_dir );
 			$class_name = '';
 			$slug_name = '';
 			$table_class_name = '';
 			foreach ( $tmp as $word ) {
+				if ( $word === 'class' ) {
+					continue;
+				}
 				$class_name .= ucfirst( $word ) . '_';
 				$slug_name .= $word . '_';
 			}
@@ -86,7 +89,7 @@ class Ad_Code_Manager {
 		/**
 		 * Configuration filter: acm_register_provider_slug
 		 *
-		 * We've already gathered a list of default providers by scanning the ACM plugin
+		 * We've already gathered a list of default Providers by scanning the ACM plugin
 		 * directory for classes that we can use. To add a provider already included via
 		 * a different directory, the following filter is provided.
 		 */
