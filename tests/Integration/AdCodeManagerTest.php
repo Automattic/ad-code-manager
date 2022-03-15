@@ -42,6 +42,17 @@ class AdCodeManagerTest extends TestCase {
 		self::assertIsInt( $this->acm->edit_ad_code( 555,  $this->mock_ad_code() ) );
 	}
 
+	public function test_deleting_ad_requires_correct_post_type() {
+		$ad_id   = $this->create_ad_code_and_return();
+		$post_id = self::factory()->post->create();
+
+		// Can delete the ad ID, because it is an ID with the correct custom post type.
+		self::assertTrue( $this->acm->delete_ad_code( $ad_id ) );
+
+		// Can't delete the general post ID, because it is not an ad post type.
+		self::assertNull( $this->acm->delete_ad_code( $post_id ) );
+	}
+
 	private function mock_ad_code() {
 		$ad_code = array();
 		foreach ( $this->acm->current_provider->ad_code_args as $arg ) {
