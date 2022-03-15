@@ -924,7 +924,7 @@ class Ad_Code_Manager {
 		 * Returning false to this filter will cause the ad code to be cached
 		 * only for the duration of the request, not within the object cache.
 		 *
-		 * @param int    $cache_expiration The amount of time to cache the matching ad code. Default 10 minutes.
+		 * @param int    $cache_expiration The amount of time, in seconds, to cache the matching ad code. Default 10 minutes.
 		 * @param string $tag_id           The tag ID.
 		 */
 		$cache_expiration = apply_filters( 'acm_matching_ad_code_cache_expiration', 600, $tag_id );
