@@ -711,8 +711,8 @@ class Ad_Code_Manager {
 		if ( 'tools.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
 			return;
 
-		wp_enqueue_style( 'acm-style', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/common/css/acm.css' );
-		wp_enqueue_script( 'acm', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/common/js/acm.js', array( 'jquery' ), false, true );
+		wp_enqueue_style( 'acm-style', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/acm.css', array(), AD_CODE_MANAGER_VERSION );
+		wp_enqueue_script( 'acm', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/acm.js', array( 'jquery' ), AD_CODE_MANAGER_VERSION, true );
 	}
 
 	/**
