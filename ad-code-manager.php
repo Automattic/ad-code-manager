@@ -27,11 +27,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 const AD_CODE_MANAGER_VERSION = '0.5';
 const AD_CODE_MANAGER_FILE    = __FILE__;
 
-require_once __DIR__ .'/common/lib/acm-provider.php';
-require_once __DIR__ .'/common/lib/acm-wp-list-table.php';
-require_once __DIR__ .'/common/lib/acm-widget.php';
-require_once __DIR__ .'/common/lib/markdown.php';
-require_once __DIR__ .'/src/class-ad-code-manager.php';
+require_once __DIR__ . '/src/class-acm-provider.php';
+require_once __DIR__ . '/src/class-acm-wp-list-table.php';
+require_once __DIR__ . '/src/class-acm-widget.php';
+require_once __DIR__ . '/src/markdown.php';
+require_once __DIR__ . '/src/class-ad-code-manager.php';
 
 global $ad_code_manager;
 $ad_code_manager = new Ad_Code_Manager();

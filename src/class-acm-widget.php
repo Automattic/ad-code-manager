@@ -53,7 +53,7 @@ class ACM_Ad_Zones extends WP_Widget {
 	// Save the widget settings
 	function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
-		$instance['title'] = sanitize_text_field( $new_instance['title'] );
+		$instance['title']   = sanitize_text_field( $new_instance['title'] );
 		$instance['ad_zone'] = sanitize_text_field( $new_instance['ad_zone'] );
 		return $instance;
 	}
@@ -64,9 +64,9 @@ class ACM_Ad_Zones extends WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( ! empty( $title ) ) {
-			echo $before_title . esc_html( $title ) . $after_title;
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
 		do_action( 'acm_tag', $instance['ad_zone'] );
-		echo $args[ 'after_widget' ];
+		echo $args['after_widget'];
 	}
 }
