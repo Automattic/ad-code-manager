@@ -607,7 +607,7 @@ class Ad_Code_Manager {
 	 * Print the admin interface for managing the ad codes.
 	 */
 	function admin_view_controller() {
-		require_once dirname( AD_CODE_MANAGER_FILE ) . '/common/views/ad-code-manager.tpl.php';
+		require_once dirname( AD_CODE_MANAGER_FILE ) . '/views/ad-code-manager.tpl.php';
 	}
 
 	function parse_readme_into_contextual_help() {
