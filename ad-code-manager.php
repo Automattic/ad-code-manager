@@ -906,16 +906,36 @@ class Ad_Code_Manager {
 	 */
 	public function get_matching_ad_code( $tag_id ) {
 		global $wp_query;
+
+		static $checked_ad_codes = [];
+
 		// If there aren't any ad codes, it's not worth it for us to do anything.
 		if ( !isset( $this->ad_codes[$tag_id] ) ) {
 			return;
 		}
 
 		// This method might be expensive when there's a lot of ad codes
-		// So instead of executing over and over again, return cached matching ad code
+		// So instead of executing over and over again, return cached matching ad code.
 		$cache_key = "acm:{$tag_id}:" . md5( serialize( $wp_query->query_vars ) );
 
-		if ( false !== $ad_code = wp_cache_get( $cache_key, 'acm' ) ) {
+		/**
+		 * Filters the amount of time to cache the matching ad code.
+		 *
+		 * Returning false to this filter will cause the ad code to be cached
+		 * only for the duration of the request, not within the object cache.
+		 *
+		 * @param int    $cache_expiration The amount of time, in seconds, to cache the matching ad code. Default 10 minutes.
+		 * @param string $tag_id           The tag ID.
+		 */
+		$cache_expiration = apply_filters( 'acm_matching_ad_code_cache_expiration', 600, $tag_id );
+
+		if ( false === $cache_expiration ) {
+			$ad_code = isset( $checked_ad_codes[ $cache_key ] ) ? $checked_ad_codes[ $cache_key ] : false;
+		} else {
+			$ad_code = wp_cache_get( $cache_key, 'acm' );
+		}
+
+		if ( false !== $ad_code ) {
 			return $ad_code;
 		}
 
@@ -1037,7 +1057,11 @@ class Ad_Code_Manager {
 
 		$code_to_display = array_shift( $shifted_prioritized_display_codes );
 
-		wp_cache_add( $cache_key, $code_to_display, 'acm', 600 );
+		if ( false === $cache_expiration ) {
+			$checked_ad_codes[ $cache_key ] = $code_to_display;
+		} else {
+			wp_cache_add( $cache_key, $code_to_display, 'acm', $cache_expiration );
+		}
 
 		return $code_to_display;
 	}
