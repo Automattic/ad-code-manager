@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 //namespace Automattic\AdCodeManager;
 
+use const Automattic\AdCodeManager\AD_CODE_MANAGER_FILE;
+use const Automattic\AdCodeManager\AD_CODE_MANAGER_VERSION;
+
 class Ad_Code_Manager {
 
 	public $ad_codes = array();
