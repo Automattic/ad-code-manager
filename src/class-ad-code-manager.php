@@ -524,7 +524,7 @@ class Ad_Code_Manager {
 	 * Delete an existing ad code
 	 */
 	function delete_ad_code( $ad_code_id ) {
-		if ( 0 !== $ad_code_id ) {
+		if ( 0 !== $ad_code_id && $this->post_type === get_post_type( $ad_code_id ) ) {
 			wp_delete_post( $ad_code_id , true ); // Force delete post.
 			$this->flush_cache();
 			return true;
