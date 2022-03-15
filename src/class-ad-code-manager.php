@@ -31,7 +31,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function __construct() {
+	function run() {
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 
