@@ -599,7 +599,7 @@ class Ad_Code_Manager {
 		// Handle any bulk action requests
 		if ( 'delete' === $this->wp_list_table->current_action() ) {
 			check_admin_referer( 'acm-bulk-action', 'bulk-action-nonce' );
-			$ad_code_ids = array_map( 'intval', isset( $_REQUEST['ad-codes'] ) ? sanitize_key( $_REQUEST['ad-codes'] ) : array() );
+			$ad_code_ids = array_map( 'intval', $_REQUEST['ad-codes'] ?? [] );
 			foreach ( $ad_code_ids as $ad_code_id ) {
 				$this->delete_ad_code( $ad_code_id );
 			}
