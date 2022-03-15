@@ -50,7 +50,7 @@ namespace Automattic\AdCodeManager\Tests\Integration {
 }
 
 // Plugin root file is not included during tests, so define the namespaced constants here.
-namespace Parsely {
-	const PARSELY_VERSION = '123456.78.9';
-	const PARSELY_FILE    = __DIR__ . '/../../wp-parsely.php';
+namespace Automattic\AdCodeManager {
+	const AD_CODE_MANAGER_VERSION = '123456.78.9';
+	const AD_CODE_MANAGER_FILE    = __DIR__ . '/../../ad-code-manager.php';
 }

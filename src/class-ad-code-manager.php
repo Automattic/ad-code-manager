@@ -10,6 +10,9 @@ declare(strict_types=1);
 
 //namespace Automattic\AdCodeManager;
 
+use const Automattic\AdCodeManager\AD_CODE_MANAGER_FILE;
+use const Automattic\AdCodeManager\AD_CODE_MANAGER_VERSION;
+
 class Ad_Code_Manager {
 
 	public $ad_codes = array();
@@ -31,7 +34,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function __construct() {
+	function run() {
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 
