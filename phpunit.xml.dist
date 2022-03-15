@@ -22,8 +22,7 @@
 	</testsuites>
 	<coverage>
 		<include>
-			<directory suffix=".php">common</directory>
-			<directory suffix=".php">providers</directory>
+			<directory suffix=".php">src</directory>
 			<file>ad-code-manager.php</file>
 		</include>
 		<report>
