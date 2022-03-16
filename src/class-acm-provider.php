@@ -25,10 +25,10 @@ class ACM_Provider {
 			// This is not actual data, but rather format:
 			$this->ad_code_args = array(
 				array(
-					'key'       => 'name',
-					'label'     => __( 'Name', 'ad-code-manager' ),
-					'editable'  => true,
-					'required'  => true,
+					'key'      => 'name',
+					'label'    => __( 'Name', 'ad-code-manager' ),
+					'editable' => true,
+					'required' => true,
 				),
 			);
 		}

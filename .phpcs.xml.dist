@@ -30,7 +30,7 @@
 	<rule ref="PHPCompatibilityWP"/>
 	<!-- For help in understanding this testVersion:
 		https://github.com/PHPCompatibility/PHPCompatibility#sniffing-your-code-for-compatibility-with-specific-php-versions -->
-	<config name="testVersion" value="5.6-"/>
+	<config name="testVersion" value="7.1-"/>
 
 	<!-- Rules: WordPress Coding Standards - see
 		https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards -->
@@ -49,6 +49,8 @@
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="ad_code_manager"/>
+				<element value="acm"/>
+				<element value="Automattic\AdCodeManager"/>
 			</property>
 		</properties>
 	</rule>
@@ -65,6 +67,10 @@
 		<properties>
 			<property name="blank_line_check" value="true"/>
 		</properties>
+	</rule>
+
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>tests/</exclude-pattern>
 	</rule>
 
 </ruleset>

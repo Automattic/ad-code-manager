@@ -25,65 +25,65 @@ google_ad_height = %height%;
 		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
 		$this->ad_tag_ids = array(
 			array(
-				'tag'       => '728x90_leaderboard',
-				'url_vars'  => array(
-					'tag'       => '728x90_leaderboard',
-					'height'    => '90',
-					'width'     => '728',
+				'tag'               => '728x90_leaderboard',
+				'url_vars'          => array(
+					'tag'    => '728x90_leaderboard',
+					'height' => '90',
+					'width'  => '728',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '468x60_banner',
-				'url_vars'  => array(
-					'tag'       => '468x60_banner',
-					'height'    => '60',
-					'width'     => '468',
+				'tag'               => '468x60_banner',
+				'url_vars'          => array(
+					'tag'    => '468x60_banner',
+					'height' => '60',
+					'width'  => '468',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '120x600_skyscraper',
-				'url_vars'  => array(
-					'tag'       => '120x600_skyscraper',
-					'height'    => '600',
-					'width'     => '120',
+				'tag'               => '120x600_skyscraper',
+				'url_vars'          => array(
+					'tag'    => '120x600_skyscraper',
+					'height' => '600',
+					'width'  => '120',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '160x600_wideskyscraper',
-				'url_vars'  => array(
-					'tag'       => '160x600_wideskyscraper',
-					'height'    => '600',
-					'width'     => '160',
+				'tag'               => '160x600_wideskyscraper',
+				'url_vars'          => array(
+					'tag'    => '160x600_wideskyscraper',
+					'height' => '600',
+					'width'  => '160',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '300x600_largeskyscraper',
-				'url_vars'  => array(
-					'tag'       => '300x600_largeskyscraper',
-					'height'    => '600',
-					'width'     => '300',
+				'tag'               => '300x600_largeskyscraper',
+				'url_vars'          => array(
+					'tag'    => '300x600_largeskyscraper',
+					'height' => '600',
+					'width'  => '300',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '250x250_square',
-				'url_vars'  => array(
-					'tag'       => '250x250_square',
-					'height'    => '250',
-					'width'     => '250',
+				'tag'               => '250x250_square',
+				'url_vars'          => array(
+					'tag'    => '250x250_square',
+					'height' => '250',
+					'width'  => '250',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '200x200_smallsquare',
-				'url_vars'  => array(
-					'tag'       => '200x200_smallsquare',
-					'height'    => '200',
-					'width'     => '200',
+				'tag'               => '200x200_smallsquare',
+				'url_vars'          => array(
+					'tag'    => '200x200_smallsquare',
+					'height' => '200',
+					'width'  => '200',
 				),
 				'enable_ui_mapping' => true,
 			),
@@ -91,26 +91,26 @@ google_ad_height = %height%;
 
 		$this->ad_code_args = array(
 			array(
-				'key'       => 'tag',
-				'label'     => __( 'Tag', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
-				'type'      => 'select',
-				'options'   => array(
+				'key'      => 'tag',
+				'label'    => __( 'Tag', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
+				'type'     => 'select',
+				'options'  => array(
 					// This is added later, through 'acm_ad_code_args' filter
 				),
 			),
 			array(
-				'key'       => 'tag_id',
-				'label'     => __( 'Tag ID', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'tag_id',
+				'label'    => __( 'Tag ID', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 			array(
-				'key'       => 'publisher_id',
-				'label'     => __( 'Publisher ID', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'publisher_id',
+				'label'    => __( 'Publisher ID', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 		);
 
@@ -127,16 +127,16 @@ google_ad_height = %height%;
 		global $ad_code_manager;
 
 		foreach ( $ad_code_args as $tag => $ad_code_arg ) {
-
-			if ( 'tag' != $ad_code_arg['key'] )
+			if ( 'tag' != $ad_code_arg['key'] ) {
 				continue;
-
-			// Get all of the tags that are registered, and provide them as options
-			foreach ( (array)$ad_code_manager->ad_tag_ids as $ad_tag ) {
-				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] )
-					$ad_code_args[$tag]['options'][$ad_tag['tag']] = $ad_tag['tag'];
 			}
 
+			// Get all of the tags that are registered, and provide them as options
+			foreach ( (array) $ad_code_manager->ad_tag_ids as $ad_tag ) {
+				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] ) {
+					$ad_code_args[ $tag ]['options'][ $ad_tag['tag'] ] = $ad_tag['tag'];
+				}
+			}
 		}
 		return $ad_code_args;
 	}
@@ -153,11 +153,13 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 * @return null
 	 */
 	public function __construct() {
-		parent::__construct( array(
-				'singular'=> 'google_adsense_acm_wp_list_table',
-				'plural' => 'google_adsense_acm_wp_list_table',
-				'ajax' => true
-			) );
+		parent::__construct(
+			array(
+				'singular' => 'google_adsense_acm_wp_list_table',
+				'plural'   => 'google_adsense_acm_wp_list_table',
+				'ajax'     => true,
+			) 
+		);
 	}
 
 	/**
@@ -165,14 +167,14 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 */
 	function filter_columns() {
 		return array(
-			'cb'             => '<input type="checkbox" />',
-			'id'             => __( 'ID', 'ad-code-manager' ),
-			'tag'            => __( 'Tag', 'ad-code-manager' ),
-			'tag_id'         => __( 'Tag ID', 'ad-code-manager' ),
-			'publisher_id'   => __( 'Publisher ID', 'ad-code-manager' ),
-			'priority'       => __( 'Priority', 'ad-code-manager' ),
-			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
-			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+			'cb'           => '<input type="checkbox" />',
+			'id'           => __( 'ID', 'ad-code-manager' ),
+			'tag'          => __( 'Tag', 'ad-code-manager' ),
+			'tag_id'       => __( 'Tag ID', 'ad-code-manager' ),
+			'publisher_id' => __( 'Publisher ID', 'ad-code-manager' ),
+			'priority'     => __( 'Priority', 'ad-code-manager' ),
+			'operator'     => __( 'Logical Operator', 'ad-code-manager' ),
+			'conditionals' => __( 'Conditionals', 'ad-code-manager' ),
 		);
 	}
 
@@ -188,9 +190,9 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 * Output the tag cell in the list table
 	 */
 	function column_tag( $item ) {
-		$output = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
+		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
 }
-?>
+
