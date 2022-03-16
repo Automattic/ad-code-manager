@@ -4,8 +4,8 @@
  */
 ?>
 	<div class="acm-ui-wrapper wrap">
-	<h2>Ad Code Manager</h2>
-	<?php 
+	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+	<?php
 	if ( isset( $_REQUEST['message'] ) ) {
 		switch ( $_REQUEST['message'] ) {
 			case 'ad-code-added':
@@ -24,12 +24,12 @@
 				$message_text = '';
 				break;
 		}
-		if ( $message_text ) {
+		if ( '' !== $message_text ) {
 			echo '<div class="message updated"><p>' . esc_html( $message_text ) . '</p></div>';
 		}
-	} 
+	}
 	?>
-	<p> Refer to help section for more information</p>
+	<p><?php esc_html_e( 'Refer to help section for more information.', 'ad-code-manager' ); ?></p>
 	</div>
 
 <div class="wrap nosubsub">
@@ -55,23 +55,19 @@ $this->wp_list_table->display();
 <div class="form-wrap">
 <?php
 // Only show the provider selector if one hasn't been specified at the code level.
-if ( ! apply_filters( 'acm_provider_slug', false ) ) : 
+if ( ! apply_filters( 'acm_provider_slug', false ) ) :
 	?>
 <div class="acm-global-options">
-	<h3><?php _e( 'Configuration', 'ad-code-manager' ); ?></h3>
+	<h2><?php esc_html_e( 'Configuration', 'ad-code-manager' ); ?></h2>
 	<div class="form-wrap">
 	<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" name="updatesettings" id="updatesettings">
 	<div id="provider-field" class="form-field form-required">
-		<label for="provider"><?php _e( 'Select a provider:', 'ad-code-manager' ); ?></label>
+		<label for="provider"><?php esc_html_e( 'Select a provider:', 'ad-code-manager' ); ?></label>
 		<select name="provider" id="provider">
-		<?php 
+		<?php
 		$current_provider = $this->get_option( 'provider' );
 		foreach ( $this->providers as $slug => $provider ) :
-			if ( isset( $provider['label'] ) ) {
-				$label = $provider['label'];
-			} else {
-				$label = ucwords( str_replace( '_', ' ', $slug ) );
-			}
+			$label = $provider['label'] ?? ucwords( str_replace( '_', ' ', $slug ) );
 			?>
 			<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $slug, $current_provider ); ?>><?php echo esc_html( $label ); ?></option>
 		<?php endforeach; ?>
@@ -86,7 +82,7 @@ if ( ! apply_filters( 'acm_provider_slug', false ) ) :
 	</div>
 </div>
 <?php endif; ?>
-<h3><?php _e( 'Add New Ad Code', 'ad-code-manager' ); ?></h3>
+<h2><?php esc_html_e( 'Add New Ad Code', 'ad-code-manager' ); ?></h2>
 <form id="add-adcode" method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" class="validate">
 <input type="hidden" name="action" value="acm_admin_action" />
 <input type="hidden" name="method" value="add" />
@@ -129,11 +125,11 @@ endforeach;
 ?>
 <div class="form-field acm-conditional-fields" id="conditional-tpl">
 	<div class="form-new-row">
-	<label for="acm-conditionals"><?php _e( 'Conditionals', 'ad-code-manager' ); ?></label>
+	<label for="acm-conditionals"><?php esc_html_e( 'Conditionals', 'ad-code-manager' ); ?></label>
 	<div class="conditional-single-field" id="conditional-single-field-master">
 	<div class="conditional-function">
 	<select name="acm-conditionals[]">
-<option value=""><?php _e( 'Select conditional', 'ad-code-manager' ); ?></option>
+<option value=""><?php esc_html_e( 'Select conditional', 'ad-code-manager' ); ?></option>
 <?php
 foreach ( $this->whitelisted_conditionals as $key ) :
 	?>
@@ -147,7 +143,7 @@ foreach ( $this->whitelisted_conditionals as $key ) :
 	</div>
 </div>
 <div class="form-field form-add-more">
-	<a href="#" class="button button-secondary add-more-conditionals">Add more</a>
+	<a href="#" class="button button-secondary add-more-conditionals"><?php esc_html_e( 'Add more', 'ad-code-manager' ); ?></a>
 </div>
 </div>
 <p class="clear"></p>
