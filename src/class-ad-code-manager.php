@@ -17,11 +17,9 @@ class Ad_Code_Manager {
 
 	public $ad_codes                 = array();
 	public $whitelisted_conditionals = array();
-	public $title                    = 'Ad Code Manager';
 	public $post_type                = 'acm-code';
 	public $plugin_slug              = 'ad-code-manager';
 	public $manage_ads_cap           = 'manage_options';
-	public $post_type_labels;
 	public $logical_operator;
 	public $ad_tag_ids;
 	public $providers;
@@ -129,13 +127,6 @@ class Ad_Code_Manager {
 	 * @since 0.1
 	 */
 	function action_init() {
-		load_plugin_textdomain( 'ad-code-manager', false, plugin_basename( dirname( __FILE__ ) ) . '/languages/' );
-
-		$this->post_type_labels = array(
-			'name'          => __( 'Ad Codes', 'ad-code-manager' ),
-			'singular_name' => __( 'Ad Code', 'ad-code-manager' ),
-		);
-
 		// Allow other conditionals to be used
 		$this->whitelisted_conditionals = array(
 			'is_home',
@@ -192,14 +183,17 @@ class Ad_Code_Manager {
 	 * @since 0.1
 	 */
 	function register_acm_post_type() {
-		register_post_type(
-			$this->post_type,
-			array(
-				'labels'  => $this->post_type_labels,
+		$labels = array(
+			'name'          => _x( 'Ad Codes', 'Post Type General Name', 'ad-code-manager' ),
+			'singular_name' => _x( 'Ad Code', 'Post Type Singular Name', 'ad-code-manager' ),
+		);
+		$args = array(
+				'labels'  => $labels,
 				'public'  => false,
 				'rewrite' => false,
-			)
 		);
+
+		register_post_type( $this->post_type, $args );
 	}
 
 	/**
@@ -587,7 +581,13 @@ class Ad_Code_Manager {
 	 * Hook in our submenu page to the navigation
 	 */
 	public function action_admin_menu() {
-		$hook = add_submenu_page( 'tools.php', $this->title, $this->title, $this->manage_ads_cap, $this->plugin_slug, array( $this, 'admin_view_controller' ) );
+		$hook = add_management_page(
+				__( 'Ad Code Manager', 'ad-code-manager' ),
+				__( 'Ad Code Manager', 'ad-code-manager' ),
+				$this->manage_ads_cap,
+				$this->plugin_slug,
+				array( $this, 'admin_view_controller' )
+		);
 		add_action( 'load-' . $hook, array( $this, 'action_load_ad_code_manager' ) );
 	}
 
