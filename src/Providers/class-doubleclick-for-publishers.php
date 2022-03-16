@@ -16,65 +16,65 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
 
 		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
-		$this->ad_tag_ids = array(
+		$this->ad_tag_ids   = array(
 			array(
-				'tag' => '728x90-atf',
+				'tag'      => '728x90-atf',
 				'url_vars' => array(
-					'sz' => '728x90',
-					'fold' => 'atf'
-				)
+					'sz'   => '728x90',
+					'fold' => 'atf',
+				),
 			),
 			array(
-				'tag' => '728x90-btf',
+				'tag'      => '728x90-btf',
 				'url_vars' => array(
-					'sz' => '728x90',
-					'fold' => 'btf'
-				)
-			) ,
-			array(
-				'tag' => '300x250-atf',
-				'url_vars' => array(
-					'sz' => '300x250',
-					'fold' => 'atf'
-				)
+					'sz'   => '728x90',
+					'fold' => 'btf',
+				),
 			),
 			array(
-				'tag' => '300x250-btf',
+				'tag'      => '300x250-atf',
 				'url_vars' => array(
-					'sz' => '300x250',
-					'fold' => 'btf'
-				)
+					'sz'   => '300x250',
+					'fold' => 'atf',
+				),
 			),
 			array(
-				'tag' => '160x600-atf',
+				'tag'      => '300x250-btf',
 				'url_vars' => array(
-					'sz' => '160x600',
-					'fold' => 'atf'
-				)
+					'sz'   => '300x250',
+					'fold' => 'btf',
+				),
 			),
 			array(
-				'tag' => '1x1',
+				'tag'      => '160x600-atf',
 				'url_vars' => array(
-					'sz' => '1x1',
-					'fold' => 'int',
-					'pos' => 'top',
-					'width' => '1',
+					'sz'   => '160x600',
+					'fold' => 'atf',
+				),
+			),
+			array(
+				'tag'      => '1x1',
+				'url_vars' => array(
+					'sz'     => '1x1',
+					'fold'   => 'int',
+					'pos'    => 'top',
+					'width'  => '1',
 					'height' => '1',
-				)
+				),
 			),
 		);
 		$this->ad_code_args = array(
 			array(
-				'key'       => 'site_name',
-				'label'     => __( 'Site Name', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'site_name',
+				'label'    => __( 'Site Name', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 			array(
-				'key'       => 'zone1',
-				'label'     => __( 'zone1', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'zone1',
+				'label'    => __( 'zone1', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 		);
 		// Only allow ad tags called from following URLS
@@ -86,11 +86,13 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 
 class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	function __construct() {
-		parent::__construct( array(
-				'singular'=> 'doubleclick_for_publishers_acm_wp_list_table', //Singular label
-				'plural' => 'doubleclick_for_publishers_acm_wp_list_table', //plural label, also this well be one of the table css class
-				'ajax' => true
-			) );
+		parent::__construct(
+			array(
+				'singular' => 'doubleclick_for_publishers_acm_wp_list_table', // Singular label
+				'plural'   => 'doubleclick_for_publishers_acm_wp_list_table', // plural label, also this well be one of the table css class
+				'ajax'     => true,
+			) 
+		);
 	}
 
 	/**
@@ -98,13 +100,13 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 */
 	function filter_columns() {
 		return array(
-			'cb'             => '<input type="checkbox" />',
-			'id'             => __( 'ID', 'ad-code-manager' ),
-			'site_name'      => __( 'Site Name', 'ad-code-manager' ),
-			'zone1'          => __( 'Zone1', 'ad-code-manager' ),
-			'priority'       => __( 'Priority', 'ad-code-manager' ),
-			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
-			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+			'cb'           => '<input type="checkbox" />',
+			'id'           => __( 'ID', 'ad-code-manager' ),
+			'site_name'    => __( 'Site Name', 'ad-code-manager' ),
+			'zone1'        => __( 'Zone1', 'ad-code-manager' ),
+			'priority'     => __( 'Priority', 'ad-code-manager' ),
+			'operator'     => __( 'Logical Operator', 'ad-code-manager' ),
+			'conditionals' => __( 'Conditionals', 'ad-code-manager' ),
 		);
 	}
 
@@ -120,7 +122,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 * Representation of the site name
 	 */
 	function column_site_name( $item ) {
-		$output = esc_html( $item['url_vars']['site_name'] );
+		$output  = esc_html( $item['url_vars']['site_name'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
