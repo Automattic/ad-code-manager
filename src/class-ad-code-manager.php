@@ -823,15 +823,14 @@ class Ad_Code_Manager {
 	}
 
 	/**
-	 * Display the ad code based on what's registered
-	 * and complicated sorting logic
+	 * Return the ad code for an ad ID.
 	 *
-	 * @uses do_action( 'acm_tag, 'your_tag_id' )
+	 * @since 0.6.0
 	 *
 	 * @param string $tag_id Unique ID for the ad tag
-	 * @param bool   $echo whether to echo or return ( defaults to echo )
+	 * @return string The ad code. May be an empty string.
 	 */
-	function action_acm_tag( $tag_id, $echo = true ) {
+	function get_acm_tag( $tag_id ): string {
 		/**
 		 * See http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
 		 *
@@ -839,19 +838,19 @@ class Ad_Code_Manager {
 		 * Should be boolean, defaulting to disabling ads on previews
 		 */
 		if ( apply_filters( 'acm_disable_ad_rendering', is_preview() ) ) {
-			return;
+			return '';
 		}
 
 		$code_to_display = $this->get_matching_ad_code( $tag_id );
 
 		// get_matching_ad_code can return an empty value.
 		if ( empty( $code_to_display ) ) {
-			return;
+			return '';
 		}
 
-		// Run $url aganist a whitelist to make sure it's a safe URL
+		// Run $url against a safelist to make sure it's a safe URL.
 		if ( ! $this->validate_script_url( $code_to_display['url'] ) ) {
-			return;
+			return '';
 		}
 
 		/**
@@ -861,8 +860,9 @@ class Ad_Code_Manager {
 		 */
 		$output_html = apply_filters( 'acm_output_html', $this->current_provider->output_html, $tag_id );
 
-		// Parse the output and replace any tokens we have left. But first, load the script URL
+		// Parse the output and replace any tokens we have left. But first, load the script URL.
 		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
+
 		/**
 		 * Configuration filter: acm_output_tokens
 		 * Register output tokens depending on the needs of your setup. Tokens are the
@@ -879,11 +879,19 @@ class Ad_Code_Manager {
 		 */
 		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
 
-		if ( $echo ) {
-			echo $output_html;
-		} else {
-			return $output_html;
-		}
+		return $output_html;
+	}
+
+	/**
+	 * Display the ad code for an ad ID.
+	 *
+	 * Example:
+	 *   do_action( 'acm_tag, 'your_tag_id' )
+	 *
+	 * @param string $tag_id Unique ID for the ad tag.
+	 */
+	public function action_acm_tag( $tag_id ): void {
+		echo $this->get_acm_tag( $tag_id );
 	}
 
 	/**
@@ -1107,8 +1115,10 @@ class Ad_Code_Manager {
 	 * Shortcode function
 	 *
 	 * @since 0.2
+	 *
+	 * @return string HTML output. May be an empty string if no ad code is found.
 	 */
-	function shortcode( $atts ) {
+	function shortcode( $atts ): string {
 		$atts = shortcode_atts(
 			array(
 				'id' => '',
@@ -1118,10 +1128,10 @@ class Ad_Code_Manager {
 
 		$id = sanitize_text_field( $atts['id'] );
 		if ( empty( $id ) ) {
-			return;
+			return '';
 		}
 
-		return $this->action_acm_tag( $id, false );
+		return $this->get_acm_tag( $id );
 	}
 
 }
