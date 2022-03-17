@@ -42,7 +42,7 @@ class ACM_Ad_Zones extends WP_Widget {
 				?>
 			</select>
 			<?php else : ?>
-				<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'tools.php' ) ); ?>
+				<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'options-general.php' ) ); ?>
 			<span class="description"><?php echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), esc_url( $create_url ) ); ?></span>
 			<?php endif; ?>
 			</p>

@@ -581,7 +581,7 @@ class Ad_Code_Manager {
 	 * Hook in our submenu page to the navigation
 	 */
 	public function action_admin_menu() {
-		$hook = add_management_page(
+		$hook = add_options_page(
 				__( 'Ad Code Manager', 'ad-code-manager' ),
 				__( 'Ad Code Manager', 'ad-code-manager' ),
 				$this->manage_ads_cap,
@@ -641,7 +641,7 @@ class Ad_Code_Manager {
 
 	function contextual_help() {
 		global $pagenow;
-		if ( 'tools.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] !== $this->plugin_slug ) {
+		if ( 'options-general.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] !== $this->plugin_slug ) {
 			return;
 		}
 		[ $description, $configuration, $filters ] = $this->parse_readme_into_contextual_help();
@@ -716,7 +716,7 @@ class Ad_Code_Manager {
 		global $pagenow;
 
 		// Only load this on the proper page
-		if ( 'tools.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) {
+		if ( 'options-general.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) {
 			return;
 		}
 
