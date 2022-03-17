@@ -27,6 +27,7 @@ declare(strict_types=1);
 namespace Automattic\AdCodeManager;
 
 use Ad_Code_Manager;
+use Automattic\AdCodeManager\UI\Plugin_Actions;
 
 const AD_CODE_MANAGER_VERSION = '0.5';
 const AD_CODE_MANAGER_FILE    = __FILE__;
@@ -36,11 +37,20 @@ require_once __DIR__ . '/src/class-acm-wp-list-table.php';
 require_once __DIR__ . '/src/class-acm-widget.php';
 require_once __DIR__ . '/src/markdown.php';
 require_once __DIR__ . '/src/class-ad-code-manager.php';
+require_once __DIR__ . '/src/UI/class-plugin-actions.php';
 
 add_action(
 	'plugins_loaded',
 	function () {
 		$GLOBALS['ad_code_manager'] = new Ad_Code_Manager();
 		$GLOBALS['ad_code_manager']->run();
-	} 
+	}
+);
+
+add_action(
+	'admin_init',
+	function () {
+		$plugin_actions = new Plugin_Actions();
+		$plugin_actions->run();
+	}
 );
