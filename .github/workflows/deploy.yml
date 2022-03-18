@@ -7,7 +7,19 @@ jobs:
     name: New tag
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure NPM cache
+        uses: c-hive/gha-npm-cache@v1
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Populate Changelog
+        run: node .github/workflows/changelog.js
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: WordPress Plugin Deploy
         uses: 10up/action-wordpress-plugin-deploy@stable
