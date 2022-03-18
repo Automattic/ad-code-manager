@@ -37,20 +37,17 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 ## Screenshots
 
-1. The ACM admin interface before adding ad codes.
-   ![The ACM admin interface before adding ad codes.](.wordpress-org/screenshot-1.jpg)
+1. Adding an ad code with a site name, zone, and multiple conditionals.
+   ![Adding an ad code with a site name, zone, and multiple conditionals.](.wordpress-org/screenshot-1.png)
 
-2. Adding an ad code with a site name, zone, and multiple conditionals.
-   ![Adding an ad code with a site name, zone, and multiple conditionals.](.wordpress-org/screenshot-2.jpg)
+2. Edit existing ad codes inline through the admin interface.
+   ![Edit existing ad codes inline through the admin interface.](.wordpress-org/screenshot-2.png)
 
 3. Access the Help menu in the upper right for configuration assistance.
-   ![Access the Help menu in the upper right for configuration assistance.](.wordpress-org/screenshot-3.jpg)
+   ![Access the Help menu in the upper right for configuration assistance.](.wordpress-org/screenshot-3.png)
 
-4. Edit existing ad codes inline through the admin interface.
-   ![Edit existing ad codes inline through the admin interface.](.wordpress-org/screenshot-4.jpg)
-
-5. Example of ad tag in use in a theme header template.
-   ![Example of ad tag in use in a theme header template.](.wordpress-org/screenshot-5.jpg)
+4. Example of ad tag in use in a theme header template.
+   ![Example of ad tag in use in a theme header template.](.wordpress-org/screenshot-4.jpg)
 
 ## Configure Ad Code Manager to manage the advertisements on your site
 
