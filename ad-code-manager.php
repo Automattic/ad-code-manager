@@ -30,7 +30,7 @@ use Ad_Code_Manager;
 use Automattic\AdCodeManager\UI\Contextual_Help;
 use Automattic\AdCodeManager\UI\Plugin_Actions;
 
-const AD_CODE_MANAGER_VERSION = '0.5';
+const AD_CODE_MANAGER_VERSION = '0.5.0';
 const AD_CODE_MANAGER_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/class-acm-provider.php';
