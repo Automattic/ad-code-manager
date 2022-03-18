@@ -8,6 +8,12 @@
 	"devDependencies": {
 		"@actions/github": "^2",
 		"replace-in-file": "^5",
-		"semver": "^7"
+		"semver": "^7",
+		"version-bump-prompt": "^6.1.0"
+	},
+	"scripts": {
+		"bump:major": "bump major --commit 'Version %s.' ad-code-manager.php package.json README.md",
+		"bump:minor": "bump minor --commit 'Version %s.' ad-code-manager.php package.json README.md",
+		"bump:patch": "bump patch --commit 'Version %s.' ad-code-manager.php package.json README.md"
 	}
 }
