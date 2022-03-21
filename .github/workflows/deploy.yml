@@ -2,6 +2,9 @@ name: Deploy to WordPress.org
 on:
   release:
     types: [released]
+
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
 jobs:
   tag:
     name: New tag
