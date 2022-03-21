@@ -2,6 +2,9 @@ name: Deploy to WordPress.org
 on:
   release:
     types: [released]
+
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
 jobs:
   tag:
     name: New tag
@@ -9,9 +12,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Configure NPM cache
-        uses: c-hive/gha-npm-cache@v1
 
       - name: Install Dependencies
         run: npm install
