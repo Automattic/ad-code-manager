@@ -10,9 +10,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Configure NPM cache
-        uses: c-hive/gha-npm-cache@v1
-
       - name: Install Dependencies
         run: npm install
 
