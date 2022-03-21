@@ -1,0 +1,19 @@
+{
+	"name": "ad-code-manager",
+	"version": "0.6.0",
+	"description": "Easy ad code management.",
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"repository": "automattic/ad-code-manager",
+	"devDependencies": {
+		"@actions/github": "^2",
+		"replace-in-file": "^5",
+		"semver": "^7",
+		"version-bump-prompt": "^6.1.0"
+	},
+	"scripts": {
+		"bump:major": "bump major --commit 'Version %s.' ad-code-manager.php package.json README.md",
+		"bump:minor": "bump minor --commit 'Version %s.' ad-code-manager.php package.json README.md",
+		"bump:patch": "bump patch --commit 'Version %s.' ad-code-manager.php package.json README.md"
+	}
+}

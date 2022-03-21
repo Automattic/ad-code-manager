@@ -8,52 +8,52 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		// Default ad zones for DFP Async
 		$this->ad_tag_ids = array(
 			array(
-				'tag'       => '728x90',
-				'url_vars'  => array(
-					'tag'       => '728x90',
-					'sz'        => '728x90',
-					'height'    => '90',
-					'width'     => '728',
+				'tag'               => '728x90',
+				'url_vars'          => array(
+					'tag'    => '728x90',
+					'sz'     => '728x90',
+					'height' => '90',
+					'width'  => '728',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '300x250',
-				'url_vars'  => array(
-					'tag'       => '300x250',
-					'sz'        => '300x250',
-					'width'    => '300',
-					'height'     => '250',
+				'tag'               => '300x250',
+				'url_vars'          => array(
+					'tag'    => '300x250',
+					'sz'     => '300x250',
+					'width'  => '300',
+					'height' => '250',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '120x600',
-				'url_vars'  => array(
-					'tag'       => '120x600',
-					'sz'        => '120x600',
-					'width'    => '120',
-					'height'     => '600',
+				'tag'               => '120x600',
+				'url_vars'          => array(
+					'tag'    => '120x600',
+					'sz'     => '120x600',
+					'width'  => '120',
+					'height' => '600',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '160x600',
-				'url_vars'  => array(
-					'tag'       => '160x600',
-					'sz'        => '160x600',
-					'width'    => '160',
-					'height'     => '600',
+				'tag'               => '160x600',
+				'url_vars'          => array(
+					'tag'    => '160x600',
+					'sz'     => '160x600',
+					'width'  => '160',
+					'height' => '600',
 				),
 				'enable_ui_mapping' => true,
 			),
 			array(
-				'tag'       => '300x600',
-				'url_vars'  => array(
-					'tag'       => '300x600',
-					'sz'        => '300x600',
-					'width'    => '300',
-					'height'     => '600',
+				'tag'               => '300x600',
+				'url_vars'          => array(
+					'tag'    => '300x600',
+					'sz'     => '300x600',
+					'width'  => '300',
+					'height' => '600',
 				),
 				'enable_ui_mapping' => true,
 			),
@@ -61,40 +61,40 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 
 			// An extra, special tag to make sure the <head> gets the output we need it to
 			array(
-				'tag'           => 'dfp_head',
-				'url_vars'      => array(),
+				'tag'      => 'dfp_head',
+				'url_vars' => array(),
 			),
 		);
 
 		// Default fields for DFP Async
 		$this->ad_code_args = array(
 			array(
-				'key'       => 'tag',
-				'label'     => __( 'Tag', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
-				'type'      => 'select',
-				'options'   => array(
+				'key'      => 'tag',
+				'label'    => __( 'Tag', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
+				'type'     => 'select',
+				'options'  => array(
 					// This is added later, through 'acm_ad_code_args' filter
 				),
 			),
 			array(
-				'key'       => 'tag_id',
-				'label'     => __( 'Tag ID', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'tag_id',
+				'label'    => __( 'Tag ID', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 			array(
-				'key'       => 'dfp_id',
-				'label'     => __( 'DFP ID', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'dfp_id',
+				'label'    => __( 'DFP ID', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 			array(
-				'key'       => 'tag_name',
-				'label'     => __( 'Tag Name', 'ad-code-manager' ),
-				'editable'  => true,
-				'required'  => true,
+				'key'      => 'tag_name',
+				'label'    => __( 'Tag Name', 'ad-code-manager' ),
+				'editable' => true,
+				'required' => true,
 			),
 		);
 
@@ -115,16 +115,16 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		global $ad_code_manager;
 
 		foreach ( $ad_code_args as $tag => $ad_code_arg ) {
-
-			if ( 'tag' != $ad_code_arg['key'] )
+			if ( 'tag' != $ad_code_arg['key'] ) {
 				continue;
-
-			// Get all of the tags that are registered, and provide them as options
-			foreach ( (array)$ad_code_manager->ad_tag_ids as $ad_tag ) {
-				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] )
-					$ad_code_args[$tag]['options'][$ad_tag['tag']] = $ad_tag['tag'];
 			}
 
+			// Get all of the tags that are registered, and provide them as options
+			foreach ( (array) $ad_code_manager->ad_tag_ids as $ad_tag ) {
+				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] ) {
+					$ad_code_args[ $tag ]['options'][ $ad_tag['tag'] ] = $ad_tag['tag'];
+				}
+			}
 		}
 		return $ad_code_args;
 	}
@@ -137,10 +137,10 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 		global $ad_code_manager;
 
 		switch ( $tag_id ) {
-		case 'dfp_head':
-			$ad_tags = $ad_code_manager->ad_tag_ids;
-			ob_start();
-?>
+			case 'dfp_head':
+				$ad_tags = $ad_code_manager->ad_tag_ids;
+				ob_start();
+				?>
 	<!-- Include google_services.js -->
 <script type='text/javascript'>
 var googletag = googletag || {};
@@ -158,38 +158,39 @@ node.parentNode.insertBefore(gads, node);
 </script>
 <script type='text/javascript'>
 googletag.cmd.push(function() {
-<?php
-			foreach ( (array) $ad_tags as $tag ):
-				if ( $tag['tag'] == 'dfp_head' )
-					continue;
+				<?php
+				foreach ( (array) $ad_tags as $tag ) :
+					if ( $tag['tag'] == 'dfp_head' ) {
+						continue;
+					}
 
-				$tt = $tag['url_vars'];
-				$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
-				if ( ! empty( $matching_ad_code ) ) {
-					// @todo There might be a case when there are two tags registered with the same dimensions
-					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
-					// that tags are unique
+					$tt               = $tag['url_vars'];
+					$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
+					if ( ! empty( $matching_ad_code ) ) {
+						// @todo There might be a case when there are two tags registered with the same dimensions
+						// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
+						// that tags are unique
 
-					// Parse ad tags to output flexible unit dimensions
-					$unit_sizes = $this->parse_ad_tag_sizes( $tt );
+						// Parse ad tags to output flexible unit dimensions
+						$unit_sizes = $this->parse_ad_tag_sizes( $tt );
 
-?>
+						?>
 googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', <?php echo json_encode( $unit_sizes ); ?>, "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
-<?php
-				}
-			endforeach;
-?>
+						<?php
+					}
+				endforeach;
+				?>
 googletag.pubads().enableSingleRequest();
 googletag.pubads().collapseEmptyDivs();
 googletag.enableServices();
 });
 </script>
-<?php
+				<?php
 
-			$output_script = ob_get_clean();
-			break;
-		default:
-			$output_script = "
+				$output_script = ob_get_clean();
+				break;
+			default:
+				$output_script = "
 		<div id='acm-ad-tag-%tag_id%' style='width:%width%px; height:%height%px;'>
 <script type='text/javascript'>
 googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
@@ -198,7 +199,6 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 		";
 		}
 		return $output_script;
-
 	}
 
 	/**
@@ -214,12 +214,13 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 	 * sizes may be required to load in the same ad unit.
 	 */
 	public function parse_ad_tag_sizes( $url_vars ) {
-		if ( empty( $url_vars ) )
+		if ( empty( $url_vars ) ) {
 			return;
+		}
 
 		$unit_sizes_output = array();
 		if ( ! empty( $url_vars['sizes'] ) ) {
-			foreach( $url_vars['sizes'] as $unit_size ) {
+			foreach ( $url_vars['sizes'] as $unit_size ) {
 				$unit_sizes_output[] = array(
 					(int) $unit_size['width'],
 					(int) $unit_size['height'],
@@ -238,11 +239,13 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 
 class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
 	function __construct() {
-		parent::__construct( array(
-				'singular'=> 'doubleclick_for_publishers_async_acm_wp_list_table', //Singular label
-				'plural' => 'doubleclick_for_publishers_async_acm_wp_list_table', //plural label, also this well be one of the table css class
-				'ajax' => true
-			) );
+		parent::__construct(
+			array(
+				'singular' => 'doubleclick_for_publishers_async_acm_wp_list_table', // Singular label
+				'plural'   => 'doubleclick_for_publishers_async_acm_wp_list_table', // plural label, also this well be one of the table css class
+				'ajax'     => true,
+			) 
+		);
 	}
 
 	/**
@@ -250,15 +253,15 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	 */
 	function filter_columns() {
 		return array(
-			'cb'             => '<input type="checkbox" />',
-			'id'             => __( 'ID', 'ad-code-manager' ),
-			'tag'            => __( 'Tag', 'ad-code-manager' ),
-			'tag_id'         => __( 'Tag ID', 'ad-code-manager' ),
-			'dfp_id'         => __( 'DFP ID', 'ad-code-manager' ),
-			'tag_name'       => __( 'Tag Name', 'ad-code-manager' ),
-			'priority'       => __( 'Priority', 'ad-code-manager' ),
-			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
-			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
+			'cb'           => '<input type="checkbox" />',
+			'id'           => __( 'ID', 'ad-code-manager' ),
+			'tag'          => __( 'Tag', 'ad-code-manager' ),
+			'tag_id'       => __( 'Tag ID', 'ad-code-manager' ),
+			'dfp_id'       => __( 'DFP ID', 'ad-code-manager' ),
+			'tag_name'     => __( 'Tag Name', 'ad-code-manager' ),
+			'priority'     => __( 'Priority', 'ad-code-manager' ),
+			'operator'     => __( 'Logical Operator', 'ad-code-manager' ),
+			'conditionals' => __( 'Conditionals', 'ad-code-manager' ),
 		);
 	}
 
@@ -274,7 +277,7 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	 * Output the tag cell in the list table
 	 */
 	function column_tag( $item ) {
-		$output = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
+		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
