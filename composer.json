@@ -33,7 +33,7 @@
 			"@php ./vendor/bin/phpcbf"
 		],
 		"coverage": [
-			"@php ./vendor/bin/phpunit --coverage-html ./build/coverage-html"
+			"@php ./vendor/bin/phpunit --coverage-html ./.phpunit.cache/coverage-html"
 		],
 		"coverage-ci": [
 			"@php ./vendor/bin/phpunit"
