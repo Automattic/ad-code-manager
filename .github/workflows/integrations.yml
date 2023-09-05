@@ -44,7 +44,7 @@ jobs:
     continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
