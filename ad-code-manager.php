@@ -18,8 +18,8 @@
  * License:           GPL-2.0-or-later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * GitHub Plugin URI: https://github.com/Automattic/ad-code-manager/
- * Requires PHP:      7.1
- * Requires WP:       5.5.0
+ * Requires PHP:      7.4
+ * Requires WP:       5.7
  */
 
 declare(strict_types=1);

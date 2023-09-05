@@ -21,10 +21,10 @@ jobs:
 
     strategy:
       matrix:
-        php: ['7.1', '8.1']
+        php: ['7.4', '8.2']
         experimental: [false]
         include:
-          - php: '8.2'
+          - php: '8.3'
             experimental: true
       fail-fast: false
 
@@ -54,14 +54,7 @@ jobs:
       # Install dependencies and handle caching in one go.
       # @link https://github.com/marketplace/actions/install-php-dependencies-with-composer
       - name: Install Composer dependencies
-        if: ${{ matrix.php < 8.2 }}
         uses: ramsey/composer-install@v2
-
-      - name: Install Composer dependencies for PHP >= 8.2
-        if: ${{ matrix.php >= 8.2 }}
-        uses: ramsey/composer-install@v2
-        with:
-          composer-options: --ignore-platform-reqs
 
       # Lint PHP.
       - name: Lint PHP against parse errors
@@ -70,7 +63,7 @@ jobs:
       # Needed as runs-on: system doesn't have xml-lint by default.
       # @link https://github.com/marketplace/actions/xml-lint
       - name: Lint phpunit.xml.dist
-        if: ${{ matrix.php >= 7.3 }}
+        if: ${{ matrix.php >= 8.0 }}
         uses: ChristophWurst/xmllint-action@v1
         with:
           xml-file: ./phpunit.xml.dist
