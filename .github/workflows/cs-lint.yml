@@ -49,7 +49,7 @@ jobs:
         uses: korelstar/xmllint-problem-matcher@v1
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Install dependencies and handle caching in one go.
       # @link https://github.com/marketplace/actions/install-php-dependencies-with-composer
