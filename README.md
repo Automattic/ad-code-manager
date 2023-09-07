@@ -551,4 +551,6 @@ function my_acm_ad_code_args( $args ) {
 }
 ~~~
 
-<!-- changelog -->
+### Change Log
+
+[View the change log](https://github.com/Automattic/ad-code-manager/blob/master/CHANGELOG.md).
