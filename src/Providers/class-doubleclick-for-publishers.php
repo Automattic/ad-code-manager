@@ -1,6 +1,6 @@
 <?php
 /**
- * Doubleclick for Publishers Ad Provider for Ad Code manager
+ * DoubleClick for Publishers Ad Provider for Ad Code manager
  *
  * @since 0.1.3
  */
@@ -10,7 +10,7 @@ class Doubleclick_For_Publishers_Columns {
 
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 	public $crawler_user_agent = 'Mediapartners-Google';
-	
+
 	function __construct() {
 		// Default output HTML
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
@@ -91,7 +91,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 				'singular' => 'doubleclick_for_publishers_acm_wp_list_table', // Singular label
 				'plural'   => 'doubleclick_for_publishers_acm_wp_list_table', // plural label, also this well be one of the table css class
 				'ajax'     => true,
-			) 
+			)
 		);
 	}
 
