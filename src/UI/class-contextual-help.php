@@ -50,10 +50,10 @@ final class Contextual_Help {
 
 		ob_start();
 		?>
-		<p><?php esc_html_e( 'Choose the ad network you use, and you will see a set of required fields to fill in, such as IDs. You can also set conditionals for each ad tag, which restricts the contexts for when the adverts are displayed. Priorities work pretty much the same way they work in WordPress. Lower numbers correspond with higher priority.', 'ad-code-manager' ); ?></p>
+		<p><?php esc_html_e( 'Choose your ad network, and you will see a set of required fields to fill in, such as IDs. You can also set conditionals for each ad tag, which restricts the contexts for displaying the adverts. Priorities work pretty much the same way they work in WordPress. Lower numbers correspond with higher priority.', 'ad-code-manager' ); ?></p>
 		<p><?php esc_html_e( 'Once you\'ve finished creating the ad codes, you can display them in your theme using:', 'ad-code-manager' ); ?></p>
 		<ul>
-			<li><?php echo wp_kses_post( __( 'a template tag in your theme: <code>&lt;?php do_action( \'acm_tag\', $tag_id ) ?></code>', 'ad-code-manager' ) ); ?></li>
+			<li><?php echo wp_kses_post( __( 'a template tag in your theme: <code>&lt;?php do_action( \'acm_tag\', $tag_id ); ?></code>', 'ad-code-manager' ) ); ?></li>
 			<li><?php echo wp_kses_post( __( 'a shortcode: <code>[acm-tag id="tag_id"]</code>', 'ad-code-manager' ) ); ?></li>
 			<li><?php esc_html_e( 'or using a widget.', 'ad-code-manager' ); ?></li>
 		</ul>
@@ -63,13 +63,13 @@ final class Contextual_Help {
 		ob_start();
 		?>
 		<p><?php esc_html_e( 'In the fields below, you can choose which conditionals you want. Some can take a value (i.e. define a specific category) in the second field.', 'ad-code-manager' ); ?></p>
-		<p><?php esc_html_e( 'Here\'s an overview of the conditionals - they work the same as the functions of the same name in WordPress.', 'ad-code-manager' ); ?></p>
+		<p><?php esc_html_e( 'Here\'s an overview of the conditionals; they work the same as the functions of the same name in WordPress.', 'ad-code-manager' ); ?></p>
 		<dl>
 			<dt><a href="https://developer.wordpress.org/reference/functions/is_home/">is_home</a></dt>
-			<dd><?php echo wp_kses_post( __( 'When the main blog page is being displayed. This is the page which shows the time based blog content of your site, so if you\'ve set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <i>Settings &gt; Reading</i>.', 'ad-code-manager' ) ); ?></dd>
+			<dd><?php echo wp_kses_post( __( 'When the main blog page is being displayed. This is the page which shows the time-based blog content of your site, so if you\'ve set a static Page for the Front Page (see below), then this will only be true on the Page which you set as the "Posts page" in <i>Settings &gt; Reading</i>.', 'ad-code-manager' ) ); ?></dd>
 
 			<dt><a href="https://developer.wordpress.org/reference/functions/is_front_page">is_front_page</a></dt>
-			<dd><?php echo wp_kses_post( __( 'When the front of the site is displayed, whether it is posts or a Page. Returns true when the main blog page is being displayed and the <i>Settings &gt; Reading &gt; Front page displays</i> is set to "Your latest posts", <b>or</b> when <i>Settings</a> &gt; Reading &gt; Front page displays</i> is set to "A static page" and the "Front Page" value is the current Page being displayed.', 'ad-code-manager' ) ); ?></dd>
+			<dd><?php echo wp_kses_post( __( 'When the front of the site is displayed, whether it is posts or a Page. Returns true when the main blog page is being displayed and the <i>Settings &gt; Reading &gt; Front page displays</i> is set to "Your latest posts", <b>or</b> when <i>Settings</a> &gt; Reading &gt; Front page displays</i> is set to "A static page" and the "Front Page" value is the current page displayed.', 'ad-code-manager' ) ); ?></dd>
 
 			<dt><a href="https://developer.wordpress.org/reference/functions/is_category">is_category</a></dt>
 			<dd><?php esc_html_e( 'When any Category archive page is being displayed.', 'ad-code-manager' ); ?></dd>
