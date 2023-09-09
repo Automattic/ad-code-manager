@@ -1,6 +1,6 @@
 # Ad Code Manager
 
-Stable tag: 0.6.0  
+Stable tag: 0.7.0  
 Requires at least: 5.7  
 Tested up to: 5.9  
 Requires PHP: 7.4  
