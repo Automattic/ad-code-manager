@@ -1,37 +1,37 @@
 # Ad Code Manager
 
-Stable tag: 0.6.0  
-Requires at least: 5.5  
+Stable tag: 0.7.0  
+Requires at least: 5.7  
 Tested up to: 5.9  
-Requires PHP: 7.1  
+Requires PHP: 7.4  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers  
 Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo
 
-Manage your ad codes through the WordPress admin in a safe and easy way.
+Manage your ad codes through the WordPress admin safely and easily.
 
 ## Description
 
 Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.
 
-Some code-level configuration may be necessary to set up Ad Code Manager. Ad tags must be added (via `do_action()`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode. Check out the configuration guide below for the full details.
+Some code-level configuration may be necessary to set up Ad Code Manager. Ad tags must be added (via `do_action()`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and shortcode. Check out the configuration guide below for the full details.
 
-A common set of parameters must also be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL. Ad Code Manager comes with support for Google Doubleclick For Publishers (and Async), and Google AdSense. All the logic is abstracted, however, so configuring a different provider is relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
+A common set of parameters must also be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL. Ad Code Manager supports Google DoubleClick For Publishers (and Async), and Google AdSense. All the logic is abstracted, however, so configuring a different provider is relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
-Once this configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expression and then return true or false.
+Once this configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expressions and then return true or false.
 
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
 ## Installation
 
-The plugin requires PHP 7.1 or later. It is also test on WordPress 5.5 and later, though it may run on older versions.
+The plugin requires PHP 7.4 or later. It is also tested WordPress 5.7 and later, though it may run on older versions.
 
 Since the plugin is in its early stages, there are a couple additional configuration steps:
 
 1. Upload `ad-code-manager` to the `/wp-content/plugins/` directory.
 2. Activate the plugin through the 'Plugins' menu in WordPress.
-3. Incorporate ad tags in your theme template with  `do_action( 'acm_tag', 'slot' )`. Also you can use `[acm-tag id="slot"]` shortcode or ACM Widget.
+3. Incorporate ad tags in your theme template with  `do_action( 'acm_tag', 'slot' );`. Also, you can use `[acm-tag id="slot"]` shortcode or ACM Widget.
 4. Implement filters to make the plugin work with your provider.
 5. Configure your ad codes in the WordPress admin (Tools -> Ad Code Manager).
 
@@ -51,11 +51,11 @@ Since the plugin is in its early stages, there are a couple additional configura
 
 ## Configure Ad Code Manager to manage the advertisements on your site
 
-Ad Code Manager is a VIP-sponsored plugin designed to make it easier to manage the ad codes used to display advertisements on your site. There's a little bit of work you'll need to do up front, however, in order to integrate Ad Code Manager with your theme.
+Ad Code Manager is a VIP-sponsored plugin designed to make managing the ad codes used to display advertisements on your site easier. There's a little bit of work you'll need to do upfront to integrate Ad Code Manager with your theme.
 
-The high-level idea behind Ad Code Manager is that it gives non-developers an admin interface to manage your ad codes. It then permits users to (optionally) target specific ad codes using conditionals like `is_home()` and `is_single()`. Ad codes are associated with positions in the theme through the use of ad tags.
+The high-level idea behind Ad Code Manager is that it gives non-developers an admin interface to manage ad codes. It then permits users to (optionally) target specific ad codes using conditionals like `is_home()` and `is_single()`. Ad codes are associated with positions in the theme through the use of ad tags.
 
-Currently, Ad Code Manager easily integrates with Google Doubleclick For Publishers Async and Google AdSense. Other ad providers are supported with additional configuration.
+Currently, Ad Code Manager easily integrates with Google DoubleClick For Publishers Async and Google AdSense. Other ad providers are supported with additional configuration.
 
 ### Google AdSense and DoubleClick For Publishers Async
 
@@ -65,11 +65,11 @@ Let's use AdSense as our first example. You'll want to incorporate some of the d
 do_action( 'acm_tag', '728x90_leaderboard' );
 ~~~
 
-Once you've done so, you can select the "Google AdSense" provider in the admin. Ad codes can be registered against ad tags (positions) by choosing the ad tag from the drop down, entering the tag ID and publisher ID, and hitting "Add New Ad Code".
+Once done, you can select the "Google AdSense" provider in the admin. Ad codes can be registered against ad tags (positions) by choosing the ad tag from the drop-down, entering the tag ID and publisher ID, and hitting "Add New Ad Code".
 
 And like that, your 728x90 leaderboard will appear on your site.
 
-The Google AdSense configuration comes with many of Google's suggested sizes. Additional ad tags can be registered by the way of filtering:
+The Google AdSense configuration comes with many of Google's suggested sizes. Additional ad tags can be registered by way of filtering:
 
 ~~~php
 add_filter( 'acm_ad_tag_ids', 'acmx_filter_ad_tag_ids' );
@@ -88,13 +88,13 @@ function acmx_filter_ad_tag_ids( $ids ) {
 }
 ~~~
 
-Keep in mind that you'll still need to incorporate a `do_action( 'acm_tag', '100x100_smallsquare' );` in your theme in order to display the ad tag.
+Keep in mind that you'll still need to incorporate a `do_action( 'acm_tag', '100x100_smallsquare' );` in your theme to display the ad tag.
 
 If you choose Google DFP Async as your provider, you'll likely need to register additional ad tags, as we only package two default ad tags.
 
 ### Custom Ad Provider Implementations
 
-As mentioned previously, other ad code providers are supported with additional configuration. Here's an example of the different filters you would use to configure the older version of Google Doubleclick For Publishers:
+As mentioned previously, other ad code providers are supported with additional configuration. Here's an example of the different filters you would use to configure the older version of Google DoubleClick For Publishers:
 
 ~~~php
 /**
@@ -240,10 +240,10 @@ There are some filters which allow you to easily customize the output of the plu
 
 ### `acm_ad_tag_ids`
 
-Ad tag ids are used as a parameter when adding tags to your theme (e.g. `do_action( 'acm_tag', 'my_top_leaderboard' )`). The `url_vars` defined as part of each tag here will also be used to replace tokens in your default URL.
+Ad tag IDs are used as a parameter when adding tags to your theme (e.g. `do_action( 'acm_tag', 'my_top_leaderboard' )`). The `url_vars` defined as part of each tag here will also be used to replace tokens in your default URL.
 
 Arguments:
-* array $tag_ids array of default tag ids
+* array $tag_ids array of default tag IDs
 
 Example usage: Add a new ad tag called 'my_top_leaderboard'
 
@@ -267,7 +267,7 @@ function my_acm_ad_tag_ids( $tag_ids ) {
 Set the default tokenized URL used when displaying your ad tags. This filter is required.
 
 Arguments:
-* string $url The tokenized url of Ad Code
+* string $url The tokenized URL of Ad Code
 
 Example usage: Set your default ad code URL
 
@@ -282,7 +282,7 @@ function my_acm_default_url( $url ) {
 
 ### `acm_output_html`
 
-The HTML outputted by the `do_action( 'acm_tag', 'ad_tag_id' );` call in your theme. Support multiple ad formats ( e.g. JavaScript ad tags, or simple HTML tags ) by adjusting the HTML rendered for a given ad tag.
+The HTML outputted by the `do_action( 'acm_tag', 'ad_tag_id' );` call in your theme. Support multiple ad formats (e.g. JavaScript or simple HTML tags) by adjusting the HTML rendered for a given ad tag.
 
 The `%url%` token used in this HTML will be filled in with the URL defined with `acm_default_url`.
 
@@ -311,7 +311,7 @@ function my_acm_output_html( $output_html, $tag_id ) {
 
 ### `acm_register_provider_slug`
 
-Ad Code Manager has a built-in list of providers that it gathers by scanning the 'providers' directory used by the plugin. Additional providers can be added by placing the appropriate files in that directory, or by using the `acm_register_provider_slug` filter to register those that may be included as part of your theme or another plugin.
+Ad Code Manager has a built-in list of providers that it gathers by scanning the 'providers' directory used by the plugin. Additional providers can be added by placing the appropriate files in that directory or using the `acm_register_provider_slug` filter to register those that may be included as part of your theme or another plugin.
 
 When using this plugin, you are defining the provider slug as part of the existing object as well as an array of classes associated with that provider slug.
 
@@ -339,7 +339,7 @@ A security filter to define a safelist for which ad code script URLs can be adde
 Arguments:
 * array $whitelisted_urls Existing whitelisted ad code URLs
 
-Example usage: Allow Doubleclick for Publishers ad codes to be used
+Example usage: Allow DoubleClick for Publishers ad codes to be used
 
 ~~~php
 add_filter( 'acm_whitelisted_script_urls', 'my_acm_safelisted_script_urls' );
@@ -351,11 +351,11 @@ function my_acm_safelisted_script_urls( $safelisted_urls ) {
 
 ### `acm_output_tokens`
 
-Output tokens can be registered depending on the needs of your setup. Tokens defined here will be replaced in the ad tag's tokenized URL in addition to the tokens already registered with your tag id.
+Output tokens can be registered depending on the needs of your setup. Tokens defined here will be replaced in the ad tag's tokenized URL in addition to the tokens already registered with your tag ID.
 
 Arguments:
 * array $output_tokens Any existing output tokens
-* string $tag_id Unique tag id
+* string $tag_id Unique tag ID
 * array $code_to_display Ad Code that matched conditionals
 
 Example usage: Test to determine whether you're in test or production by passing ?test=on query argument
@@ -433,7 +433,7 @@ add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
 
 ### `acm_provider_slug`
 
-By default, we use our bundled doubleclick_for_publishers config (check it in `/providers/doubleclick-for-publishers.php`). If you want to add your own flavor of DFP or even implement configuration for some another ad network, you'd have to apply a filter to correct the slug.
+By default, we use our bundled doubleclick_for_publishers config (check it in `/providers/doubleclick-for-publishers.php`). If you want to add your own flavor of DFP or even implement configuration for another ad network, you'd have to apply a filter to correct the slug.
 
 Example usage:
 
@@ -448,8 +448,8 @@ add_filter(
 
 ### `acm_logical_operator`
 
-By default, logical operator is set to "OR", that is, ad code will be displayed if at least one conditional returns true.
-You can change it to "AND", so that ad code will be displayed only if ALL of the conditionals match.
+By default, the logical operator is set to "OR", that is, ad code will be displayed if at least one conditional returns true.
+You can change it to "AND", so that the ad code will be displayed only if ALL the conditionals match.
 
 Example usage:
 
@@ -464,7 +464,7 @@ add_filter(
 
 ### `acm_manage_ads_cap`
 
-By default, user has to have `manage_options` cap. This filter comes in handy, if you want to relax the requirements.
+By default, the user has to have `manage_options` cap. This filter comes in handy if you want to relax the requirements.
 
 Example usage:
 
@@ -479,7 +479,7 @@ add_filter(
 
 ### `acm_allowed_get_posts_args`
 
-This filter is only for edge cases. Most likely you won't have to touch it. Allows to include additional query args for `Ad_Code_Manager->get_ad_codes()` method.
+This filter is only for edge cases. Most likely, you won't have to touch it. Allows to include additional query args for `Ad_Code_Manager->get_ad_codes()` method.
 
 Example usage:
 
@@ -494,7 +494,7 @@ add_filter(
 
 ### `acm_ad_code_count`
 
-By default, the total number of ad codes to get is 50, which is reasonable for any small to mid-sized site. However, in some certain cases you would want to increase the limit. This will affect `Ad_Code_Manager->get_ad_codes()` `numberposts` query argument.
+By default, the total number of ad codes to get is 50, which is reasonable for any small to mid-sized site. However, in certain cases, you would want to increase the limit. This will affect `Ad_Code_Manager->get_ad_codes()` `numberposts` query argument.
 
 Example usage:
 
@@ -529,7 +529,7 @@ function my_acm_list_table_columns( $columns ) {
 
 ### `acm_ad_code_args`
 
-This filter comes in pair with previous one, it should return array of ad network specific parameters. E.g. in `acm_list_table_columns` example we have 'id', 'name', 'priority', 'conditionals'. All of them except 'name' are generic for Ad Code Manager. Hence, `acm_provider_columns` should return only "name".
+This filter comes in pair with the previous one. It should return an array of ad network-specific parameters. E.g. in `acm_list_table_columns` example, we have 'id', 'name', 'priority', and 'conditionals'. All of them except 'name' are generic for Ad Code Manager. Hence, `acm_provider_columns` should return only "name".
 
 "editable" and "required" indicate whether this field should be editable and required.
 
@@ -551,4 +551,6 @@ function my_acm_ad_code_args( $args ) {
 }
 ~~~
 
-<!-- changelog -->
+### Change Log
+
+[View the change log](https://github.com/Automattic/ad-code-manager/blob/master/CHANGELOG.md).
