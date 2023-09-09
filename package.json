@@ -1,14 +1,11 @@
 {
 	"name": "ad-code-manager",
-	"version": "0.7.0",
+	"version": "0.7.1",
 	"description": "Easy ad code management.",
 	"license": "GPL-2.0-or-later",
 	"author": "Automattic",
 	"repository": "automattic/ad-code-manager",
 	"devDependencies": {
-		"@actions/github": "^2",
-		"replace-in-file": "^5",
-		"semver": "^7",
 		"version-bump-prompt": "^6.1.0"
 	},
 	"scripts": {
