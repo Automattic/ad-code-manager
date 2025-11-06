@@ -1,15 +1,19 @@
 {
 	"name": "automattic/ad-code-manager",
-	"type": "wordpress-plugin",
 	"description": "Easy ad code management",
-	"homepage": "https://github.com/Automattic/ad-code-manager/",
 	"license": "GPL-2.0-or-later",
+	"type": "wordpress-plugin",
 	"authors": [
 		{
 			"name": "Automattic",
 			"homepage": "https://automattic.com/"
 		}
 	],
+	"homepage": "https://github.com/Automattic/ad-code-manager/",
+	"support": {
+		"issues": "https://github.com/Automattic/ad-code-manager/issues",
+		"source": "https://github.com/Automattic/ad-code-manager"
+	},
 	"require": {
 		"php": ">=7.4",
 		"composer/installers": "^1.0 || ^2.0"
@@ -24,12 +28,10 @@
 		"allow-plugins": {
 			"composer/installers": true,
 			"dealerdirect/phpcodesniffer-composer-installer": true
-		}
+		},
+		"sort-packages": true
 	},
 	"scripts": {
-		"cbf": [
-			"@php ./vendor/bin/phpcbf"
-		],
 		"coverage": [
 			"@php ./vendor/bin/phpunit --coverage-html ./.phpunit.cache/coverage-html"
 		],
@@ -37,8 +39,12 @@
 			"@php ./vendor/bin/phpunit"
 		],
 		"cs": [
-			"@php ./vendor/bin/phpcs"
+			"@php ./vendor/bin/phpcs -q"
 		],
+		"cs-fix": [
+			"@php ./vendor/bin/phpcbf -q"
+		],
+		"i18n": "@php wp i18n make-pot . ./languages/ad-code-manager.pot",
 		"lint": [
 			"@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git"
 		],
@@ -56,8 +62,16 @@
 			"@composer test"
 		]
 	},
-	"support": {
-		"issues": "https://github.com/Automattic/ad-code-manager/issues",
-		"source": "https://github.com/Automattic/ad-code-manager"
+	"scripts-descriptions": {
+		"coverage": "Run tests with code coverage reporting",
+		"coverage-ci": "Run tests with code coverage reporting and send results to stdout",
+		"cs": "Run PHP Code Sniffer",
+		"cs-fix": "Run PHP Code Sniffer and fix violations",
+		"i18n": "Generate a POT file for translation",
+		"lint": "Run PHP linting",
+		"lint-ci": "Run PHP linting and send results to stdout",
+		"prepare-ci": "Prepare the environment for integration tests",
+		"test": "Run all tests for the Ad Code Manager plugin",
+		"test-ms": "Run integration tests for the Ad Code Manager plugin in multisite mode"
 	}
 }
