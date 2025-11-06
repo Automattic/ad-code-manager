@@ -28,7 +28,7 @@ jobs:
     strategy:
       matrix:
         php: [ '7.4', '8.2' ]
-        wordpress: [ '5.7', '6.3' ]
+        wordpress: [ '6.4', 'latest' ]
         allowed_failure: [false]
         coverage: [false]
         include:
@@ -42,15 +42,6 @@ jobs:
             wordpress: 'latest'
             allowed_failure: true
             coverage: false
-          # Code coverage on latest PHP and WP.
-          - php: '8.2'
-            wordpress: 'latest'
-            allowed_failure: false
-            coverage: true
-        exclude:
-          # WordPress 5.7 doesn't support PHP 8.2.
-          - php: '8.2'
-            wordpress: '5.7'
       fail-fast: false
     continue-on-error: ${{ matrix.allowed_failure }}
 
