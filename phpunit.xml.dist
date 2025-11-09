@@ -27,7 +27,7 @@
         </include>
 		<report>
 			<text outputFile="php://stdout"/>
-			<clover outputFile="clover.xml"/>
+			<clover outputFile=".phpunit.cache/coverage/clover.xml"/>
 		</report>
     </coverage>
 </phpunit>

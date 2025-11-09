@@ -27,26 +27,18 @@ jobs:
 
     strategy:
       matrix:
-        php: [ '7.4', '8.2' ]
+        php: [ '7.4', '8.3' ]
         wordpress: [ '6.4', '6.8' ]
         allowed_failure: [false]
-        coverage: [false]
         include:
           # Check upcoming WP.
-          - php: '8.2'
-            wordpress: 'trunk'
-            allowed_failure: true
-            coverage: false
-          # Check upcoming PHP.
           - php: '8.3'
-            wordpress: 'latest'
+            wordpress: 'master'
             allowed_failure: true
-            coverage: false
-          # Code coverage on latest PHP and WP.
-          - php: '8.2'
-            wordpress: 'latest'
-            allowed_failure: false
-            coverage: true
+          # Check upcoming PHP.
+          - php: '8.5'
+            wordpress: '6.8'
+            allowed_failure: true
       fail-fast: false
     continue-on-error: ${{ matrix.allowed_failure }}
 
@@ -54,11 +46,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Install wordpress environment
+        run: npm install -g @wordpress/env
+
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          coverage: ${{ matrix.coverage && 'xdebug' || 'none' }}
+          coverage: none
+          tools: composer
 
       - name: Setup problem matchers for PHP
         run: echo "::add-matcher::${{ runner.tool_cache }}/php.json"
@@ -69,29 +65,10 @@ jobs:
       - name: Install Composer dependencies
         uses: ramsey/composer-install@v3
 
-      - name: Start MySQL Service
-        run: sudo systemctl start mysql.service
-
-      - name: Setting mysql_native_password for PHP <= 7.3
-        if: ${{ matrix.php <= 7.3 }}
-        run: mysql -u root -proot -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'root';"
-
-      - name: Prepare environment for integration tests
-        run: composer prepare-ci --no-interaction
+      - name: Setup wp-env
+        run: wp-env start
+        env:
+          WP_ENV_CORE: WordPress/WordPress#${{ matrix.wordpress }}
 
       - name: Run integration tests
-        if: ${{ matrix.coverage == false }}
-        run: composer test --no-interaction
-
-      - name: Run integration tests with code coverage
-        if: ${{ matrix.coverage == true  }}
-        run: composer coverage-ci --no-interaction
-
-      - name: Send coverage report to Codecov
-        if: ${{ success() && matrix.coverage == true }}
-        uses: codecov/codecov-action@v5
-        with:
-          files: ./clover.xml
-          fail_ci_if_error: true
-          token: ${{ secrets.CODECOV_TOKEN }}
-          verbose: true
+        run: composer test-integration --no-interaction
