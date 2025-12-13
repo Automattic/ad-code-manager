@@ -80,4 +80,4 @@ jobs:
           WP_ENV_CORE: WordPress/WordPress#${{ matrix.wordpress }}
 
       - name: Run integration tests
-        run: composer test-integration --no-interaction
+        run: composer test:integration --no-interaction
