@@ -53,6 +53,8 @@
 				<element value="Automattic\AdCodeManager"/>
 			</property>
 		</properties>
+		<!-- Allow 3-character prefix "acm" - this is an established plugin prefix. -->
+		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
