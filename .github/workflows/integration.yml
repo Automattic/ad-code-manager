@@ -30,20 +30,14 @@ jobs:
 
     strategy:
       matrix:
-        php: [ '7.4', '8.3' ]
-        wordpress: [ '6.4', '6.8' ]
-        allowed_failure: [false]
         include:
-          # Check upcoming WP.
-          - php: '8.3'
-            wordpress: 'master'
-            allowed_failure: true
-          # Check upcoming PHP.
-          - php: '8.5'
-            wordpress: '6.8'
-            allowed_failure: true
+          # Check lowest supported WP version, with the lowest supported PHP.
+          - wordpress: '6.4'
+            php: '7.4'
+          # Check latest WP with the latest PHP.
+          - wordpress: 'master'
+            php: 'latest'
       fail-fast: false
-    continue-on-error: ${{ matrix.allowed_failure }}
 
     steps:
       - name: Checkout code
