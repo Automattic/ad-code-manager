@@ -39,38 +39,52 @@
 		bindEvents: function() {
 			var self = this;
 
-			// Use event delegation for dynamically added conditional selects (Add form only).
-			$( document ).on( 'change', '#add-adcode select[name="acm-conditionals[]"]', function() {
+			// Use event delegation for dynamically added conditional selects (Add and Edit forms).
+			$( document ).on( 'change', '#add-adcode select[name="acm-conditionals[]"], #edit-adcode select[name="acm-conditionals[]"]', function() {
 				self.handleConditionalChange( $( this ) );
 				self.updateAddButtonVisibility();
+				self.updateOperatorVisibility();
 			});
 
-			// Re-initialize when new conditional rows are added.
-			$( document ).on( 'click', '.add-more-conditionals', function() {
-				// Small delay to allow DOM to update.
+			// Handle adding new conditional rows.
+			$( document ).on( 'click', '.add-more-conditionals', function( e ) {
+				e.preventDefault();
+				var $button = $( this );
+				var $form = $button.closest( 'form' );
+				var $container = $form.find( '.form-new-row' );
+
+				self.addConditionalRow( $container );
+
+				// Small delay to allow DOM to update, then clean up.
 				setTimeout( function() {
 					self.cleanupNewRows();
 					self.updateAddButtonVisibility();
+					self.updateOperatorVisibility();
 				}, 100 );
 			});
 
 			// Handle remove conditional click.
-			$( document ).on( 'click', '.acm-remove-conditional', function() {
+			$( document ).on( 'click', '.acm-remove-conditional', function( e ) {
+				e.preventDefault();
+				var $row = $( this ).closest( '.conditional-single-field' );
+				$row.remove();
+
 				setTimeout( function() {
 					self.updateAddButtonVisibility();
+					self.updateOperatorVisibility();
 				}, 100 );
 			});
 		},
 
 		/**
 		 * Initialize any existing conditional fields on page load.
-		 * Only targets the Add form, not inline edit.
+		 * Targets both Add and Edit forms.
 		 */
 		initExistingFields: function() {
 			var self = this;
 
-			// Only target the Add form to avoid conflicts with inline edit.
-			$( '#add-adcode select[name="acm-conditionals[]"]' ).each( function() {
+			// Target both Add and Edit forms.
+			$( '#add-adcode select[name="acm-conditionals[]"], #edit-adcode select[name="acm-conditionals[]"]' ).each( function() {
 				var $select = $( this );
 				var conditional = $select.val();
 				var $argumentsContainer = $select.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
@@ -90,6 +104,62 @@
 					self.initAutocomplete( $select );
 				}
 			});
+		},
+
+		/**
+		 * Add a new conditional row to the form.
+		 *
+		 * @param {jQuery} $container The container to add the row to.
+		 */
+		addConditionalRow: function( $container ) {
+			var $master = $container.find( '#conditional-single-field-master' );
+
+			if ( ! $master.length ) {
+				$master = $container.find( '.conditional-single-field' ).first();
+			}
+
+			if ( ! $master.length ) {
+				return;
+			}
+
+			// Clone the master row.
+			var $newRow = $master.clone();
+
+			// Remove the master ID so only one exists.
+			$newRow.removeAttr( 'id' );
+
+			// Reset select to default.
+			$newRow.find( 'select[name="acm-conditionals[]"]' ).val( '' );
+
+			// Reset and show the input.
+			var $input = $newRow.find( 'input[name="acm-arguments[]"]' );
+			$input.val( '' ).show();
+
+			// Remove any Select2 elements that may have been cloned.
+			$newRow.find( 'select.acm-autocomplete-select' ).remove();
+			$newRow.find( '.select2-container' ).remove();
+
+			// Restore hidden input if present.
+			var $hiddenInput = $newRow.find( 'input[data-original-name="acm-arguments[]"]' );
+			if ( $hiddenInput.length ) {
+				$hiddenInput
+					.attr( 'name', 'acm-arguments[]' )
+					.removeAttr( 'data-original-name' )
+					.val( '' )
+					.show();
+			}
+
+			// Add remove link if not present.
+			var $arguments = $newRow.find( '.conditional-arguments' );
+			if ( ! $arguments.find( '.acm-remove-conditional' ).length ) {
+				$arguments.append( ' <a href="#" class="acm-remove-conditional">Remove</a>' );
+			}
+
+			// Hide the arguments container initially.
+			$arguments.hide();
+
+			// Append to container.
+			$container.append( $newRow );
 		},
 
 		/**
@@ -366,22 +436,53 @@
 		 * Shows the button only when at least one condition is selected.
 		 */
 		updateAddButtonVisibility: function() {
-			var $form = $( '#add-adcode' );
-			var $addButton = $form.find( '.form-add-more' );
-			var hasSelectedCondition = false;
+			var $forms = $( '#add-adcode, #edit-adcode' );
 
-			// Check if any conditional select has a value.
-			$form.find( 'select[name="acm-conditionals[]"]' ).each( function() {
+			$forms.each( function() {
+				var $form = $( this );
+				var $addButton = $form.find( '.form-add-more' );
+				var hasSelectedCondition = false;
+
+				// Check if any conditional select has a value.
+				$form.find( 'select[name="acm-conditionals[]"]' ).each( function() {
+					if ( $( this ).val() ) {
+						hasSelectedCondition = true;
+						return false; // Break the loop.
+					}
+				});
+
+				if ( hasSelectedCondition ) {
+					$addButton.addClass( 'visible' );
+				} else {
+					$addButton.removeClass( 'visible' );
+				}
+			});
+		},
+
+		/**
+		 * Update visibility of the Logical Operator row.
+		 *
+		 * Shows the operator row only when 2+ conditions are selected.
+		 */
+		updateOperatorVisibility: function() {
+			var $operatorRow = $( '#operator-row' );
+
+			if ( ! $operatorRow.length ) {
+				return;
+			}
+
+			// Count selected conditionals.
+			var selectedCount = 0;
+			$( '#edit-adcode select[name="acm-conditionals[]"]' ).each( function() {
 				if ( $( this ).val() ) {
-					hasSelectedCondition = true;
-					return false; // Break the loop.
+					selectedCount++;
 				}
 			});
 
-			if ( hasSelectedCondition ) {
-				$addButton.addClass( 'visible' );
+			if ( selectedCount >= 2 ) {
+				$operatorRow.show();
 			} else {
-				$addButton.removeClass( 'visible' );
+				$operatorRow.hide();
 			}
 		}
 	};

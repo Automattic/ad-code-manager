@@ -37,125 +37,9 @@ tr:hover .row-actions {
 	margin-bottom: 5px;
 }
 
-.inline-edit-col .acm-section-label {
-	margin-bottom: 5px;
-	text-transform: none;
-}
-
-.inline-edit-col .acm-float-left {
-	float: left;
-}
-
-.inline-edit-col .acm-column-fields,
-.inline-edit-col .acm-priority-field {
-	width: 250px;
-}
-
-.inline-edit-col .acm-column-fields label {
-	float: left;
-	width: 75px;
-}
-
-.inline-edit-col .acm-column-fields input {
-	margin-bottom: 5px;
-}
-
-.inline-edit-col .acm-conditional-fields {
-	float: left;
-	min-width: 270px;
-}
-
-.inline-edit-col .acm-conditional-fields .conditional-arguments {
-	margin-left: 140px;
-}
-
-.inline-edit-col .acm-conditional-fields .conditional-arguments input {
-	width: 70%;
-	margin-bottom: 5px;
-}
-
-.inline-edit-col .acm-conditional-fields .form-add-more {
-	margin-top: 10px;
-	clear: both;
-}
-
 #add-adcode .form-add-more {
 	clear:left;
 	width: 90%;
-}
-
-.acm-edit-field {
-	position: relative;
-	max-width: 200px;
-	float: left;
-	margin: 15px 0 0 15px;
-}
-
-.acm-edit-field label {
-	position: relative;
-	float: left;
-	font-weight: 700;
-	color: #333;
-}
-
-.acm-edit-cond,
-.acm-cancel-button,
-.acm-edit-field input,
-.acm-conditional-label {
-	position: relative;
-	float: left;
-	clear: left;
-}
-
-.acm-edit-cond {
-	margin: 5px 0 0 15px;
-}
-
-.acm-edit-cond input {
-	margin-left: 15px;
-}
-
-.acm-conditional-label {
-	width: 100%;
-	font-weight: 700;
-	color: #333;
-	margin: 10px 0 0 15px;
-}
-
-.acm-cancel-button {
-	margin: 10px 0 30px 15px;
-}
-
-.acm-edit-button {
-	float: left;
-	margin: 10px 0 30px 15px;
-}
-
-.acm-x-cond {
-	font-size: 14px;
-	padding-left: 5px;
-	color: #888;
-	cursor: pointer;
-	font-family: sans-serif
-}
-
-.acm-x-cond:hover {
-	color: #333;
-	text-decoration: underline;
-}
-
-#acm-add-inline-cond {
-	display: block;
-	float: left;
-	clear: left;
-	padding-top: 5px;
-	width: 295px;
-	text-align: right;
-	cursor:pointer;
-}
-
-#acm-add-inline-cond:hover {
-	text-decoration: underline;
 }
 
 .acm-global-options {
@@ -214,12 +98,6 @@ tr:hover .row-actions {
 	height: 28px;
 }
 
-/* Inline edit Select2 styling */
-.inline-edit-col .conditional-arguments .select2-container {
-	width: 70% !important;
-	margin-bottom: 5px;
-}
-
 /* Hide Add button initially until first condition is selected */
 #add-adcode .form-add-more {
 	display: none;
@@ -229,13 +107,76 @@ tr:hover .row-actions {
 	display: block;
 }
 
-/* Operator field styling in inline edit */
-.inline-edit-col .acm-operator-field {
-	clear: both;
-	margin-top: 10px;
-	padding-top: 10px;
+/* Edit page styles */
+#edit-adcode .form-table th {
+	width: 200px;
+	padding: 20px 10px 20px 0;
 }
 
-.inline-edit-col .acm-operator-field .acm-section-label {
-	margin-bottom: 5px;
+#edit-adcode .regular-text {
+	width: 25em;
+}
+
+#edit-adcode .conditional-single-field {
+	margin-bottom: 10px;
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+#edit-adcode .conditional-function {
+	flex: 0 0 200px;
+}
+
+#edit-adcode .conditional-function select {
+	width: 100%;
+}
+
+#edit-adcode .conditional-arguments {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+#edit-adcode .conditional-arguments input[type="text"] {
+	width: 200px;
+}
+
+#edit-adcode .form-add-more {
+	display: none;
+	margin-top: 10px;
+}
+
+#edit-adcode .form-add-more.visible {
+	display: block;
+}
+
+#edit-adcode .acm-remove-conditional {
+	color: #b32d2e;
+	text-decoration: none;
+}
+
+#edit-adcode .acm-remove-conditional:hover {
+	color: #a00;
+}
+
+/* Select2 styling for edit page */
+#edit-adcode .conditional-arguments .select2-container {
+	width: 200px !important;
+}
+
+#edit-adcode .conditional-arguments .select2-container--default .select2-selection--single {
+	height: 30px;
+	border-color: #8c8f94;
+	border-radius: 4px;
+}
+
+#edit-adcode .conditional-arguments .select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 28px;
+	padding-left: 8px;
+}
+
+#edit-adcode .conditional-arguments .select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 28px;
 }

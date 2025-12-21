@@ -14,6 +14,9 @@
 			case 'ad-code-added':
 				$message_text = __( 'Ad code created.', 'ad-code-manager' );
 				break;
+			case 'ad-code-updated':
+				$message_text = __( 'Ad code updated.', 'ad-code-manager' );
+				break;
 			case 'ad-code-deleted':
 				$message_text = __( 'Ad code deleted.', 'ad-code-manager' );
 				break;
@@ -172,8 +175,6 @@ foreach ( $this->whitelisted_conditionals as $key ) :
 
 </div>
 </div><!-- /col-left -->
-
-<?php $this->wp_list_table->inline_edit(); ?>
 
 </div>
 </div>

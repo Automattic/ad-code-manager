@@ -727,7 +727,36 @@ class Ad_Code_Manager {
 	 * Print the admin interface for managing the ad codes.
 	 */
 	function admin_view_controller() {
+		// Check for edit action.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in render_edit_page.
+		if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['id'] ) ) {
+			$this->render_edit_page();
+			return;
+		}
+
 		require_once dirname( AD_CODE_MANAGER_FILE ) . '/views/ad-code-manager.tpl.php';
+	}
+
+	/**
+	 * Render the dedicated edit page for an ad code.
+	 *
+	 * @since 0.10.0
+	 */
+	function render_edit_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, nonce verified on form submission.
+		$ad_code_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+		$ad_code    = $this->get_ad_code( $ad_code_id );
+
+		// Handle invalid ID gracefully.
+		if ( ! $ad_code ) {
+			wp_die(
+				esc_html__( 'Invalid ad code ID.', 'ad-code-manager' ),
+				esc_html__( 'Error', 'ad-code-manager' ),
+				array( 'back_link' => true )
+			);
+		}
+
+		require_once dirname( AD_CODE_MANAGER_FILE ) . '/views/edit-ad-code.tpl.php';
 	}
 
 	/**
@@ -749,7 +778,6 @@ class Ad_Code_Manager {
 		}
 
 		wp_enqueue_style( 'acm-style', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/acm.css', array(), AD_CODE_MANAGER_VERSION );
-		wp_enqueue_script( 'acm', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/acm.js', array( 'jquery' ), AD_CODE_MANAGER_VERSION, true );
 	}
 
 	/**
