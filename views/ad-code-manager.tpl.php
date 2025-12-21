@@ -84,7 +84,17 @@ if ( ! apply_filters( 'acm_provider_slug', false ) ) :
 		<?php endforeach; ?>
 		</select>
 	</div>
-		<?php do_action( 'acm_options_form' ); ?>
+		<?php
+		/**
+		 * Fires after the provider select field in the ACM options form.
+		 *
+		 * Use this action to add custom fields to the Configuration section
+		 * of the Ad Code Manager admin page.
+		 *
+		 * @since 0.4
+		 */
+		do_action( 'acm_options_form' );
+		?>
 		<input type="hidden" name="action" value="acm_admin_action" />
 		<input type="hidden" name="method" value="update_options" />
 		<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>

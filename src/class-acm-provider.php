@@ -33,7 +33,15 @@ class ACM_Provider {
 			);
 		}
 		/**
-		 * Configuration filter: acm_ad_code_args
+		 * Filters the ad code arguments/fields for a provider.
+		 *
+		 * This filter is also applied in the main Ad_Code_Manager class after
+		 * provider instantiation. It allows modification of the fields displayed
+		 * in the admin UI for this provider's ad codes.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array $ad_code_args Array of field configurations.
 		 */
 		$this->ad_code_args = apply_filters( 'acm_ad_code_args', $this->ad_code_args );
 
@@ -44,6 +52,17 @@ class ACM_Provider {
 		}
 
 		if ( ! empty( $this->crawler_user_agent ) ) {
+			/**
+			 * Filters whether to add robots.txt rules for ad crawlers.
+			 *
+			 * When a provider has a crawler_user_agent defined, this filter
+			 * controls whether rules are added to robots.txt for that crawler.
+			 *
+			 * @since 0.1
+			 *
+			 * @param bool         $should_do Whether to add robots.txt rules. Default true.
+			 * @param ACM_Provider $provider  The provider instance.
+			 */
 			$should_do_robotstxt = apply_filters( 'acm_should_do_robotstxt', true, $this );
 
 			if ( true === $should_do_robotstxt ) {
@@ -63,6 +82,18 @@ class ACM_Provider {
 			$disallowed[] = '';
 		}
 
+		/**
+		 * Filters the disallowed paths for ad crawlers in robots.txt.
+		 *
+		 * Allows modification of which paths should be disallowed for the
+		 * ad network's crawler in the robots.txt file.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array        $disallowed Array of paths to disallow. Default array('')
+		 *                                 or array('/') if blog is not public.
+		 * @param ACM_Provider $provider   The provider instance.
+		 */
 		$disallowed = apply_filters( 'acm_robotstxt_disallow', $disallowed, $this );
 
 		// If we have no disallows to add, don't add anything (including User-agent).
