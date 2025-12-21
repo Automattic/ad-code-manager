@@ -11,7 +11,7 @@
  * Plugin Name:       Ad Code Manager
  * Plugin URI:        https://wordpress.org/plugins/ad-code-manager/
  * Description:       Easy ad code management.
- * Version:           0.7.1
+ * Version:           0.8.0
  * Author:            Automattic and contributors
  * Author URI:        https://github.com/Automattic/ad-code-manager/graphs/contributors
  * Text Domain:       ad-code-manager
@@ -31,7 +31,7 @@ use Automattic\AdCodeManager\UI\Conditional_Autocomplete;
 use Automattic\AdCodeManager\UI\Contextual_Help;
 use Automattic\AdCodeManager\UI\Plugin_Actions;
 
-const AD_CODE_MANAGER_VERSION = '0.7.1';
+const AD_CODE_MANAGER_VERSION = '0.8.0';
 const AD_CODE_MANAGER_FILE    = __FILE__;
 
 require_once __DIR__ . '/src/class-acm-provider.php';
