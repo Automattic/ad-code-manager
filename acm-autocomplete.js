@@ -72,9 +72,11 @@
 			// Destroy existing Select2 if present.
 			if ( $input.hasClass( 'select2-hidden-accessible' ) ) {
 				$input.select2( 'destroy' );
+				// Remove the Select2 container that gets left behind.
+				$argumentsContainer.find( '.select2-container' ).remove();
 			}
 
-			// Reset the input.
+			// Reset the input to a visible text input.
 			$input.val( '' ).attr( 'type', 'text' ).show();
 
 			// If this conditional supports autocomplete, initialize it.
@@ -120,6 +122,10 @@
 			var $argumentsContainer = $conditionalSelect.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
 			var $input = $argumentsContainer.find( 'input[name="acm-arguments[]"]' );
 			var currentValue = $input.val();
+
+			// Select2 with AJAX requires a hidden input, not text input.
+			// Convert the text input to hidden type for Select2.
+			$input.attr( 'type', 'hidden' );
 
 			// Initialize Select2 with AJAX.
 			$input.select2({

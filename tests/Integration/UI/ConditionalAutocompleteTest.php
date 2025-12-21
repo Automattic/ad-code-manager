@@ -31,6 +31,12 @@ final class ConditionalAutocompleteTest extends TestCase {
 	 */
 	public function set_up(): void {
 		parent::set_up();
+
+		// Ensure scripts are dequeued at the start of each test.
+		wp_dequeue_script( 'acm-conditional-autocomplete' );
+		wp_dequeue_script( 'selectWoo' );
+		wp_dequeue_style( 'select2' );
+
 		$this->autocomplete = new Conditional_Autocomplete();
 	}
 
@@ -228,6 +234,12 @@ final class ConditionalAutocompleteTest extends TestCase {
 	 */
 	public function tear_down(): void {
 		unset( $_GET['search'], $_GET['conditional'], $_GET['type'], $_GET['taxonomy'], $_GET['post_type'], $_GET['nonce'] );
+
+		// Dequeue scripts to prevent test pollution.
+		wp_dequeue_script( 'acm-conditional-autocomplete' );
+		wp_dequeue_script( 'selectWoo' );
+		wp_dequeue_style( 'select2' );
+
 		parent::tear_down();
 	}
 }
