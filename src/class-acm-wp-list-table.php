@@ -273,26 +273,43 @@ class ACM_WP_List_Table extends WP_List_Table {
 				$output .= '<a href="#" class="acm-remove-conditional">Remove</a></div></div>';
 			}
 		}
-		$output .= '</div><div class="form-field form-add-more"><a href="#" class="button button-secondary add-more-conditionals">' . __( 'Add more', 'ad-code-manager' ) . '</a></div>';
+		$output .= '</div><div class="form-field form-add-more"><a href="#" class="button button-secondary add-more-conditionals">' . __( 'Add another condition', 'ad-code-manager' ) . '</a></div>';
+		// Build the field for the logical operator (near conditionals)
+		$condition_count = ! empty( $item['conditionals'] ) ? count( $item['conditionals'] ) : 0;
+		$operator_style  = $condition_count < 2 ? ' style="display:none;"' : '';
+		$output         .= '<div class="acm-operator-field"' . $operator_style . '>';
+		$output         .= '<h4 class="acm-section-label">' . __( 'Logical Operator', 'ad-code-manager' ) . '</h4>';
+		$output         .= '<select name="operator" id="acm-operator">';
+		$operators       = array(
+			'OR'  => __( 'OR', 'ad-code-manager' ),
+			'AND' => __( 'AND', 'ad-code-manager' ),
+		);
+		foreach ( $operators as $key => $label ) {
+			$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $item['operator'], $key, false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		$output .= '</select>';
+		$output .= '</div>';
 		$output .= '</div>';
 		// Build the fields for the normal columns
 		$output .= '<div class="acm-column-fields">';
 		$output .= '<h4 class="acm-section-label">' . __( 'URL Variables', 'ad-code-manager' ) . '</h4>';
 		foreach ( (array) $item['url_vars'] as $slug => $value ) {
 			$output   .= '<div class="acm-section-single-field">';
-			$column_id = 'acm-column[' . $slug . ']';
-			$output   .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $slug ) . '</label>';
-			// Support for select dropdowns
+			$column_id = 'acm-column-' . $slug;
+			// Get the proper label from provider's ad_code_args
 			$ad_code_args = wp_filter_object_list( $ad_code_manager->current_provider->ad_code_args, array( 'key' => $slug ) );
 			$ad_code_arg  = array_shift( $ad_code_args );
+			$field_label  = isset( $ad_code_arg['label'] ) ? $ad_code_arg['label'] : ucwords( str_replace( '_', ' ', $slug ) );
+			$output      .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $field_label ) . '</label>';
+			// Support for select dropdowns
 			if ( isset( $ad_code_arg['type'] ) && 'select' == $ad_code_arg['type'] ) {
-				$output .= '<select name="' . esc_attr( $column_id ) . '">';
+				$output .= '<select name="acm-column[' . esc_attr( $slug ) . ']" id="' . esc_attr( $column_id ) . '">';
 				foreach ( $ad_code_arg['options'] as $key => $label ) {
 					$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_attr( $label ) . '</option>';
 				}
 				$output .= '</select>';
 			} else {
-				$output .= '<input name="' . esc_attr( $column_id ) . '" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="20" aria-required="true">';
+				$output .= '<input name="acm-column[' . esc_attr( $slug ) . ']" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="20" aria-required="true">';
 			}
 			$output .= '</div>';
 		}
@@ -300,20 +317,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 		// Build the field for the priority
 		$output .= '<div class="acm-priority-field">';
 		$output .= '<h4 class="acm-section-label">' . __( 'Priority', 'ad-code-manager' ) . '</h4>';
-		$output .= '<input type="text" name="priority" value="' . esc_attr( $item['priority'] ) . '" />';
-		$output .= '</div>';
-		// Build the field for the logical operator
-		$output   .= '<div class="acm-operator-field">';
-		$output   .= '<h4 class="acm-section-label">' . __( 'Logical Operator', 'ad-code-manager' ) . '</h4>';
-		$output   .= '<select name="operator">';
-		$operators = array(
-			'OR'  => __( 'OR', 'ad-code-manager' ),
-			'AND' => __( 'AND', 'ad-code-manager' ),
-		);
-		foreach ( $operators as $key => $label ) {
-			$output .= '<option ' . selected( $item['operator'], $key ) . '>' . esc_attr( $label ) . '</option>';
-		}
-		$output .= '</select>';
+		$output .= '<input type="text" name="priority" id="acm-priority" value="' . esc_attr( $item['priority'] ) . '" />';
 		$output .= '</div>';
 
 		$output .= '</div>';
@@ -387,9 +391,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 				<div class="acm-float-left">
 				<div class="acm-column-fields"></div>
 				<div class="acm-priority-field"></div>
-				<div class="acm-operator-field"></div>
 				</div>
 				<div class="acm-conditional-fields"></div>
+				<div class="acm-operator-field"></div>
 				<div class="clear"></div>
 			</div></fieldset>
 		<p class="inline-edit-save submit">
