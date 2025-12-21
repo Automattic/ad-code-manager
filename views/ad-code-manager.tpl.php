@@ -41,6 +41,43 @@
 	}
 	?>
 	<p><?php esc_html_e( 'Refer to help section for more information.', 'ad-code-manager' ); ?></p>
+<?php
+// Only show the provider selector if one hasn't been specified at the code level.
+if ( ! apply_filters( 'acm_provider_slug', false ) ) :
+	?>
+<div class="acm-global-options">
+	<h2><?php esc_html_e( 'Configuration', 'ad-code-manager' ); ?></h2>
+	<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" name="updatesettings" id="updatesettings" class="acm-config-form">
+	<p>
+		<label for="provider"><?php esc_html_e( 'Provider:', 'ad-code-manager' ); ?></label>
+		<select name="provider" id="provider">
+		<?php
+		$current_provider = $this->get_option( 'provider' );
+		foreach ( $this->providers as $slug => $provider ) :
+			$label = $provider['label'] ?? ucwords( str_replace( '_', ' ', $slug ) );
+			?>
+			<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $slug, $current_provider ); ?>><?php echo esc_html( $label ); ?></option>
+		<?php endforeach; ?>
+		</select>
+		<?php
+		/**
+		 * Fires after the provider select field in the ACM options form.
+		 *
+		 * Use this action to add custom fields to the Configuration section
+		 * of the Ad Code Manager admin page.
+		 *
+		 * @since 0.4
+		 */
+		do_action( 'acm_options_form' );
+		?>
+		<input type="hidden" name="action" value="acm_admin_action" />
+		<input type="hidden" name="method" value="update_options" />
+		<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
+		<?php submit_button( __( 'Save Options', 'ad-code-manager' ), 'primary', 'submit', false ); ?>
+	</p>
+	</form>
+</div>
+<?php endif; ?>
 	</div>
 
 <div class="wrap nosubsub">
@@ -48,6 +85,7 @@
 
 <div id="col-right">
 <div class="col-wrap">
+	<h2><?php esc_html_e( 'Existing Ad Codes', 'ad-code-manager' ); ?></h2>
 	<form action="" method="post" name="updateadcodes" id="updateadcodes">
 <?php
 wp_nonce_field( 'acm-bulk-action', 'bulk-action-nonce' );
@@ -64,45 +102,6 @@ $this->wp_list_table->display();
 
 
 <div class="form-wrap">
-<?php
-// Only show the provider selector if one hasn't been specified at the code level.
-if ( ! apply_filters( 'acm_provider_slug', false ) ) :
-	?>
-<div class="acm-global-options">
-	<h2><?php esc_html_e( 'Configuration', 'ad-code-manager' ); ?></h2>
-	<div class="form-wrap">
-	<form action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" name="updatesettings" id="updatesettings">
-	<div id="provider-field" class="form-field form-required">
-		<label for="provider"><?php esc_html_e( 'Select a provider:', 'ad-code-manager' ); ?></label>
-		<select name="provider" id="provider">
-		<?php
-		$current_provider = $this->get_option( 'provider' );
-		foreach ( $this->providers as $slug => $provider ) :
-			$label = $provider['label'] ?? ucwords( str_replace( '_', ' ', $slug ) );
-			?>
-			<option value="<?php echo esc_attr( $slug ); ?>" <?php selected( $slug, $current_provider ); ?>><?php echo esc_html( $label ); ?></option>
-		<?php endforeach; ?>
-		</select>
-	</div>
-		<?php
-		/**
-		 * Fires after the provider select field in the ACM options form.
-		 *
-		 * Use this action to add custom fields to the Configuration section
-		 * of the Ad Code Manager admin page.
-		 *
-		 * @since 0.4
-		 */
-		do_action( 'acm_options_form' );
-		?>
-		<input type="hidden" name="action" value="acm_admin_action" />
-		<input type="hidden" name="method" value="update_options" />
-		<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
-		<?php submit_button( __( 'Save Options', 'ad-code-manager' ) ); ?>
-	</form>
-	</div>
-</div>
-<?php endif; ?>
 <h2><?php esc_html_e( 'Add New Ad Code', 'ad-code-manager' ); ?></h2>
 <form id="add-adcode" method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" class="validate">
 <input type="hidden" name="action" value="acm_admin_action" />
@@ -164,7 +163,7 @@ foreach ( $this->whitelisted_conditionals as $key ) :
 	</div>
 </div>
 <div class="form-field form-add-more">
-	<a href="#" class="button button-secondary add-more-conditionals"><?php esc_html_e( 'Add more', 'ad-code-manager' ); ?></a>
+	<a href="#" class="button button-secondary add-more-conditionals"><?php esc_html_e( 'Add another condition', 'ad-code-manager' ); ?></a>
 </div>
 </div>
 <p class="clear"></p>

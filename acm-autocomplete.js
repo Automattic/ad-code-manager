@@ -21,6 +21,7 @@
 		init: function() {
 			this.bindEvents();
 			this.initExistingFields();
+			this.updateAddButtonVisibility();
 		},
 
 		/**
@@ -32,6 +33,7 @@
 			// Use event delegation for dynamically added conditional selects.
 			$( document ).on( 'change', 'select[name="acm-conditionals[]"]', function() {
 				self.handleConditionalChange( $( this ) );
+				self.updateAddButtonVisibility();
 			});
 
 			// Re-initialize when new conditional rows are added.
@@ -39,6 +41,14 @@
 				// Small delay to allow DOM to update.
 				setTimeout( function() {
 					self.initExistingFields();
+					self.updateAddButtonVisibility();
+				}, 100 );
+			});
+
+			// Handle remove conditional click.
+			$( document ).on( 'click', '.acm-remove-conditional', function() {
+				setTimeout( function() {
+					self.updateAddButtonVisibility();
 				}, 100 );
 			});
 		},
@@ -52,8 +62,17 @@
 			$( 'select[name="acm-conditionals[]"]' ).each( function() {
 				var $select = $( this );
 				var conditional = $select.val();
+				var $argumentsContainer = $select.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
 
-				if ( conditional && self.hasAutocomplete( conditional ) ) {
+				// Hide arguments for empty selection or no-parameter conditionals.
+				if ( ! conditional || self.hasNoParameters( conditional ) ) {
+					$argumentsContainer.hide();
+					return;
+				}
+
+				// Show arguments and init autocomplete if applicable.
+				$argumentsContainer.show();
+				if ( self.hasAutocomplete( conditional ) ) {
 					self.initAutocomplete( $select );
 				}
 			});
@@ -92,8 +111,8 @@
 			// Reset the input value.
 			$input.val( '' );
 
-			// Hide arguments container for conditionals that take no parameters.
-			if ( conditional && this.hasNoParameters( conditional ) ) {
+			// Hide arguments container when no conditional selected or for conditionals that take no parameters.
+			if ( ! conditional || this.hasNoParameters( conditional ) ) {
 				$argumentsContainer.hide();
 				return;
 			}
@@ -270,6 +289,31 @@
 			];
 
 			return noParamConditionals.indexOf( conditional ) !== -1;
+		},
+
+		/**
+		 * Update visibility of the "Add another condition" button.
+		 *
+		 * Shows the button only when at least one condition is selected.
+		 */
+		updateAddButtonVisibility: function() {
+			var $form = $( '#add-adcode' );
+			var $addButton = $form.find( '.form-add-more' );
+			var hasSelectedCondition = false;
+
+			// Check if any conditional select has a value.
+			$form.find( 'select[name="acm-conditionals[]"]' ).each( function() {
+				if ( $( this ).val() ) {
+					hasSelectedCondition = true;
+					return false; // Break the loop.
+				}
+			});
+
+			if ( hasSelectedCondition ) {
+				$addButton.addClass( 'visible' );
+			} else {
+				$addButton.removeClass( 'visible' );
+			}
 		}
 	};
 

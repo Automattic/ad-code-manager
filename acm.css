@@ -160,6 +160,22 @@ tr:hover .row-actions {
 
 .acm-global-options {
 	clear: both;
+	margin-bottom: 20px;
+}
+
+.acm-global-options .acm-config-form p {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin: 0;
+}
+
+.acm-global-options .acm-config-form label {
+	font-weight: 600;
+}
+
+.acm-global-options .acm-config-form .button {
+	margin-left: 10px;
 }
 
 .acm-global-options input[type="text"] {
@@ -170,4 +186,56 @@ tr:hover .row-actions {
 .acm-global-options #provider-field label {
 	float: left;
 	width: 125px;
+}
+
+/* Ensure conditional row has consistent height even when arguments hidden */
+#add-adcode .conditional-single-field {
+	min-height: 36px;
+	margin-bottom: 8px;
+}
+
+/* Select2 styling for conditional autocomplete */
+#add-adcode .conditional-arguments .select2-container {
+	width: 100% !important;
+}
+
+#add-adcode .conditional-arguments .select2-container--default .select2-selection--single {
+	height: 30px;
+	border-color: #8c8f94;
+	border-radius: 4px;
+}
+
+#add-adcode .conditional-arguments .select2-container--default .select2-selection--single .select2-selection__rendered {
+	line-height: 28px;
+	padding-left: 8px;
+}
+
+#add-adcode .conditional-arguments .select2-container--default .select2-selection--single .select2-selection__arrow {
+	height: 28px;
+}
+
+/* Inline edit Select2 styling */
+.inline-edit-col .conditional-arguments .select2-container {
+	width: 70% !important;
+	margin-bottom: 5px;
+}
+
+/* Hide Add button initially until first condition is selected */
+#add-adcode .form-add-more {
+	display: none;
+}
+
+#add-adcode .form-add-more.visible {
+	display: block;
+}
+
+/* Operator field styling in inline edit */
+.inline-edit-col .acm-operator-field {
+	clear: both;
+	margin-top: 10px;
+	padding-top: 10px;
+}
+
+.inline-edit-col .acm-operator-field .acm-section-label {
+	margin-bottom: 5px;
 }
