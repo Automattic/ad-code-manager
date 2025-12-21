@@ -275,6 +275,32 @@ class Ad_Code_Manager {
 				foreach ( $this->current_provider->ad_code_args as $arg ) {
 					$ad_code_vals[ $arg['key'] ] = sanitize_text_field( $_REQUEST['acm-column'][ $arg['key'] ] ?? '' );
 				}
+
+				/**
+				 * Filter to validate ad code data before saving.
+				 *
+				 * Providers can hook into this filter to perform custom validation.
+				 * Return a WP_Error to prevent saving and display an error message.
+				 *
+				 * @since 0.8.0
+				 *
+				 * @param true|WP_Error $valid        True if valid, WP_Error if validation fails.
+				 * @param array         $ad_code_vals The ad code values being saved.
+				 * @param int           $id           The ad code ID (0 for new ad codes).
+				 * @param string        $method       The method being performed ('add' or 'edit').
+				 */
+				$validation_result = apply_filters( 'acm_validate_ad_code', true, $ad_code_vals, $id, $method );
+
+				if ( is_wp_error( $validation_result ) ) {
+					if ( isset( $_REQUEST['doing_ajax'] ) && sanitize_text_field( $_REQUEST['doing_ajax'] ) ) {
+						die( '<div class="error">' . esc_html( $validation_result->get_error_message() ) . '</div>' );
+					}
+					// Store the error message in a transient for display after redirect.
+					set_transient( 'acm_validation_error_' . get_current_user_id(), $validation_result->get_error_message(), 30 );
+					$message = 'validation-error';
+					break;
+				}
+
 				if ( 'add' === $method ) {
 					$id = $this->create_ad_code( $ad_code_vals );
 				} else {
