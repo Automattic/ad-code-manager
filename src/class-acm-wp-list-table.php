@@ -25,6 +25,17 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @return array $columns, the array of columns to use with the table
 	 */
 	function get_columns() {
+		/**
+		 * Filters the columns displayed in the ad codes list table.
+		 *
+		 * Allows providers to customise which columns appear in the admin list table.
+		 * Note: 'cb', 'id', 'priority', 'operator', and 'conditionals' are required
+		 * and will be added automatically if missing.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param array $columns Associative array of column IDs and labels.
+		 */
 		$columns = apply_filters(
 			'acm_list_table_columns',
 			array(
@@ -34,7 +45,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 				'priority'     => __( 'Priority', 'ad-code-manager' ),
 				'operator'     => __( 'Logical Operator', 'ad-code-manager' ),
 				'conditionals' => __( 'Conditionals', 'ad-code-manager' ),
-			) 
+			)
 		);
 		// Fail-safe for misconfiguration
 		$required_before = array(
@@ -83,7 +94,13 @@ class ACM_WP_List_Table extends WP_List_Table {
 		// Number of elements in your table?
 		$totalitems = count( $this->items ); // return the total number of affected rows
 
-		// How many to display per page?
+		/**
+		 * Filters the number of ad codes displayed per page in the list table.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param int $per_page Number of ad codes per page. Default 25.
+		 */
 		$perpage = apply_filters( 'acm_list_table_per_page', 25 );
 
 		// Which page is this?
