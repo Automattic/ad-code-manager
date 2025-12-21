@@ -169,13 +169,48 @@ class ACM_WP_List_Table extends WP_List_Table {
 			case 'operator':
 				return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
 			default:
-				// @todo need to make the first column (whatever it is filtered) to show row actions
-				// Handle custom columns, if any
+				// Handle custom columns, if any.
 				if ( isset( $item['url_vars'][ $column_name ] ) ) {
-					return esc_html( $item['url_vars'][ $column_name ] );
+					$output = esc_html( $item['url_vars'][ $column_name ] );
+
+					// Add row actions to the first data column (after cb and id).
+					if ( $this->is_first_data_column( $column_name ) ) {
+						$output .= $this->row_actions_output( $item );
+					}
+
+					return $output;
 				}
 				break;
 		}
+	}
+
+	/**
+	 * Check if the given column is the first data column.
+	 *
+	 * The first data column is the first column after 'cb' (checkbox) and 'id' (hidden).
+	 * This column should display the row actions (edit/delete links).
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param string $column_name The column name to check.
+	 * @return bool True if this is the first data column, false otherwise.
+	 */
+	protected function is_first_data_column( $column_name ) {
+		$columns = $this->get_columns();
+
+		// Skip 'cb' and 'id' columns to find the first data column.
+		$skip_columns = array( 'cb', 'id' );
+
+		foreach ( $columns as $key => $label ) {
+			if ( in_array( $key, $skip_columns, true ) ) {
+				continue;
+			}
+
+			// The first column we encounter after skipping is the first data column.
+			return $key === $column_name;
+		}
+
+		return false;
 	}
 
 	/**
