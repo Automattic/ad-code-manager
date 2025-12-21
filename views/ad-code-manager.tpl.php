@@ -7,6 +7,9 @@
 	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 	<?php
 	if ( isset( $_REQUEST['message'] ) ) {
+		$message_text  = '';
+		$message_class = 'updated';
+
 		switch ( $_REQUEST['message'] ) {
 			case 'ad-code-added':
 				$message_text = __( 'Ad code created.', 'ad-code-manager' );
@@ -20,12 +23,20 @@
 			case 'options-saved':
 				$message_text = __( 'Options saved.', 'ad-code-manager' );
 				break;
+			case 'validation-error':
+				$transient_key = 'acm_validation_error_' . get_current_user_id();
+				$message_text  = get_transient( $transient_key );
+				if ( $message_text ) {
+					delete_transient( $transient_key );
+					$message_class = 'error';
+				}
+				break;
 			default:
 				$message_text = '';
 				break;
 		}
 		if ( '' !== $message_text ) {
-			echo '<div class="message updated"><p>' . esc_html( $message_text ) . '</p></div>';
+			echo '<div class="notice notice-' . esc_attr( $message_class ) . '"><p>' . esc_html( $message_text ) . '</p></div>';
 		}
 	}
 	?>
