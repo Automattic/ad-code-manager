@@ -92,6 +92,15 @@
 			// Reset the input value.
 			$input.val( '' );
 
+			// Hide arguments container for conditionals that take no parameters.
+			if ( conditional && this.hasNoParameters( conditional ) ) {
+				$argumentsContainer.hide();
+				return;
+			}
+
+			// Show arguments container for conditionals that take parameters.
+			$argumentsContainer.show();
+
 			// If this conditional supports autocomplete, initialize it.
 			if ( conditional && this.hasAutocomplete( conditional ) ) {
 				this.initAutocomplete( $select );
@@ -232,6 +241,35 @@
 			};
 
 			return placeholders[ conditional ] || 'Search...';
+		},
+
+		/**
+		 * Check if a conditional takes no parameters.
+		 *
+		 * @param {string} conditional The conditional function name.
+		 * @return {boolean} True if the conditional takes no parameters.
+		 */
+		hasNoParameters: function( conditional ) {
+			var noParamConditionals = [
+				'is_home',
+				'is_front_page',
+				'is_archive',
+				'is_search',
+				'is_404',
+				'is_date',
+				'is_year',
+				'is_month',
+				'is_day',
+				'is_time',
+				'is_feed',
+				'is_comment_feed',
+				'is_trackback',
+				'is_preview',
+				'is_paged',
+				'is_admin'
+			];
+
+			return noParamConditionals.indexOf( conditional ) !== -1;
 		}
 	};
 
