@@ -245,84 +245,6 @@ class ACM_WP_List_Table extends WP_List_Table {
 		return $output;
 	}
 
-	/**
-	 * Display hidden information we need for inline editing
-	 */
-	function column_id( $item ) {
-		global $ad_code_manager;
-		$output  = '<div id="inline_' . esc_attr( $item['post_id'] ) . '" style="display:none;">';
-		$output .= '<div class="id">' . esc_html( $item['post_id'] ) . '</div>';
-		// Build the fields for the conditionals
-		$output .= '<div class="acm-conditional-fields"><div class="form-new-row">';
-		$output .= '<h4 class="acm-section-label">' . __( 'Conditionals', 'ad-code-manager' ) . '</h4>';
-		if ( ! empty( $item['conditionals'] ) ) {
-			foreach ( $item['conditionals'] as $conditional ) {
-				$function  = $conditional['function'];
-				$arguments = $conditional['arguments'];
-				$output   .= '<div class="conditional-single-field"><div class="conditional-function">';
-				$output   .= '<select name="acm-conditionals[]">';
-				$output   .= '<option value="">' . __( 'Select conditional', 'ad-code-manager' ) . '</option>';
-				foreach ( $ad_code_manager->whitelisted_conditionals as $key ) {
-					$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $function, $key, false ) . '>';
-					$output .= esc_html( ucfirst( str_replace( '_', ' ', $key ) ) );
-					$output .= '</option>';
-				}
-				$output .= '</select>';
-				$output .= '</div><div class="conditional-arguments">';
-				$output .= '<input name="acm-arguments[]" type="text" value="' . esc_attr( implode( ';', $arguments ) ) . '" size="20" />';
-				$output .= '<a href="#" class="acm-remove-conditional">Remove</a></div></div>';
-			}
-		}
-		$output .= '</div><div class="form-field form-add-more"><a href="#" class="button button-secondary add-more-conditionals">' . __( 'Add another condition', 'ad-code-manager' ) . '</a></div>';
-		// Build the field for the logical operator (near conditionals)
-		$condition_count = ! empty( $item['conditionals'] ) ? count( $item['conditionals'] ) : 0;
-		$operator_style  = $condition_count < 2 ? ' style="display:none;"' : '';
-		$output         .= '<div class="acm-operator-field"' . $operator_style . '>';
-		$output         .= '<h4 class="acm-section-label">' . __( 'Logical Operator', 'ad-code-manager' ) . '</h4>';
-		$output         .= '<select name="operator" id="acm-operator">';
-		$operators       = array(
-			'OR'  => __( 'OR', 'ad-code-manager' ),
-			'AND' => __( 'AND', 'ad-code-manager' ),
-		);
-		foreach ( $operators as $key => $label ) {
-			$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $item['operator'], $key, false ) . '>' . esc_html( $label ) . '</option>';
-		}
-		$output .= '</select>';
-		$output .= '</div>';
-		$output .= '</div>';
-		// Build the fields for the normal columns
-		$output .= '<div class="acm-column-fields">';
-		$output .= '<h4 class="acm-section-label">' . __( 'URL Variables', 'ad-code-manager' ) . '</h4>';
-		foreach ( (array) $item['url_vars'] as $slug => $value ) {
-			$output   .= '<div class="acm-section-single-field">';
-			$column_id = 'acm-column-' . $slug;
-			// Get the proper label from provider's ad_code_args
-			$ad_code_args = wp_filter_object_list( $ad_code_manager->current_provider->ad_code_args, array( 'key' => $slug ) );
-			$ad_code_arg  = array_shift( $ad_code_args );
-			$field_label  = isset( $ad_code_arg['label'] ) ? $ad_code_arg['label'] : ucwords( str_replace( '_', ' ', $slug ) );
-			$output      .= '<label for="' . esc_attr( $column_id ) . '">' . esc_html( $field_label ) . '</label>';
-			// Support for select dropdowns
-			if ( isset( $ad_code_arg['type'] ) && 'select' == $ad_code_arg['type'] ) {
-				$output .= '<select name="acm-column[' . esc_attr( $slug ) . ']" id="' . esc_attr( $column_id ) . '">';
-				foreach ( $ad_code_arg['options'] as $key => $label ) {
-					$output .= '<option value="' . esc_attr( $key ) . '" ' . selected( $value, $key, false ) . '>' . esc_attr( $label ) . '</option>';
-				}
-				$output .= '</select>';
-			} else {
-				$output .= '<input name="acm-column[' . esc_attr( $slug ) . ']" id="' . esc_attr( $column_id ) . '" type="text" value="' . esc_attr( $value ) . '" size="20" aria-required="true">';
-			}
-			$output .= '</div>';
-		}
-		$output .= '</div>';
-		// Build the field for the priority
-		$output .= '<div class="acm-priority-field">';
-		$output .= '<h4 class="acm-section-label">' . __( 'Priority', 'ad-code-manager' ) . '</h4>';
-		$output .= '<input type="text" name="priority" id="acm-priority" value="' . esc_attr( $item['priority'] ) . '" />';
-		$output .= '</div>';
-
-		$output .= '</div>';
-		return $output;
-	}
 
 	/**
 	 *
@@ -357,8 +279,18 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	function row_actions_output( $item ) {
 		$output = '';
-		// $row_actions['preview-ad-code'] = '<a class="acm-ajax-preview" id="acm-preview-' . $item[ 'post_id' ] . '" href="#">' . __( 'Preview Ad Code', 'ad-code-manager' ) . '</a>';
-		$row_actions['edit'] = '<a class="acm-ajax-edit" id="acm-edit-' . esc_attr( $item['post_id'] ) . '" href="#">' . __( 'Edit Ad Code', 'ad-code-manager' ) . '</a>';
+
+		// Build edit URL for dedicated edit page.
+		$edit_url = add_query_arg(
+			array(
+				'page'   => 'ad-code-manager',
+				'action' => 'edit',
+				'id'     => $item['post_id'],
+			),
+			admin_url( 'options-general.php' )
+		);
+
+		$row_actions['edit'] = '<a href="' . esc_url( $edit_url ) . '">' . __( 'Edit', 'ad-code-manager' ) . '</a>';
 
 		$args                  = array(
 			'action' => 'acm_admin_action',
@@ -373,41 +305,5 @@ class ACM_WP_List_Table extends WP_List_Table {
 		return $output;
 	}
 
-	/**
-	 * Hidden form used for inline editing functionality
-	 *
-	 * @since 0.2
-	 */
-	function inline_edit() {
-		?>
-	<form method="POST" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>"><table style="display: none"><tbody id="inlineedit">
-		<tr id="inline-edit" class="inline-edit-row" style="display: none"><td colspan="<?php echo intval( $this->get_column_count() ); ?>" class="colspanchange">
-			<fieldset><div class="inline-edit-col">
-				<input type="hidden" name="id" value="" />
-				<input type="hidden" name="action" value="acm_admin_action" />
-				<input type="hidden" name="method" value="edit" />
-				<input type="hidden" name="doing_ajax" value="true" />
-				<?php wp_nonce_field( 'acm-admin-action', 'nonce' ); ?>
-				<div class="acm-float-left">
-				<div class="acm-column-fields"></div>
-				<div class="acm-priority-field"></div>
-				</div>
-				<div class="acm-conditional-fields"></div>
-				<div class="acm-operator-field"></div>
-				<div class="clear"></div>
-			</div></fieldset>
-		<p class="inline-edit-save submit">
-			<?php $cancel_text = __( 'Cancel', 'ad-code-manager' ); ?>
-			<a href="#inline-edit" title="<?php echo esc_attr( $cancel_text ); ?>" class="cancel button-secondary alignleft"><?php echo esc_html( $cancel_text ); ?></a>
-			<?php $update_text = __( 'Update', 'ad-code-manager' ); ?>
-			<a href="#inline-edit" title="<?php echo esc_attr( $update_text ); ?>" class="save button-primary alignright"><?php echo esc_html( $update_text ); ?></a>
-			<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
-			<span class="error" style="display:none;"></span>
-			<br class="clear" />
-		</p>
-		</td></tr>
-		</tbody></table></form>
-		<?php
-	}
 
 }
