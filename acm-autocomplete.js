@@ -67,17 +67,30 @@
 		handleConditionalChange: function( $select ) {
 			var conditional = $select.val();
 			var $argumentsContainer = $select.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
-			var $input = $argumentsContainer.find( 'input[name="acm-arguments[]"]' );
 
-			// Destroy existing Select2 if present.
-			if ( $input.hasClass( 'select2-hidden-accessible' ) ) {
-				$input.select2( 'destroy' );
-				// Remove the Select2 container that gets left behind.
-				$argumentsContainer.find( '.select2-container' ).remove();
+			// Check if we have a Select2 select element or the original input.
+			var $existingSelect = $argumentsContainer.find( 'select.acm-autocomplete-select' );
+			var $hiddenInput = $argumentsContainer.find( 'input[data-original-name="acm-arguments[]"]' );
+
+			// If there's a Select2 select, destroy it and restore the input.
+			if ( $existingSelect.length ) {
+				var currentVal = $existingSelect.val();
+				$existingSelect.select2( 'destroy' );
+				$existingSelect.remove();
+
+				// Restore the original input's name and visibility.
+				$hiddenInput
+					.attr( 'name', 'acm-arguments[]' )
+					.removeAttr( 'data-original-name' )
+					.val( currentVal || '' )
+					.show();
 			}
 
-			// Reset the input to a visible text input.
-			$input.val( '' ).attr( 'type', 'text' ).show();
+			// Get the input (either restored or original).
+			var $input = $argumentsContainer.find( 'input[name="acm-arguments[]"]' );
+
+			// Reset the input value.
+			$input.val( '' );
 
 			// If this conditional supports autocomplete, initialize it.
 			if ( conditional && this.hasAutocomplete( conditional ) ) {
@@ -123,12 +136,27 @@
 			var $input = $argumentsContainer.find( 'input[name="acm-arguments[]"]' );
 			var currentValue = $input.val();
 
-			// Select2 with AJAX requires a hidden input, not text input.
-			// Convert the text input to hidden type for Select2.
-			$input.attr( 'type', 'hidden' );
+			// Hide the original input.
+			$input.hide();
+
+			// Create a select element for Select2 (it requires a <select> for AJAX).
+			var $select = $( '<select></select>' )
+				.attr( 'name', 'acm-arguments[]' )
+				.addClass( 'acm-autocomplete-select' );
+
+			// If there's an existing value, add it as an option.
+			if ( currentValue ) {
+				$select.append( new Option( currentValue, currentValue, true, true ) );
+			}
+
+			// Insert the select after the hidden input.
+			$input.after( $select );
+
+			// Remove the name from the original input to avoid duplicate submission.
+			$input.removeAttr( 'name' ).attr( 'data-original-name', 'acm-arguments[]' );
 
 			// Initialize Select2 with AJAX.
-			$input.select2({
+			$select.select2({
 				ajax: {
 					url: acmAutocomplete.ajaxUrl,
 					dataType: 'json',
@@ -185,12 +213,6 @@
 				},
 				width: '100%'
 			});
-
-			// If there's an existing value, set it.
-			if ( currentValue ) {
-				var option = new Option( currentValue, currentValue, true, true );
-				$input.append( option ).trigger( 'change' );
-			}
 		},
 
 		/**
