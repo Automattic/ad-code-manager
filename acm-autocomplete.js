@@ -16,6 +16,15 @@
 	var ConditionalAutocomplete = {
 
 		/**
+		 * Check if Select2 is available.
+		 *
+		 * @return {boolean} True if Select2 is loaded.
+		 */
+		isSelect2Available: function() {
+			return typeof $.fn.select2 === 'function';
+		},
+
+		/**
 		 * Initialize the autocomplete functionality.
 		 */
 		init: function() {
@@ -30,8 +39,8 @@
 		bindEvents: function() {
 			var self = this;
 
-			// Use event delegation for dynamically added conditional selects.
-			$( document ).on( 'change', 'select[name="acm-conditionals[]"]', function() {
+			// Use event delegation for dynamically added conditional selects (Add form only).
+			$( document ).on( 'change', '#add-adcode select[name="acm-conditionals[]"]', function() {
 				self.handleConditionalChange( $( this ) );
 				self.updateAddButtonVisibility();
 			});
@@ -40,7 +49,7 @@
 			$( document ).on( 'click', '.add-more-conditionals', function() {
 				// Small delay to allow DOM to update.
 				setTimeout( function() {
-					self.initExistingFields();
+					self.cleanupNewRows();
 					self.updateAddButtonVisibility();
 				}, 100 );
 			});
@@ -55,11 +64,13 @@
 
 		/**
 		 * Initialize any existing conditional fields on page load.
+		 * Only targets the Add form, not inline edit.
 		 */
 		initExistingFields: function() {
 			var self = this;
 
-			$( 'select[name="acm-conditionals[]"]' ).each( function() {
+			// Only target the Add form to avoid conflicts with inline edit.
+			$( '#add-adcode select[name="acm-conditionals[]"]' ).each( function() {
 				var $select = $( this );
 				var conditional = $select.val();
 				var $argumentsContainer = $select.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
@@ -72,8 +83,55 @@
 
 				// Show arguments and init autocomplete if applicable.
 				$argumentsContainer.show();
-				if ( self.hasAutocomplete( conditional ) ) {
+
+				// Only init autocomplete if not already initialized.
+				var $existingSelect2 = $argumentsContainer.find( 'select.acm-autocomplete-select' );
+				if ( self.hasAutocomplete( conditional ) && ! $existingSelect2.length ) {
 					self.initAutocomplete( $select );
+				}
+			});
+		},
+
+		/**
+		 * Clean up newly added conditional rows.
+		 *
+		 * When rows are cloned from the master template, they may contain
+		 * leftover Select2 markup that needs to be cleaned up.
+		 */
+		cleanupNewRows: function() {
+			var self = this;
+
+			$( 'select[name="acm-conditionals[]"]' ).each( function() {
+				var $conditionalSelect = $( this );
+				var conditional = $conditionalSelect.val();
+				var $argumentsContainer = $conditionalSelect.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
+
+				// If no conditional is selected, clean up any Select2 remnants.
+				if ( ! conditional ) {
+					// Remove any cloned Select2 elements.
+					$argumentsContainer.find( 'select.acm-autocomplete-select' ).remove();
+					$argumentsContainer.find( '.select2-container' ).remove();
+
+					// Restore the original input if it was hidden.
+					var $hiddenInput = $argumentsContainer.find( 'input[data-original-name="acm-arguments[]"]' );
+					if ( $hiddenInput.length ) {
+						$hiddenInput
+							.attr( 'name', 'acm-arguments[]' )
+							.removeAttr( 'data-original-name' )
+							.val( '' )
+							.show();
+					}
+
+					// Ensure input exists and is visible with correct attributes.
+					var $input = $argumentsContainer.find( 'input[name="acm-arguments[]"]' );
+					if ( ! $input.length ) {
+						$argumentsContainer.prepend( '<input name="acm-arguments[]" type="text" value="" size="20" />' );
+					} else {
+						$input.val( '' ).attr( 'type', 'text' ).show();
+					}
+
+					// Hide the arguments container since no conditional is selected.
+					$argumentsContainer.hide();
 				}
 			});
 		},
@@ -160,6 +218,11 @@
 				return;
 			}
 
+			// Skip if Select2 is not available (CDN failed to load).
+			if ( ! this.isSelect2Available() ) {
+				return;
+			}
+
 			var $argumentsContainer = $conditionalSelect.closest( '.conditional-single-field' ).find( '.conditional-arguments' );
 			var $input = $argumentsContainer.find( 'input[name="acm-arguments[]"]' );
 			var currentValue = $input.val();
@@ -183,8 +246,14 @@
 			// Remove the name from the original input to avoid duplicate submission.
 			$input.removeAttr( 'name' ).attr( 'data-original-name', 'acm-arguments[]' );
 
+			// Determine the dropdown parent - use body for inline edit to avoid z-index issues.
+			var $dropdownParent = $argumentsContainer.closest( '.acm-editor-row' ).length
+				? $( 'body' )
+				: $argumentsContainer;
+
 			// Initialize Select2 with AJAX.
 			$select.select2({
+				dropdownParent: $dropdownParent,
 				ajax: {
 					url: acmAutocomplete.ajaxUrl,
 					dataType: 'json',
