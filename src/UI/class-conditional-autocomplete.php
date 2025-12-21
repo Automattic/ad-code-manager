@@ -44,6 +44,13 @@ final class Conditional_Autocomplete {
 	}
 
 	/**
+	 * Select2 version to use from CDN.
+	 *
+	 * @var string
+	 */
+	private const SELECT2_VERSION = '4.0.13';
+
+	/**
 	 * Enqueue scripts and styles for the autocomplete functionality.
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
@@ -54,15 +61,35 @@ final class Conditional_Autocomplete {
 			return;
 		}
 
-		// Enqueue Select2 from WordPress (available since WP 4.0).
-		wp_enqueue_script( 'selectWoo' );
+		// Register Select2 from CDN if not already available.
+		// Check for common Select2 handles (selectWoo from WooCommerce, select2 from other plugins).
+		if ( ! wp_script_is( 'selectWoo', 'registered' ) && ! wp_script_is( 'select2', 'registered' ) ) {
+			wp_register_script(
+				'select2',
+				'https://cdn.jsdelivr.net/npm/select2@' . self::SELECT2_VERSION . '/dist/js/select2.min.js',
+				array( 'jquery' ),
+				self::SELECT2_VERSION,
+				true
+			);
+			wp_register_style(
+				'select2',
+				'https://cdn.jsdelivr.net/npm/select2@' . self::SELECT2_VERSION . '/dist/css/select2.min.css',
+				array(),
+				self::SELECT2_VERSION
+			);
+		}
+
+		// Determine which Select2 handle to use (prefer selectWoo if available).
+		$select2_handle = wp_script_is( 'selectWoo', 'registered' ) ? 'selectWoo' : 'select2';
+
+		wp_enqueue_script( $select2_handle );
 		wp_enqueue_style( 'select2' );
 
 		// Enqueue our autocomplete handler.
 		wp_enqueue_script(
 			'acm-conditional-autocomplete',
 			plugins_url( 'acm-autocomplete.js', dirname( __DIR__, 2 ) . '/ad-code-manager.php' ),
-			array( 'jquery', 'selectWoo' ),
+			array( 'jquery', $select2_handle ),
 			filemtime( dirname( __DIR__, 2 ) . '/acm-autocomplete.js' ),
 			true
 		);
