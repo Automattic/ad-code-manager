@@ -797,6 +797,30 @@ class Ad_Code_Manager {
 		 */
 		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
 
+		/**
+		 * Configuration filter: acm_wrapper_classes
+		 * Filter the CSS classes applied to the ad wrapper div.
+		 *
+		 * @since 0.8.0
+		 *
+		 * @param array  $classes Array of CSS class names. Default: 'acm-wrapper', 'acm-tag-{tag_id}'.
+		 * @param string $tag_id  The ad tag ID being rendered.
+		 */
+		$wrapper_classes = apply_filters(
+			'acm_wrapper_classes',
+			array( 'acm-wrapper', 'acm-tag-' . sanitize_html_class( $tag_id ) ),
+			$tag_id
+		);
+
+		// Allow disabling the wrapper by returning an empty array.
+		if ( ! empty( $wrapper_classes ) && is_array( $wrapper_classes ) ) {
+			$output_html = sprintf(
+				'<div class="%s">%s</div>',
+				esc_attr( implode( ' ', array_map( 'sanitize_html_class', $wrapper_classes ) ) ),
+				$output_html
+			);
+		}
+
 		return $output_html;
 	}
 

@@ -66,4 +66,115 @@ class AdCodeManagerTest extends TestCase {
 	private function create_ad_code_and_return() {
 		return $this->acm->create_ad_code( $this->mock_ad_code() );
 	}
+
+	/**
+	 * Test that ad output includes wrapper div with default classes.
+	 *
+	 * @covers Ad_Code_Manager::get_acm_tag
+	 */
+	public function test_get_acm_tag_includes_wrapper_with_default_classes(): void {
+		// Create an ad code and register it.
+		$ad_code_id = $this->create_ad_code_and_return();
+		$this->acm->flush_cache();
+		$this->acm->register_ad_codes( $this->acm->get_ad_codes() );
+
+		// Get the first available tag.
+		$test_tag = null;
+		foreach ( $this->acm->ad_tag_ids as $tag ) {
+			$test_tag = $tag['tag'];
+			break;
+		}
+
+		if ( ! $test_tag ) {
+			$this->markTestSkipped( 'No ad tags available for testing.' );
+		}
+
+		// Enable display of ad codes without conditionals.
+		add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+
+		$output = $this->acm->get_acm_tag( $test_tag );
+
+		remove_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+		$this->acm->delete_ad_code( $ad_code_id );
+
+		$this->assertStringContainsString( 'class="acm-wrapper', $output, 'Output should contain acm-wrapper class.' );
+		$this->assertStringContainsString( 'acm-tag-' . sanitize_html_class( $test_tag ), $output, 'Output should contain tag-specific class.' );
+	}
+
+	/**
+	 * Test that acm_wrapper_classes filter can modify wrapper classes.
+	 *
+	 * @covers Ad_Code_Manager::get_acm_tag
+	 */
+	public function test_acm_wrapper_classes_filter_modifies_classes(): void {
+		// Create an ad code and register it.
+		$ad_code_id = $this->create_ad_code_and_return();
+		$this->acm->flush_cache();
+		$this->acm->register_ad_codes( $this->acm->get_ad_codes() );
+
+		// Get the first available tag.
+		$test_tag = null;
+		foreach ( $this->acm->ad_tag_ids as $tag ) {
+			$test_tag = $tag['tag'];
+			break;
+		}
+
+		if ( ! $test_tag ) {
+			$this->markTestSkipped( 'No ad tags available for testing.' );
+		}
+
+		// Filter to add custom classes.
+		$filter_callback = function ( $classes, $tag_id ) {
+			$classes[] = 'custom-ad-class';
+			$classes[] = 'another-class';
+			return $classes;
+		};
+
+		add_filter( 'acm_wrapper_classes', $filter_callback, 10, 2 );
+		add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+
+		$output = $this->acm->get_acm_tag( $test_tag );
+
+		remove_filter( 'acm_wrapper_classes', $filter_callback, 10 );
+		remove_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+		$this->acm->delete_ad_code( $ad_code_id );
+
+		$this->assertStringContainsString( 'custom-ad-class', $output, 'Output should contain custom class.' );
+		$this->assertStringContainsString( 'another-class', $output, 'Output should contain another custom class.' );
+	}
+
+	/**
+	 * Test that acm_wrapper_classes filter can disable wrapper.
+	 *
+	 * @covers Ad_Code_Manager::get_acm_tag
+	 */
+	public function test_acm_wrapper_classes_filter_can_disable_wrapper(): void {
+		// Create an ad code and register it.
+		$ad_code_id = $this->create_ad_code_and_return();
+		$this->acm->flush_cache();
+		$this->acm->register_ad_codes( $this->acm->get_ad_codes() );
+
+		// Get the first available tag.
+		$test_tag = null;
+		foreach ( $this->acm->ad_tag_ids as $tag ) {
+			$test_tag = $tag['tag'];
+			break;
+		}
+
+		if ( ! $test_tag ) {
+			$this->markTestSkipped( 'No ad tags available for testing.' );
+		}
+
+		// Filter to return empty array (disables wrapper).
+		add_filter( 'acm_wrapper_classes', '__return_empty_array' );
+		add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+
+		$output = $this->acm->get_acm_tag( $test_tag );
+
+		remove_filter( 'acm_wrapper_classes', '__return_empty_array' );
+		remove_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
+		$this->acm->delete_ad_code( $ad_code_id );
+
+		$this->assertStringNotContainsString( 'acm-wrapper', $output, 'Output should not contain wrapper when filter returns empty array.' );
+	}
 }
