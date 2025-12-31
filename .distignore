@@ -11,6 +11,7 @@
 .editorconfig
 .gitattributes
 .gitignore
+.npmrc
 .phpcs.xml.dist
 .wp-env.json
 .wp-env.override.json
