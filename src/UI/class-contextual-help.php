@@ -110,6 +110,47 @@ final class Contextual_Help {
 		<?php
 		$conditionals = ob_get_clean();
 
+		ob_start();
+		?>
+		<p><?php esc_html_e( 'When using the DFP Async (DoubleClick for Publishers / Google Ad Manager) provider, you need to configure the following fields:', 'ad-code-manager' ); ?></p>
+		<dl>
+			<dt><?php esc_html_e( 'Tag', 'ad-code-manager' ); ?></dt>
+			<dd><?php esc_html_e( 'The ad size/placement type (e.g., 728x90, 300x250). This determines which ad tag definition is used for this ad code.', 'ad-code-manager' ); ?></dd>
+
+			<dt><?php esc_html_e( 'Tag ID', 'ad-code-manager' ); ?></dt>
+			<dd><?php esc_html_e( 'A unique identifier for this specific ad unit placement. This is used as the HTML div ID where the ad will be rendered. Each Tag ID must be unique across all ad codes to prevent conflicts. Example: "homepage-leaderboard" or "sidebar-mpu-1".', 'ad-code-manager' ); ?></dd>
+
+			<dt><?php esc_html_e( 'DFP ID', 'ad-code-manager' ); ?></dt>
+			<dd>
+				<?php esc_html_e( 'Your Google Ad Manager (formerly DFP) Network Code. This is a numeric identifier for your Ad Manager account.', 'ad-code-manager' ); ?>
+				<br>
+				<?php echo wp_kses_post( __( 'Find it in Google Ad Manager: <i>Admin &gt; Global Settings &gt; Network Code</i>.', 'ad-code-manager' ) ); ?>
+				<br>
+				<?php esc_html_e( 'Example: 12345678', 'ad-code-manager' ); ?>
+			</dd>
+
+			<dt><?php esc_html_e( 'Tag Name', 'ad-code-manager' ); ?></dt>
+			<dd>
+				<?php esc_html_e( 'The ad unit name/path as configured in Google Ad Manager. This is the hierarchical path to your ad unit.', 'ad-code-manager' ); ?>
+				<br>
+				<?php esc_html_e( 'Example: "MySite/Homepage/Leaderboard" or just "Leaderboard" for top-level units.', 'ad-code-manager' ); ?>
+			</dd>
+		</dl>
+		<h4><?php esc_html_e( 'Google AdSense Provider', 'ad-code-manager' ); ?></h4>
+		<p><?php esc_html_e( 'When using the Google AdSense provider:', 'ad-code-manager' ); ?></p>
+		<dl>
+			<dt><?php esc_html_e( 'Publisher ID', 'ad-code-manager' ); ?></dt>
+			<dd>
+				<?php esc_html_e( 'Your AdSense Publisher ID. This starts with "ca-pub-" followed by a 16-digit number.', 'ad-code-manager' ); ?>
+				<br>
+				<?php esc_html_e( 'Example: ca-pub-1234567890123456', 'ad-code-manager' ); ?>
+				<br>
+				<?php echo wp_kses_post( __( 'Find it in your AdSense account: <i>Account &gt; Account Information &gt; Publisher ID</i>.', 'ad-code-manager' ) ); ?>
+			</dd>
+		</dl>
+		<?php
+		$provider_fields = ob_get_clean();
+
 		get_current_screen()->add_help_tab(
 			array(
 				'id'      => 'acm-overview',
@@ -127,8 +168,15 @@ final class Contextual_Help {
 		get_current_screen()->add_help_tab(
 			array(
 				'id'      => 'acm-conditionals',
-				'title'   => 'Conditionals',
+				'title'   => __( 'Conditionals', 'ad-code-manager' ),
 				'content' => $conditionals,
+			)
+		);
+		get_current_screen()->add_help_tab(
+			array(
+				'id'      => 'acm-provider-fields',
+				'title'   => __( 'Provider Fields', 'ad-code-manager' ),
+				'content' => $provider_fields,
 			)
 		);
 	}

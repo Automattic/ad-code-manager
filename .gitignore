@@ -1,7 +1,16 @@
-/.phpunit.cache
-/node_modules
-/vendor
+# Dependencies
+/node_modules/
+/vendor/
 
-/clover.xml
+# Composer
 /composer.lock
-/package-lock.json
+
+# Tests
+/.phpunit.cache/
+/clover.xml
+
+# Local config overrides
+/.phpcs.xml
+/phpcs.xml
+/phpunit.xml
+/.wp-env.override.json

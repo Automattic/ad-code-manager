@@ -43,7 +43,10 @@ class ACM_Ad_Zones extends WP_Widget {
 			</select>
 			<?php else : ?>
 				<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'options-general.php' ) ); ?>
-			<span class="description"><?php echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), esc_url( $create_url ) ); ?></span>
+			<span class="description"><?php
+				// translators: %s is the URL to the Ad Code Manager settings page.
+				echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), esc_url( $create_url ) );
+			?></span>
 			<?php endif; ?>
 			</p>
 
@@ -60,13 +63,35 @@ class ACM_Ad_Zones extends WP_Widget {
 
 	// Display the widget
 	function widget( $args, $instance ) {
+		// Capture the ad content to check if we have anything to display.
+		// This fixes issue #72: don't output empty widget wrapper when no ad code found.
+		ob_start();
+		do_action( 'acm_tag', $instance['ad_zone'] );
+		$ad_content = ob_get_clean();
+
+		/**
+		 * Filters whether to display the widget when no ad content is found.
+		 *
+		 * @since 0.8.0
+		 *
+		 * @param bool   $display     Whether to display the widget. Default false.
+		 * @param string $ad_zone     The ad zone ID.
+		 * @param array  $args        Widget display arguments.
+		 * @param array  $instance    Widget instance settings.
+		 */
+		if ( empty( $ad_content ) && ! apply_filters( 'acm_display_empty_widget', false, $instance['ad_zone'], $args, $instance ) ) {
+			return;
+		}
+
 		echo $args['before_widget'];
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
-		do_action( 'acm_tag', $instance['ad_zone'] );
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Ad content is escaped during token replacement in get_acm_tag().
+		echo $ad_content;
 		echo $args['after_widget'];
 	}
 }

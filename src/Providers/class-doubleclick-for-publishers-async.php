@@ -100,6 +100,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 
 		add_filter( 'acm_ad_code_args', array( $this, 'filter_ad_code_args' ) );
 		add_filter( 'acm_output_html', array( $this, 'filter_output_html' ), 10, 2 );
+		add_filter( 'acm_validate_ad_code', array( $this, 'validate_unique_tag_id' ), 10, 4 );
 
 		add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
 
@@ -167,11 +168,7 @@ googletag.cmd.push(function() {
 					$tt               = $tag['url_vars'];
 					$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
 					if ( ! empty( $matching_ad_code ) ) {
-						// @todo There might be a case when there are two tags registered with the same dimensions
-						// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
-						// that tags are unique
-
-						// Parse ad tags to output flexible unit dimensions
+						// Parse ad tags to output flexible unit dimensions.
 						$unit_sizes = $this->parse_ad_tag_sizes( $tt );
 
 						?>
@@ -233,6 +230,78 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 			);
 		}
 		return $unit_sizes_output;
+	}
+
+	/**
+	 * Validate that the tag_id is unique for DFP Async.
+	 *
+	 * DFP Async uses the tag_id as a div ID, so each tag_id must be unique
+	 * to prevent conflicts when multiple ads are rendered on the same page.
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param true|WP_Error $valid        Current validation state.
+	 * @param array         $ad_code_vals The ad code values being saved.
+	 * @param int           $id           The ad code ID (0 for new ad codes).
+	 * @param string        $method       The method being performed ('add' or 'edit').
+	 * @return true|WP_Error True if valid, WP_Error if tag_id is not unique.
+	 */
+	public function validate_unique_tag_id( $valid, $ad_code_vals, $id, $method ) {
+		// If already invalid, don't override the error.
+		if ( is_wp_error( $valid ) ) {
+			return $valid;
+		}
+
+		// Check if tag_id is provided.
+		if ( empty( $ad_code_vals['tag_id'] ) ) {
+			return $valid;
+		}
+
+		global $ad_code_manager;
+
+		$tag_id      = $ad_code_vals['tag_id'];
+		$existing_id = $this->find_ad_code_by_tag_id( $tag_id );
+
+		// If no existing ad code with this tag_id, it's valid.
+		if ( ! $existing_id ) {
+			return true;
+		}
+
+		// If editing and the existing ad code is the same one we're editing, it's valid.
+		if ( 'edit' === $method && $existing_id === $id ) {
+			return true;
+		}
+
+		return new WP_Error(
+			'duplicate-tag-id',
+			sprintf(
+				/* translators: %s: the duplicate tag ID */
+				__( 'The Tag ID "%s" is already in use. Each Tag ID must be unique to prevent conflicts with DFP Async.', 'ad-code-manager' ),
+				esc_html( $tag_id )
+			)
+		);
+	}
+
+	/**
+	 * Find an ad code by its tag_id.
+	 *
+	 * @since 0.8.0
+	 *
+	 * @param string $tag_id The tag_id to search for.
+	 * @return int|false The ad code post ID if found, false otherwise.
+	 */
+	protected function find_ad_code_by_tag_id( $tag_id ) {
+		global $ad_code_manager;
+
+		$ad_codes = $ad_code_manager->get_ad_codes();
+
+		foreach ( $ad_codes as $ad_code ) {
+			if ( isset( $ad_code['url_vars']['tag_id'] ) && $ad_code['url_vars']['tag_id'] === $tag_id ) {
+				return $ad_code['post_id'];
+			}
+		}
+
+		return false;
 	}
 
 }

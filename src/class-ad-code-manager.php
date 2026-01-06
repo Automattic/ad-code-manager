@@ -86,21 +86,30 @@ class Ad_Code_Manager {
 		}
 
 		/**
-		 * Configuration filter: acm_register_provider_slug
+		 * Filters the registered ad providers.
 		 *
 		 * We've already gathered a list of default Providers by scanning the ACM plugin
-		 * directory for classes that we can use. To add a provider already included via
-		 * a different directory, the following filter is provided.
+		 * directory for classes that we can use. To add a provider included via
+		 * a different directory, use this filter.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param object $providers Object containing provider configurations, keyed by slug.
+		 *                          Each provider has 'provider' (class name) and 'table' (list table class) keys.
 		 */
 		$this->providers = apply_filters( 'acm_register_provider_slug', $this->providers );
 
 		/**
-		 * Configuration filter: acm_provider_slug
+		 * Filters the current ad provider slug.
 		 *
-		 * By default we use doubleclick-for-publishers provider
-		 * To switch to a different ad provider use this filter
+		 * By default, the provider selected in the admin UI is used.
+		 * Use this filter to programmatically switch to a different ad provider.
+		 *
+		 * @since 0.1.3
+		 *
+		 * @param string|false $provider The provider slug (e.g., 'doubleclick_for_publishers',
+		 *                               'google_adsense'). False if not set.
 		 */
-
 		$this->current_provider_slug = apply_filters( 'acm_provider_slug', $this->get_option( 'provider' ) );
 
 		// Instantiate one that we need
@@ -114,8 +123,14 @@ class Ad_Code_Manager {
 			return;
 		}
 		/**
-		 * Configuration filter: acm_whitelisted_script_urls
-		 * A security filter to whitelist which ad code script URLs can be added in the admin
+		 * Filters the whitelisted script URLs for ad codes.
+		 *
+		 * A security filter to control which ad code script URLs can be added in the admin.
+		 * URLs not matching domains in this list will be rejected.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array $whitelisted_urls Array of whitelisted domain names (e.g., 'googleads.g.doubleclick.net').
 		 */
 		$this->current_provider->whitelisted_script_urls = apply_filters( 'acm_whitelisted_script_urls', $this->current_provider->whitelisted_script_urls );
 	}
@@ -138,29 +153,74 @@ class Ad_Code_Manager {
 			'has_tag',
 		);
 		/**
-		 * Configuration filter: acm_whitelisted_conditionals
-		 * Extend the list of usable conditional functions with your own awesome ones.
+		 * Filters the whitelisted conditional functions.
+		 *
+		 * Extend the list of usable conditional functions with your own.
+		 * These functions determine when an ad code should be displayed.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array $conditionals Array of whitelisted function names
+		 *                            (e.g., 'is_home', 'is_single', 'is_category').
 		 */
 		$this->whitelisted_conditionals = apply_filters( 'acm_whitelisted_conditionals', $this->whitelisted_conditionals );
-		// Allow users to filter default logical operator
+
+		/**
+		 * Filters the default logical operator for conditionals.
+		 *
+		 * Determines how multiple conditionals are evaluated together.
+		 * 'OR' means any conditional can match; 'AND' means all must match.
+		 *
+		 * @since 0.1
+		 *
+		 * @param string $operator The logical operator. Default 'OR'. Accepts 'OR' or 'AND'.
+		 */
 		$this->logical_operator = apply_filters( 'acm_logical_operator', 'OR' );
 
-		// Allow the ad management cap to be filtered if need be
+		/**
+		 * Filters the capability required to manage ads.
+		 *
+		 * Controls which users can access the Ad Code Manager admin interface.
+		 *
+		 * @since 0.1
+		 *
+		 * @param string $capability The capability required. Default 'manage_options'.
+		 */
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
 
 		// Load default ad tags for provider
 		$this->ad_tag_ids = $this->current_provider->ad_tag_ids;
+
 		/**
-		 * Configuration filter: acm_ad_tag_ids
-		 * Extend set of default tag ids. Ad tag ids are used as a parameter
-		 * for your template tag (e.g. do_action( 'acm_tag', 'my_top_leaderboard' ))
+		 * Filters the registered ad tag IDs.
+		 *
+		 * Extend the set of default tag IDs. Ad tag IDs are used as parameters
+		 * for template tags, e.g., `do_action( 'acm_tag', 'my_top_leaderboard' )`.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array $ad_tag_ids Array of ad tag configurations. Each tag has:
+		 *                          - 'tag': (string) The tag identifier.
+		 *                          - 'url_vars': (array) Variables for URL token replacement.
+		 *                          - 'enable_ui_mapping': (bool) Optional. Whether tag can be mapped in admin UI.
 		 */
 		$this->ad_tag_ids = apply_filters( 'acm_ad_tag_ids', $this->ad_tag_ids );
 
 		/**
-		 * Configuration filter: acm_ad_code_args
-		 * Allow the ad code arguments to be filtered
-		 * Useful if we need to dynamically change these arguments based on the above
+		 * Filters the ad code arguments/fields.
+		 *
+		 * Allows customisation of the fields displayed in the admin UI for ad codes.
+		 * Useful for adding custom fields or modifying existing ones.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array $ad_code_args Array of field configurations. Each field has:
+		 *                            - 'key': (string) Field identifier.
+		 *                            - 'label': (string) Display label.
+		 *                            - 'editable': (bool) Whether field is editable.
+		 *                            - 'required': (bool) Whether field is required.
+		 *                            - 'type': (string) Optional. Field type (e.g., 'select').
+		 *                            - 'options': (array) Optional. Options for select fields.
 		 */
 		$this->current_provider->ad_code_args = apply_filters( 'acm_ad_code_args', $this->current_provider->ad_code_args );
 
@@ -168,6 +228,18 @@ class Ad_Code_Manager {
 
 		// Ad tags are only run on the frontend
 		if ( ! is_admin() ) {
+			/**
+			 * Action: acm_tag
+			 *
+			 * Displays an ad tag on the frontend. Use this action in your theme
+			 * templates to output ads.
+			 *
+			 * Example: do_action( 'acm_tag', 'my_leaderboard' );
+			 *
+			 * @since 0.1
+			 *
+			 * @param string $tag_id The unique identifier for the ad tag to display.
+			 */
 			add_action( 'acm_tag', array( $this, 'action_acm_tag' ) );
 			add_filter( 'acm_output_tokens', array( $this, 'filter_output_tokens' ), 5, 3 );
 		}
@@ -275,6 +347,32 @@ class Ad_Code_Manager {
 				foreach ( $this->current_provider->ad_code_args as $arg ) {
 					$ad_code_vals[ $arg['key'] ] = sanitize_text_field( $_REQUEST['acm-column'][ $arg['key'] ] ?? '' );
 				}
+
+				/**
+				 * Filter to validate ad code data before saving.
+				 *
+				 * Providers can hook into this filter to perform custom validation.
+				 * Return a WP_Error to prevent saving and display an error message.
+				 *
+				 * @since 0.8.0
+				 *
+				 * @param true|WP_Error $valid        True if valid, WP_Error if validation fails.
+				 * @param array         $ad_code_vals The ad code values being saved.
+				 * @param int           $id           The ad code ID (0 for new ad codes).
+				 * @param string        $method       The method being performed ('add' or 'edit').
+				 */
+				$validation_result = apply_filters( 'acm_validate_ad_code', true, $ad_code_vals, $id, $method );
+
+				if ( is_wp_error( $validation_result ) ) {
+					if ( isset( $_REQUEST['doing_ajax'] ) && sanitize_text_field( $_REQUEST['doing_ajax'] ) ) {
+						die( '<div class="error">' . esc_html( $validation_result->get_error_message() ) . '</div>' );
+					}
+					// Store the error message in a transient for display after redirect.
+					set_transient( 'acm_validation_error_' . get_current_user_id(), $validation_result->get_error_message(), 30 );
+					$message = 'validation-error';
+					break;
+				}
+
 				if ( 'add' === $method ) {
 					$id = $this->create_ad_code( $ad_code_vals );
 				} else {
@@ -353,14 +451,26 @@ class Ad_Code_Manager {
 	 * Get the ad codes stored in our custom post type
 	 */
 	function get_ad_codes( $query_args = array() ) {
+		/**
+		 * Filters the allowed query parameters for retrieving ad codes.
+		 *
+		 * Controls which query parameters can be passed to modify the ad codes query.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array $allowed_params Array of allowed query parameter names. Default array( 'offset' ).
+		 */
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
 
-
 		/**
-		 * Configuration filter: acm_ad_code_count
+		 * Filters the maximum number of ad codes to retrieve.
 		 *
-		 * By default we limit query to 50 ad codes
-		 * Use this filter to change limit
+		 * By default, queries are limited to 50 ad codes.
+		 * Use this filter to increase or decrease the limit.
+		 *
+		 * @since 0.1
+		 *
+		 * @param int $count Maximum number of ad codes to retrieve. Default 50.
 		 */
 		$args = array(
 			'post_type'   => $this->post_type,
@@ -617,7 +727,36 @@ class Ad_Code_Manager {
 	 * Print the admin interface for managing the ad codes.
 	 */
 	function admin_view_controller() {
+		// Check for edit action.
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in render_edit_page.
+		if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['id'] ) ) {
+			$this->render_edit_page();
+			return;
+		}
+
 		require_once dirname( AD_CODE_MANAGER_FILE ) . '/views/ad-code-manager.tpl.php';
+	}
+
+	/**
+	 * Render the dedicated edit page for an ad code.
+	 *
+	 * @since 0.10.0
+	 */
+	function render_edit_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, nonce verified on form submission.
+		$ad_code_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+		$ad_code    = $this->get_ad_code( $ad_code_id );
+
+		// Handle invalid ID gracefully.
+		if ( ! $ad_code ) {
+			wp_die(
+				esc_html__( 'Invalid ad code ID.', 'ad-code-manager' ),
+				esc_html__( 'Error', 'ad-code-manager' ),
+				array( 'back_link' => true )
+			);
+		}
+
+		require_once dirname( AD_CODE_MANAGER_FILE ) . '/views/edit-ad-code.tpl.php';
 	}
 
 	/**
@@ -639,7 +778,6 @@ class Ad_Code_Manager {
 		}
 
 		wp_enqueue_style( 'acm-style', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/acm.css', array(), AD_CODE_MANAGER_VERSION );
-		wp_enqueue_script( 'acm', plugins_url( '/', AD_CODE_MANAGER_FILE ) . '/acm.js', array( 'jquery' ), AD_CODE_MANAGER_VERSION, true );
 	}
 
 	/**
@@ -722,12 +860,6 @@ class Ad_Code_Manager {
 					continue;
 				}
 
-				/**
-				 * Configuration filter: acm_default_url
-				 * If you don't specify a URL for your ad code when registering it in
-				 * the WordPress admin or at a code level, you can simply apply it with
-				 * a custom filter defined.
-				 */
 				$ad_code['priority'] = $ad_code['priority'] === '' ? 10 : (int) $ad_code['priority']; // make sure priority is int, if it's unset, we set it to 10
 
 				// Make sure our operator is 'OR' or 'AND'
@@ -735,6 +867,16 @@ class Ad_Code_Manager {
 					$operator = $this->logical_operator;
 				}
 
+				/**
+				 * Filters the default URL for an ad code.
+				 *
+				 * If you don't specify a URL for your ad code when registering it in
+				 * the WordPress admin or at a code level, you can apply it with this filter.
+				 *
+				 * @since 0.1
+				 *
+				 * @param string $url The ad code URL. May be empty.
+				 */
 				$this->register_ad_code( $default_tag['tag'], apply_filters( 'acm_default_url', $ad_code['url'] ), $ad_code['conditionals'], array_merge( $default_tag['url_vars'], $ad_code['url_vars'] ), $ad_code['priority'], $ad_code['operator'] );
 			}
 		}
@@ -750,10 +892,13 @@ class Ad_Code_Manager {
 	 */
 	function get_acm_tag( $tag_id ): string {
 		/**
-		 * See http://adcodemanager.wordpress.com/2013/04/10/hi-all-on-a-dotcom-site-that-uses/
+		 * Filters whether to disable ad rendering.
 		 *
-		 * Configuration filter: acm_disable_ad_rendering
-		 * Should be boolean, defaulting to disabling ads on previews
+		 * By default, ads are disabled on post previews to prevent ad tracking issues.
+		 *
+		 * @since 0.1
+		 *
+		 * @param bool $disable Whether to disable ad rendering. Default is the result of is_preview().
 		 */
 		if ( apply_filters( 'acm_disable_ad_rendering', is_preview() ) ) {
 			return '';
@@ -772,9 +917,15 @@ class Ad_Code_Manager {
 		}
 
 		/**
-		 * Configuration filter: acm_output_html
-		 * Support multiple ad formats ( e.g. Javascript ad tags, or simple HTML tags )
+		 * Filters the output HTML template for an ad tag.
+		 *
+		 * Support multiple ad formats (e.g., JavaScript ad tags, or simple HTML tags)
 		 * by adjusting the HTML rendered for a given ad tag.
+		 *
+		 * @since 0.1
+		 *
+		 * @param string $output_html The HTML template with tokens (e.g., '%url%', '%width%').
+		 * @param string $tag_id      The ad tag ID being rendered.
 		 */
 		$output_html = apply_filters( 'acm_output_html', $this->current_provider->output_html, $tag_id );
 
@@ -782,9 +933,17 @@ class Ad_Code_Manager {
 		$output_html = str_replace( '%url%', $code_to_display['url'], $output_html );
 
 		/**
-		 * Configuration filter: acm_output_tokens
-		 * Register output tokens depending on the needs of your setup. Tokens are the
-		 * keys to be replaced in your script URL.
+		 * Filters the output tokens for an ad tag.
+		 *
+		 * Tokens are placeholders in the output HTML that get replaced with actual values.
+		 * Register custom tokens depending on your setup.
+		 *
+		 * @since 0.1
+		 *
+		 * @param array  $output_tokens   Associative array of tokens and their replacement values.
+		 *                                Keys should include % (e.g., '%width%' => '300').
+		 * @param string $tag_id          The ad tag ID being rendered.
+		 * @param array  $code_to_display The matching ad code configuration.
 		 */
 		$output_tokens = apply_filters( 'acm_output_tokens', $this->current_provider->output_tokens, $tag_id, $code_to_display );
 		foreach ( (array) $output_tokens as $token => $val ) {
@@ -792,10 +951,41 @@ class Ad_Code_Manager {
 		}
 
 		/**
-		 * Configuration filter: acm_output_html_after_tokens_processed
-		 * In some rare cases you might want to filter html after the tokens are processed
+		 * Filters the output HTML after token replacement.
+		 *
+		 * Use this filter for final modifications to the ad HTML after all tokens
+		 * have been processed. Useful for adding wrappers or final adjustments.
+		 *
+		 * @since 0.2
+		 *
+		 * @param string $output_html The processed HTML with all tokens replaced.
+		 * @param string $tag_id      The ad tag ID being rendered.
 		 */
 		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
+
+		/**
+		 * Configuration filter: acm_wrapper_classes
+		 * Filter the CSS classes applied to the ad wrapper div.
+		 *
+		 * @since 0.8.0
+		 *
+		 * @param array  $classes Array of CSS class names. Default: 'acm-wrapper', 'acm-tag-{tag_id}'.
+		 * @param string $tag_id  The ad tag ID being rendered.
+		 */
+		$wrapper_classes = apply_filters(
+			'acm_wrapper_classes',
+			array( 'acm-wrapper', 'acm-tag-' . sanitize_html_class( $tag_id ) ),
+			$tag_id
+		);
+
+		// Allow disabling the wrapper by returning an empty array.
+		if ( ! empty( $wrapper_classes ) && is_array( $wrapper_classes ) ) {
+			$output_html = sprintf(
+				'<div class="%s">%s</div>',
+				esc_attr( implode( ' ', array_map( 'sanitize_html_class', $wrapper_classes ) ) ),
+				$output_html
+			);
+		}
 
 		return $output_html;
 	}
@@ -832,13 +1022,16 @@ class Ad_Code_Manager {
 		$cache_key = "acm:{$tag_id}:" . md5( serialize( $wp_query->query_vars ) );
 
 		/**
-		 * Filters the amount of time to cache the matching ad code.
+		 * Filters the cache expiration time for matching ad codes.
 		 *
-		 * Returning false to this filter will cause the ad code to be cached
-		 * only for the duration of the request, not within the object cache.
+		 * Controls how long a matched ad code is cached to improve performance.
+		 * Return false to disable object caching (request-level caching only).
 		 *
-		 * @param int    $cache_expiration The amount of time, in seconds, to cache the matching ad code. Default 10 minutes.
-		 * @param string $tag_id           The tag ID.
+		 * @since 0.4
+		 *
+		 * @param int|false $cache_expiration Cache time in seconds. Default 600 (10 minutes).
+		 *                                    Return false to disable object caching.
+		 * @param string    $tag_id           The tag ID being matched.
 		 */
 		$cache_expiration = apply_filters( 'acm_matching_ad_code_cache_expiration', 600, $tag_id );
 
@@ -853,12 +1046,15 @@ class Ad_Code_Manager {
 		}
 
 		/**
-		 * Prevent $post polution if ad code is getting rendered inside a loop:
+		 * Filters whether to reset post data before matching ad codes.
 		 *
-		 * Most of conditionals are getting checked against global $post,
-		 * Getting matched ad code inside the loop might result in wrong ad code matched.
+		 * Most conditionals check against the global $post. When matching ad codes
+		 * inside a loop, this can result in incorrect matches. Enable this filter
+		 * to call wp_reset_postdata() before evaluation.
 		 *
-		 * Filter is for back compat since not thoroughly tested
+		 * @since 0.4
+		 *
+		 * @param bool $reset Whether to reset post data. Default false for backwards compatibility.
 		 */
 		if ( apply_filters( 'acm_reset_postdata_before_match', false ) ) {
 			wp_reset_postdata();
@@ -869,6 +1065,17 @@ class Ad_Code_Manager {
 		$display_codes = array();
 		foreach ( (array) $this->ad_codes[ $tag_id ] as $ad_code ) {
 
+			/**
+			 * Filters whether to display ad codes without conditionals.
+			 *
+			 * By default, ad codes without conditionals are not displayed.
+			 * Enable this filter to show ad codes on all pages when they have
+			 * no conditional restrictions.
+			 *
+			 * @since 0.1
+			 *
+			 * @param bool $display Whether to display ad codes without conditionals. Default false.
+			 */
 			// If the ad code doesn't have any conditionals
 			// we should add it to the display list
 			if ( empty( $ad_code['conditionals'] ) && apply_filters( 'acm_display_ad_codes_without_conditionals', false ) ) {
@@ -916,9 +1123,15 @@ class Ad_Code_Manager {
 				// Run our conditional and use any arguments that were passed
 				if ( ! empty( $cond_args ) ) {
 					/**
-					 * Configuration filter: acm_conditional_args
-					 * For certain conditionals (has_tag, has_category), you might need to
-					 * pass additional arguments.
+					 * Filters the arguments passed to conditional functions.
+					 *
+					 * For certain conditionals like has_tag or has_category, you might need
+					 * to modify the arguments passed to the function.
+					 *
+					 * @since 0.1
+					 *
+					 * @param array  $cond_args Array of arguments to pass to the conditional function.
+					 * @param string $cond_func The conditional function name being called.
 					 */
 					$result = call_user_func_array( $cond_func, apply_filters( 'acm_conditional_args', $cond_args, $cond_func ) );
 				} else {
