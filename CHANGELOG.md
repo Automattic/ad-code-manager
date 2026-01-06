@@ -5,6 +5,38 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2025-12-21
+
+This version requires WordPress 6.4 and PHP 7.4 as a minimum.
+
+### Added
+- Dedicated edit page for ad codes, replacing inline edit functionality by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/196
+- Autocomplete for conditional arguments using Select2 (categories, tags, pages, posts) by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/194
+- Wrapper div with CSS classes for improved ad styling and targeting by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/188
+- wp-env configuration for local development by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/178
+
+### Fixed
+- Validate unique tag IDs for DFP Async provider by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/190
+- Prevent empty widget wrapper output when no ad codes found by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/186
+- Ensure row actions display in first data column by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/189
+
+### Changed
+- Update minimum WordPress version to 6.4 by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/181
+
+### Documentation
+- Add PHPDoc documentation for all hooks by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/193
+- Add contextual help for DFP and AdSense provider fields by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/191
+
+### Maintenance
+- Standardise GitHub Actions, add unit test workflow with Brain Monkey by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/184
+- Migrate integration tests from SVN to wp-env by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/182
+- Migrate dependabot reviewers to CODEOWNERS by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/185
+- Standardise test matrix and update readme by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/187
+- Add .npmrc and update package-lock by @GaryJones in https://github.com/Automattic/ad-code-manager/pull/198
+- Bump actions/checkout from 5 to 6 by @dependabot in https://github.com/Automattic/ad-code-manager/pull/183
+- Bump codecov/codecov-action from 3 to 5 by @dependabot in https://github.com/Automattic/ad-code-manager/pull/174
+- Bump ramsey/composer-install from 2 to 3 by @dependabot in https://github.com/Automattic/ad-code-manager/pull/173
+
 ## [0.7.1] - 2023-09-09
 
 ### Changed
@@ -166,6 +198,7 @@ Bug fix release.
 
 Initial release.
 
+[0.8.0]: https://github.com/Automattic/ad-code-manager/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/Automattic/ad-code-manager/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/Automattic/ad-code-manager/compare/0.6.0...0.7.0
 [0.6.0]: https://github.com/Automattic/ad-code-manager/compare/0.5...0.6.0

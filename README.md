@@ -1,13 +1,13 @@
 # Ad Code Manager
 
-Stable tag: 0.7.1  
+Stable tag: 0.8.0  
 Requires at least: 6.4  
 Tested up to: 6.9  
 Requires PHP: 7.4  
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers  
-Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo
+Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo, garyj
 
 Manage your ad codes through the WordPress admin safely and easily.
 
