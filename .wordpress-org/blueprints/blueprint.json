@@ -1,0 +1,54 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/options-general.php?page=ad-code-manager",
+	"preferredVersions": {
+		"php": "8.2",
+		"wp": "latest"
+	},
+	"phpExtensionBundles": [ "kitchen-sink" ],
+	"steps": [
+		{
+			"step": "installPlugin",
+			"pluginData": {
+				"resource": "wordpress.org/plugins",
+				"slug": "ad-code-manager"
+			},
+			"options": {
+				"activate": true
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create sample categories for conditional targeting demo */ require_once 'wordpress/wp-load.php'; wp_insert_term( 'Technology', 'category', array( 'slug' => 'technology', 'description' => 'Tech news and reviews' ) ); wp_insert_term( 'Sports', 'category', array( 'slug' => 'sports', 'description' => 'Sports coverage' ) ); wp_insert_term( 'Business', 'category', array( 'slug' => 'business', 'description' => 'Business and finance' ) ); ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create sample posts to demonstrate conditional targeting */ require_once 'wordpress/wp-load.php'; $tech_cat = get_term_by( 'slug', 'technology', 'category' ); $sports_cat = get_term_by( 'slug', 'sports', 'category' ); $business_cat = get_term_by( 'slug', 'business', 'category' ); wp_insert_post( array( 'post_title' => 'Latest Tech Innovations', 'post_content' => 'Exploring the newest technology trends.', 'post_status' => 'publish', 'post_category' => array( $tech_cat->term_id ), ) ); wp_insert_post( array( 'post_title' => 'Championship Finals Preview', 'post_content' => 'Everything you need to know about the upcoming finals.', 'post_status' => 'publish', 'post_category' => array( $sports_cat->term_id ), ) ); wp_insert_post( array( 'post_title' => 'Market Report: Q4 Results', 'post_content' => 'Analysis of quarterly business performance.', 'post_status' => 'publish', 'post_category' => array( $business_cat->term_id ), ) ); wp_insert_post( array( 'post_title' => 'Sports Tech: Wearables Revolution', 'post_content' => 'How technology is changing athletics.', 'post_status' => 'publish', 'post_category' => array( $tech_cat->term_id, $sports_cat->term_id ), ) ); ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create ad code: Leaderboard - no conditionals (runs everywhere) */ require_once 'wordpress/wp-load.php'; $ad_code_id = wp_insert_post( array( 'post_type' => 'acm-code', 'post_title' => 'Site-wide Leaderboard', 'post_status' => 'publish', ) ); if ( ! is_wp_error( $ad_code_id ) ) { update_post_meta( $ad_code_id, 'site_name', 'demo-site' ); update_post_meta( $ad_code_id, 'zone1', 'leaderboard' ); update_post_meta( $ad_code_id, 'priority', 10 ); update_post_meta( $ad_code_id, 'operator', 'OR' ); } ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create ad code: Homepage-only banner with is_home conditional */ require_once 'wordpress/wp-load.php'; $ad_code_id = wp_insert_post( array( 'post_type' => 'acm-code', 'post_title' => 'Homepage Banner', 'post_status' => 'publish', ) ); if ( ! is_wp_error( $ad_code_id ) ) { update_post_meta( $ad_code_id, 'site_name', 'demo-site' ); update_post_meta( $ad_code_id, 'zone1', 'homepage-banner' ); update_post_meta( $ad_code_id, 'priority', 5 ); update_post_meta( $ad_code_id, 'operator', 'AND' ); update_post_meta( $ad_code_id, 'conditionals', array( array( 'function' => 'is_home', 'arguments' => array() ) ) ); } ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create ad code: Single post sidebar with is_single conditional */ require_once 'wordpress/wp-load.php'; $ad_code_id = wp_insert_post( array( 'post_type' => 'acm-code', 'post_title' => 'Article Sidebar', 'post_status' => 'publish', ) ); if ( ! is_wp_error( $ad_code_id ) ) { update_post_meta( $ad_code_id, 'site_name', 'demo-site' ); update_post_meta( $ad_code_id, 'zone1', 'article-sidebar' ); update_post_meta( $ad_code_id, 'priority', 10 ); update_post_meta( $ad_code_id, 'operator', 'AND' ); update_post_meta( $ad_code_id, 'conditionals', array( array( 'function' => 'is_single', 'arguments' => array() ) ) ); } ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create ad code: Sports section ad with has_category conditional */ require_once 'wordpress/wp-load.php'; $ad_code_id = wp_insert_post( array( 'post_type' => 'acm-code', 'post_title' => 'Sports Section Ad', 'post_status' => 'publish', ) ); if ( ! is_wp_error( $ad_code_id ) ) { update_post_meta( $ad_code_id, 'site_name', 'demo-site' ); update_post_meta( $ad_code_id, 'zone1', 'sports-zone' ); update_post_meta( $ad_code_id, 'priority', 15 ); update_post_meta( $ad_code_id, 'operator', 'AND' ); update_post_meta( $ad_code_id, 'conditionals', array( array( 'function' => 'has_category', 'arguments' => array( 'sports' ) ) ) ); } ?>"
+		},
+		{
+			"step": "runPHP",
+			"code": "<?php /* Create ad code: Premium ad with multiple conditionals (AND operator) */ require_once 'wordpress/wp-load.php'; $ad_code_id = wp_insert_post( array( 'post_type' => 'acm-code', 'post_title' => 'Premium Business Ad', 'post_status' => 'publish', ) ); if ( ! is_wp_error( $ad_code_id ) ) { update_post_meta( $ad_code_id, 'site_name', 'demo-site' ); update_post_meta( $ad_code_id, 'zone1', 'premium-zone' ); update_post_meta( $ad_code_id, 'priority', 20 ); update_post_meta( $ad_code_id, 'operator', 'AND' ); update_post_meta( $ad_code_id, 'conditionals', array( array( 'function' => 'is_single', 'arguments' => array() ), array( 'function' => 'has_category', 'arguments' => array( 'business' ) ) ) ); } ?>"
+		},
+		{
+			"step": "login",
+			"username": "admin",
+			"password": "password"
+		}
+	]
+}
