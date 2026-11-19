@@ -89,7 +89,7 @@ jobs:
       # Trunk reports a development version, such as 7.2-alpha-61234.
       - name: Check the WordPress version
         run: |
-          actual="$(npx --no wp-env run tests-cli wp core version 2>/dev/null | grep -Eo '^[0-9]+\.[0-9][^[:space:]]*')"
+          actual="$(npx --no wp-env run cli wp core version 2>/dev/null | grep -Eo '^[0-9]+\.[0-9][^[:space:]]*')"
           echo "WordPress ${actual} (job: ${WP_VERSION})"
           if [ "${WP_VERSION}" = master ]; then
             [[ "${actual}" == *-* ]] || { echo "::error::Expected a trunk development version, got '${actual}'"; exit 1; }
