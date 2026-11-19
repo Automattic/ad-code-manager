@@ -11,7 +11,7 @@ namespace Automattic\AdCodeManager\Tests\Integration\UI;
 
 use Automattic\AdCodeManager\Tests\Integration\TestCase;
 use Automattic\AdCodeManager\UI\Conditional_Autocomplete;
-use ReflectionClass;
+use ReflectionMethod;
 use WP_Term;
 
 /**
@@ -102,10 +102,7 @@ final class ConditionalAutocompleteTest extends TestCase {
 	 * @covers \Automattic\AdCodeManager\UI\Conditional_Autocomplete
 	 */
 	public function test_default_autocomplete_conditionals(): void {
-		// Use reflection to access the private method.
-		$reflection = new ReflectionClass( $this->autocomplete );
-		$method     = $reflection->getMethod( 'get_autocomplete_conditionals' );
-		$method->setAccessible( true );
+		$method = $this->get_private_method( 'get_autocomplete_conditionals' );
 
 		$conditionals = $method->invoke( $this->autocomplete );
 
@@ -137,10 +134,7 @@ final class ConditionalAutocompleteTest extends TestCase {
 		self::factory()->category->create( array( 'name' => 'Tech Reviews' ) );
 		self::factory()->category->create( array( 'name' => 'Sports' ) );
 
-		// Use reflection to access the private method.
-		$reflection = new ReflectionClass( $this->autocomplete );
-		$method     = $reflection->getMethod( 'search_taxonomy_terms' );
-		$method->setAccessible( true );
+		$method = $this->get_private_method( 'search_taxonomy_terms' );
 
 		$results = $method->invoke( $this->autocomplete, 'Tech', 'category' );
 
@@ -178,10 +172,7 @@ final class ConditionalAutocompleteTest extends TestCase {
 			)
 		);
 
-		// Use reflection to access the private method.
-		$reflection = new ReflectionClass( $this->autocomplete );
-		$method     = $reflection->getMethod( 'search_posts' );
-		$method->setAccessible( true );
+		$method = $this->get_private_method( 'search_posts' );
 
 		$results = $method->invoke( $this->autocomplete, 'About', 'page' );
 
@@ -196,10 +187,7 @@ final class ConditionalAutocompleteTest extends TestCase {
 	 * @covers \Automattic\AdCodeManager\UI\Conditional_Autocomplete
 	 */
 	public function test_search_no_results(): void {
-		// Use reflection to access the private method.
-		$reflection = new ReflectionClass( $this->autocomplete );
-		$method     = $reflection->getMethod( 'search_taxonomy_terms' );
-		$method->setAccessible( true );
+		$method = $this->get_private_method( 'search_taxonomy_terms' );
 
 		$results = $method->invoke( $this->autocomplete, 'NonexistentTerm', 'category' );
 
@@ -217,16 +205,30 @@ final class ConditionalAutocompleteTest extends TestCase {
 		self::factory()->tag->create( array( 'name' => 'WordPress Tips' ) );
 		self::factory()->tag->create( array( 'name' => 'WordPress Plugins' ) );
 
-		// Use reflection to access the private method.
-		$reflection = new ReflectionClass( $this->autocomplete );
-		$method     = $reflection->getMethod( 'search_taxonomy_terms' );
-		$method->setAccessible( true );
+		$method = $this->get_private_method( 'search_taxonomy_terms' );
 
 		$results = $method->invoke( $this->autocomplete, 'WordPress', 'post_tag' );
 
 		self::assertCount( 2, $results );
 		// Results should use slug as ID.
 		self::assertStringContainsString( 'wordpress', $results[0]['id'] ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- A term slug, which is lowercase.
+	}
+
+	/**
+	 * Get a private method of the class under test, ready to invoke.
+	 *
+	 * @param string $name Method name.
+	 * @return ReflectionMethod The method.
+	 */
+	private function get_private_method( string $name ): ReflectionMethod {
+		$method = new ReflectionMethod( $this->autocomplete, $name );
+
+		// Needed before PHP 8.1, and deprecated since 8.5, where it has no effect.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		return $method;
 	}
 
 	/**
