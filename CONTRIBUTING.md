@@ -10,12 +10,13 @@ Please report security vulnerabilities privately through the repository's [Secur
 
 ## Development setup
 
-You'll need [Composer](https://getcomposer.org/), and [Docker](https://www.docker.com/) for the integration tests, which run in [`wp-env`](https://www.npmjs.com/package/@wordpress/env).
+You'll need [Composer](https://getcomposer.org/), [Node.js](https://nodejs.org/) and npm, and [Docker](https://www.docker.com/) for the integration tests, which run in [`wp-env`](https://www.npmjs.com/package/@wordpress/env).
 
 ```bash
 git clone git@github.com:Automattic/ad-code-manager.git
 cd ad-code-manager
 composer install
+npm ci
 npx wp-env start
 ```
 

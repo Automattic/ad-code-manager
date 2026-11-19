@@ -49,7 +49,7 @@ composer cs                # Check code standards (PHPCS)
 composer cs-fix            # Auto-fix code standard violations
 composer lint              # PHP syntax lint
 composer test:unit         # Run unit tests
-composer test:integration  # Run integration tests (requires wp-env: npx wp-env start)
+composer test:integration  # Run integration tests (requires wp-env: npx --no wp-env start)
 composer test:integration-ms  # Run multisite integration tests
 composer coverage          # Run tests with HTML coverage report
 ```
@@ -76,5 +76,5 @@ See `CONTRIBUTING.md` for setup, checks and the contribution workflow. Key point
 - Do not edit WordPress core files or bundled dependencies in `vendor/`.
 - Do not add ad provider logic directly to the main plugin class — create a new provider in `src/Providers/`.
 - Run `composer cs` before committing. CI will reject code standard violations.
-- Integration tests require `npx wp-env start` running first. If tests fail with connection errors, check that wp-env is up.
+- Integration tests require `npx --no wp-env start` running first. Run `npm ci` before it, so `npx` uses the `@wordpress/env` pinned in `package.json`. Always keep `--no`: without an installed `@wordpress/env`, plain `npx wp-env` fetches the unrelated `wp-env` package from npm. If tests fail with connection errors, check that wp-env is up.
 - The widget class extends `WP_Widget` directly — do not refactor this to a block without explicit agreement, as it would be a breaking change for existing users.

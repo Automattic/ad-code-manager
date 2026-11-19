@@ -36,7 +36,7 @@
 		"coverage": [
 			"@php ./vendor/bin/phpunit --coverage-html ./.phpunit.cache/coverage-html"
 		],
-		"coverage-ci": "wp-env run tests-cli --env-cwd=wp-content/plugins/ad-code-manager ./vendor/bin/phpunit",
+		"coverage-ci": "npx --no wp-env run tests-cli --env-cwd=wp-content/plugins/ad-code-manager ./vendor/bin/phpunit",
 		"cs": [
 			"@php ./vendor/bin/phpcs -q"
 		],
@@ -51,8 +51,8 @@
 			"@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --exclude vendor --exclude .git --checkstyle"
 		],
 		"test:unit": "@php ./vendor/bin/phpunit --testsuite Unit",
-		"test:integration": "wp-env run tests-cli --env-cwd=wp-content/plugins/ad-code-manager ./vendor/bin/phpunit --testsuite integration --no-coverage --order-by=random",
-		"test:integration-ms": "wp-env run tests-cli --env-cwd=wp-content/plugins/ad-code-manager /bin/bash -c 'WP_MULTISITE=1 ./vendor/bin/phpunit --testsuite integration --no-coverage --order-by=random'"
+		"test:integration": "npx --no wp-env run tests-cli --env-cwd=wp-content/plugins/ad-code-manager ./vendor/bin/phpunit --testsuite integration --no-coverage --order-by=random",
+		"test:integration-ms": "npx --no wp-env run tests-cli --env-cwd=wp-content/plugins/ad-code-manager /bin/bash -c 'WP_MULTISITE=1 ./vendor/bin/phpunit --testsuite integration --no-coverage --order-by=random'"
 	},
 	"scripts-descriptions": {
 		"coverage": "Run tests with code coverage reporting",
