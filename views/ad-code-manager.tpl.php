@@ -9,6 +9,7 @@
 	<div class="acm-ui-wrapper wrap">
 	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
 	<?php
+	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Only chooses which fixed notice to show after a redirect.
 	if ( isset( $_REQUEST['message'] ) ) {
 		$message_text  = '';
 		$message_class = 'updated';
@@ -45,6 +46,7 @@
 			echo '<div class="notice notice-' . esc_attr( $message_class ) . '"><p>' . esc_html( $message_text ) . '</p></div>';
 		}
 	}
+	// phpcs:enable WordPress.Security.NonceVerification.Recommended
 	?>
 	<p><?php esc_html_e( 'Refer to help section for more information.', 'ad-code-manager' ); ?></p>
 <?php
@@ -132,7 +134,7 @@ foreach ( $this->current_provider->ad_code_args as $arg ) :
 		?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ); ?>"><?php echo esc_html( $arg['label'] ); ?></label>
-	<select name="<?php echo esc_attr( $column_id ); ?>" id="<?php echo esc_attr( $column_id ); ?>" aria-required="<?php echo $arg['required']; ?>">
+	<select name="<?php echo esc_attr( $column_id ); ?>" id="<?php echo esc_attr( $column_id ); ?>" aria-required="<?php echo esc_attr( $arg['required'] ); ?>">
 		<?php foreach ( $arg['options'] as $value => $label ) : ?>
 		<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $label ); ?></option>
 		<?php endforeach; ?>

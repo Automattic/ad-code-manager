@@ -111,7 +111,7 @@ class ACM_Provider {
 			$should_do_robotstxt = apply_filters( 'acm_should_do_robotstxt', true, $this );
 
 			if ( true === $should_do_robotstxt ) {
-				add_action( 'do_robotstxt', array( $this, 'action_do_robotstxt' ), 10 );
+				add_action( 'do_robotstxt', array( $this, 'action_do_robotstxt' ), 10 ); // phpcs:ignore WordPressVIPMinimum.Hooks.RestrictedHooks.do_robotstxt -- Adds the provider's crawler rules; nothing for the plugin to flush.
 			}
 		}
 	}
