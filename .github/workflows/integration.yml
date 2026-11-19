@@ -79,6 +79,18 @@ jobs:
         env:
           WP_ENV_CORE: WordPress/WordPress#${{ matrix.wordpress }}
 
+      # Fail if wp-env didn't install the WordPress version the job names.
+      # Trunk reports a development version, such as 7.2-alpha-61234.
+      - name: Check the WordPress version
+        run: |
+          actual="$(wp-env run tests-cli wp core version 2>/dev/null | grep -Eo '^[0-9]+\.[0-9][^[:space:]]*')"
+          echo "WordPress ${actual} (job: ${WP_VERSION})"
+          if [ "${WP_VERSION}" = master ]; then
+            [[ "${actual}" == *-* ]] || { echo "::error::Expected a trunk development version, got '${actual}'"; exit 1; }
+          else
+            [[ "${actual}" == "${WP_VERSION}" || "${actual}" == "${WP_VERSION}".* ]] || { echo "::error::Expected WordPress ${WP_VERSION}, got '${actual}'"; exit 1; }
+          fi
+
       - name: Run integration tests (single site)
         run: composer test:integration --no-interaction
 
