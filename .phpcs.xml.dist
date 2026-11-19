@@ -49,12 +49,27 @@
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="ad_code_manager"/>
-				<element value="acm"/>
+				<!-- WPCS ignores prefixes shorter than four characters, so "acm" needs its underscore. -->
+				<element value="acm_"/>
 				<element value="Automattic\AdCodeManager"/>
 			</property>
 		</properties>
-		<!-- Allow 3-character prefix "acm" - this is an established plugin prefix. -->
-		<exclude name="WordPress.NamingConventions.PrefixAllGlobals.ShortPrefixPassed"/>
+	</rule>
+
+	<!-- The provider classes predate the prefix, and sites name and extend them, so renaming them would break those sites. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedClassFound">
+		<exclude-pattern>/src/Providers/</exclude-pattern>
+	</rule>
+
+	<!-- Templates are included from inside methods, so their variables are local, not globals. Likewise the test bootstraps'. -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound">
+		<exclude-pattern>/views/</exclude-pattern>
+		<exclude-pattern>/tests/</exclude-pattern>
+	</rule>
+
+	<!-- Each provider file holds the provider and the classes that go with it, under its existing file name. Moving or renaming them would break code that loads them by path. -->
+	<rule ref="Generic.Files.OneObjectStructurePerFile">
+		<exclude-pattern>/src/Providers/</exclude-pattern>
 	</rule>
 
 	<rule ref="WordPress.WP.I18n">
@@ -73,6 +88,14 @@
 
 	<rule ref="WordPress.Files.FileName">
 		<exclude-pattern>tests/</exclude-pattern>
+		<!-- The templates use a .tpl.php suffix. -->
+		<exclude-pattern>/views/</exclude-pattern>
+	</rule>
+
+	<!-- Existing class files whose names don't follow the class names. See OneObjectStructurePerFile above. -->
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>/src/Providers/</exclude-pattern>
+		<exclude-pattern>/src/class-acm-widget\.php$</exclude-pattern>
 	</rule>
 
 </ruleset>
