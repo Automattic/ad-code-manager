@@ -12,7 +12,7 @@ WordPress plugin to manage ad codes and the conditions for showing them from the
 | **Source directory** | `src/` |
 | **Version** | 0.8.0 |
 | **Requires PHP** | 7.4+ |
-| **Requires WP** | 6.4+ |
+| **Requires at least** | WordPress 6.4+ |
 
 ### Directory Structure
 
