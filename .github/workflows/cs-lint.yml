@@ -22,6 +22,12 @@ jobs:
     env:
       XMLLINT_INDENT: "	"
 
+    # Fail a step when any command in a pipe fails, not just the last
+    # one, so cs2pr can't hide a PHPCS or parallel-lint failure.
+    defaults:
+      run:
+        shell: bash
+
     strategy:
       matrix:
         # The lowest supported PHP and the latest.
@@ -59,6 +65,10 @@ jobs:
       # Lint PHP.
       - name: Lint PHP against parse errors
         run: composer lint-ci --no-interaction | cs2pr
+
+      # Show coding standards violations inline in the file diff.
+      - name: Check coding standards
+        run: composer cs --no-interaction -- --report=checkstyle | cs2pr
 
       # Needed as runs-on: system doesn't have xml-lint by default.
       # @link https://github.com/marketplace/actions/xml-lint
