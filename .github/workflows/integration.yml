@@ -51,8 +51,14 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install wordpress environment
-        run: npm install -g @wordpress/env
+      - name: Setup Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 'lts/*'
+          cache: npm
+
+      - name: Install Node.js dependencies
+        run: npm ci
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
@@ -75,7 +81,7 @@ jobs:
         uses: ramsey/composer-install@65e4f84970763564f46a70b8a54b90d033b3bdda # 4.0.0
 
       - name: Setup wp-env
-        run: wp-env start
+        run: npx --no wp-env start
         env:
           WP_ENV_CORE: WordPress/WordPress#${{ matrix.wordpress }}
 
@@ -83,7 +89,7 @@ jobs:
       # Trunk reports a development version, such as 7.2-alpha-61234.
       - name: Check the WordPress version
         run: |
-          actual="$(wp-env run tests-cli wp core version 2>/dev/null | grep -Eo '^[0-9]+\.[0-9][^[:space:]]*')"
+          actual="$(npx --no wp-env run tests-cli wp core version 2>/dev/null | grep -Eo '^[0-9]+\.[0-9][^[:space:]]*')"
           echo "WordPress ${actual} (job: ${WP_VERSION})"
           if [ "${WP_VERSION}" = master ]; then
             [[ "${actual}" == *-* ]] || { echo "::error::Expected a trunk development version, got '${actual}'"; exit 1; }

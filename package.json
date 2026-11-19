@@ -6,6 +6,7 @@
 	"author": "Automattic",
 	"repository": "automattic/ad-code-manager",
 	"devDependencies": {
+		"@wordpress/env": "^12.2.0",
 		"version-bump-prompt": "^6.1.0"
 	},
 	"scripts": {
