@@ -10,7 +10,7 @@
  * @wordpress-plugin
  * Plugin Name:       Ad Code Manager
  * Plugin URI:        https://wordpress.org/plugins/ad-code-manager/
- * Description:       Easy ad code management.
+ * Description:       Manage ad codes and the conditions for showing them from the WordPress admin.
  * Version:           0.8.0
  * Author:            Automattic and contributors
  * Author URI:        https://github.com/Automattic/ad-code-manager/graphs/contributors
