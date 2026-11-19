@@ -22,6 +22,12 @@ jobs:
     env:
       XMLLINT_INDENT: "	"
 
+    # Fail a step when any command in a pipe fails, not just the last
+    # one, so cs2pr can't hide a PHPCS or parallel-lint failure.
+    defaults:
+      run:
+        shell: bash
+
     strategy:
       matrix:
         # The lowest supported PHP and the latest.
