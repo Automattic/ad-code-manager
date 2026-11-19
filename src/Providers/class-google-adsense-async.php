@@ -12,7 +12,7 @@ class Google_AdSense_Async_ACM_Provider extends ACM_Provider {
 	 * @return null
 	 */
 	public function __construct() {
-		// Default output HTML
+		// Default output HTML.
 		$this->output_html = '<div id="acm-ad-tag-%tag%"><script async src="http://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <ins class="adsbygoogle"
 style="display:inline-block;width:%width%px;height:%height%px"
@@ -23,7 +23,7 @@ data-ad-slot="%tag_id%";
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script></div>';
 
-		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
+		// Default Ad Tag Ids (you will pass this in your shortcode or template tag).
 		$this->ad_tag_ids = array(
 			array(
 				'tag'               => '728x90_leaderboard',
@@ -98,7 +98,7 @@ data-ad-slot="%tag_id%";
 				'required' => true,
 				'type'     => 'select',
 				'options'  => array(
-					// This is added later, through 'acm_ad_code_args' filter
+					// This is added later, through 'acm_ad_code_args' filter.
 				),
 			),
 			array(
@@ -132,7 +132,7 @@ data-ad-slot="%tag_id%";
 				continue;
 			}
 
-			// Get all of the tags that are registered, and provide them as options
+			// Get all of the tags that are registered, and provide them as options.
 			foreach ( (array) $ad_code_manager->ad_tag_ids as $ad_tag ) {
 				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] ) {
 					$ad_code_args[ $tag ]['options'][ $ad_tag['tag'] ] = $ad_tag['tag'];

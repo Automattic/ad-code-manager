@@ -136,7 +136,7 @@ foreach ( $this->current_provider->ad_code_args as $arg ) :
 	</select>
 </div>
 		<?php
-else : // field_type conditional
+else : // field_type conditional.
 	?>
 <div class="form-field form-required">
 	<label for="<?php echo esc_attr( $column_id ); ?>"><?php echo esc_html( $arg['label'] ); ?></label>

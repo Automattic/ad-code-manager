@@ -5,7 +5,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 
 	public function __construct() {
 
-		// Default ad zones for DFP Async
+		// Default ad zones for DFP Async.
 		$this->ad_tag_ids = array(
 			array(
 				'tag'               => '728x90',
@@ -59,14 +59,14 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 			),
 
 
-			// An extra, special tag to make sure the <head> gets the output we need it to
+			// An extra, special tag to make sure the <head> gets the output we need it to.
 			array(
 				'tag'      => 'dfp_head',
 				'url_vars' => array(),
 			),
 		);
 
-		// Default fields for DFP Async
+		// Default fields for DFP Async.
 		$this->ad_code_args = array(
 			array(
 				'key'      => 'tag',
@@ -75,7 +75,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 				'required' => true,
 				'type'     => 'select',
 				'options'  => array(
-					// This is added later, through 'acm_ad_code_args' filter
+					// This is added later, through 'acm_ad_code_args' filter.
 				),
 			),
 			array(
@@ -120,7 +120,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 				continue;
 			}
 
-			// Get all of the tags that are registered, and provide them as options
+			// Get all of the tags that are registered, and provide them as options.
 			foreach ( (array) $ad_code_manager->ad_tag_ids as $ad_tag ) {
 				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] ) {
 					$ad_code_args[ $tag ]['options'][ $ad_tag['tag'] ] = $ad_tag['tag'];
@@ -223,7 +223,7 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 					(int) $unit_size['height'],
 				);
 			}
-		} else { // fallback for old style width x height
+		} else { // fallback for old style width x height.
 			$unit_sizes_output = array(
 				(int) $url_vars['width'],
 				(int) $url_vars['height'],
@@ -309,8 +309,8 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	public function __construct() {
 		parent::__construct(
 			array(
-				'singular' => 'doubleclick_for_publishers_async_acm_wp_list_table', // Singular label
-				'plural'   => 'doubleclick_for_publishers_async_acm_wp_list_table', // plural label, also this well be one of the table css class
+				'singular' => 'doubleclick_for_publishers_async_acm_wp_list_table', // Singular label.
+				'plural'   => 'doubleclick_for_publishers_async_acm_wp_list_table', // plural label, also this well be one of the table css class.
 				'ajax'     => true,
 			) 
 		);

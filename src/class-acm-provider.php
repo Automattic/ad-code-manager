@@ -22,7 +22,7 @@ class ACM_Provider {
 	
 	public function __construct() {
 		if ( empty( $this->ad_code_args ) ) {
-			// This is not actual data, but rather format:
+			// This is not actual data, but the format the data takes.
 			$this->ad_code_args = array(
 				array(
 					'key'      => 'name',

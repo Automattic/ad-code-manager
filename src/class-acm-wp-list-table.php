@@ -8,7 +8,7 @@
  *
  * @since v0.1.3
  */
-// Our class extends the WP_List_Table class, so we need to make sure that it's there
+// Our class extends the WP_List_Table class, so we need to make sure that it's there.
 
 require_once ABSPATH . 'wp-admin/includes/screen.php';
 require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
@@ -47,7 +47,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 				'conditionals' => __( 'Conditionals', 'ad-code-manager' ),
 			)
 		);
-		// Fail-safe for misconfiguration
+		// Fail-safe for misconfiguration.
 		$required_before = array(
 			'id' => __( 'ID', 'ad-code-manager' ),
 			'cb' => '<input type="checkbox" />',
@@ -91,7 +91,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 		// Pagination parameters.
 		// Number of elements in your table?
-		$totalitems = count( $this->items ); // return the total number of affected rows
+		$totalitems = count( $this->items ); // return the total number of affected rows.
 
 		/**
 		 * Filters the number of ad codes displayed per page in the list table.
@@ -105,14 +105,14 @@ class ACM_WP_List_Table extends WP_List_Table {
 		// Which page is this?
 		$paged = ! empty( $_GET['paged'] ) ? intval( $_GET['paged'] ) : '';
 
-		// Page Number
+		// Page Number.
 		if ( empty( $paged ) || ! is_numeric( $paged ) || $paged <= 0 ) {
 			$paged = 1; }
 		// How many pages do we have in total?
 
 		$totalpages = ceil( $totalitems / $perpage );
 
-		// adjust the query to take pagination into account
+		// adjust the query to take pagination into account.
 
 		if ( ! empty( $paged ) && ! empty( $perpage ) ) {
 			$offset = ( $paged - 1 ) * $perpage;
@@ -126,7 +126,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 				'per_page'    => $perpage,
 			) 
 		);
-		// The pagination links are automatically built according to those parameters
+		// The pagination links are automatically built according to those parameters.
 
 		/* -- Register the Columns -- */
 		$columns               = $this->get_columns();
