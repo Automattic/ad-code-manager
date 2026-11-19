@@ -105,7 +105,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$perpage = apply_filters( 'acm_list_table_per_page', 25 );
 
 		// Which page is this?
-		$paged = ! empty( $_GET['paged'] ) ? intval( $_GET['paged'] ) : '';
+		$paged = ! empty( $_GET['paged'] ) ? intval( $_GET['paged'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only pagination.
 
 		// Page Number.
 		if ( empty( $paged ) || ! is_numeric( $paged ) || $paged <= 0 ) {
@@ -163,10 +163,9 @@ class ACM_WP_List_Table extends WP_List_Table {
 	public function single_row( $item ) {
 		static $alternate_class = '';
 		$alternate_class        = ( '' == $alternate_class ? ' alternate' : '' );
-		$row_class              = ' class="term-static' . esc_attr( $alternate_class ) . '"';
 
-		echo '<tr id="ad-code-' . esc_attr( $item['post_id'] ) . '"' . $row_class . '>';
-		echo $this->single_row_columns( $item );
+		echo '<tr id="ad-code-' . esc_attr( $item['post_id'] ) . '" class="term-static' . esc_attr( $alternate_class ) . '">';
+		$this->single_row_columns( $item );
 		echo '</tr>';
 	}
 

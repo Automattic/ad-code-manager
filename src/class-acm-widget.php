@@ -56,10 +56,18 @@ class ACM_Ad_Zones extends WP_Widget {
 			</select>
 			<?php else : ?>
 				<?php $create_url = add_query_arg( 'page', $ad_code_manager->plugin_slug, admin_url( 'options-general.php' ) ); ?>
-			<span class="description"><?php
-				// translators: %s is the URL to the Ad Code Manager settings page.
-				echo sprintf( __( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ), esc_url( $create_url ) );
-			?></span>
+			<span class="description">
+				<?php
+				printf(
+					wp_kses(
+						// translators: %s is the URL to the Ad Code Manager settings page.
+						__( "No ad codes have been added yet. <a href='%s'>Please create one</a>.", 'ad-code-manager' ),
+						array( 'a' => array( 'href' => array() ) )
+					),
+					esc_url( $create_url )
+				);
+				?>
+			</span>
 			<?php endif; ?>
 			</p>
 
@@ -110,15 +118,18 @@ class ACM_Ad_Zones extends WP_Widget {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sidebar markup registered by the theme, which core's widgets output as is too.
 		echo $args['before_widget'];
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( ! empty( $title ) ) {
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sidebar markup registered by the theme, as above.
 			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
 		}
 
 		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Ad content is escaped during token replacement in get_acm_tag().
 		echo $ad_content;
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Sidebar markup registered by the theme, as above.
 		echo $args['after_widget'];
 	}
 }

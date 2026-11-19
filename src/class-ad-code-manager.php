@@ -460,13 +460,13 @@ class Ad_Code_Manager {
 					}
 					break;
 				}
-				$new_conditionals    = array();
-				$unsafe_conditionals = $_REQUEST['acm-conditionals'] ?? array();
-				foreach ( $unsafe_conditionals as $index => $unsafe_conditional ) {
+				$new_conditionals      = array();
+				$conditional_functions = isset( $_REQUEST['acm-conditionals'] ) ? array_map( 'sanitize_key', (array) wp_unslash( $_REQUEST['acm-conditionals'] ) ) : array();
+				foreach ( $conditional_functions as $index => $conditional_function ) {
 					$index       = (int) $index;
 					$arguments   = ( isset( $_REQUEST['acm-arguments'][ $index ] ) ) ? sanitize_text_field( $_REQUEST['acm-arguments'][ $index ] ) : '';
 					$conditional = array(
-						'function'  => sanitize_key( $unsafe_conditional ),
+						'function'  => $conditional_function,
 						'arguments' => $arguments,
 					);
 					if ( ! empty( $conditional['function'] ) ) {
@@ -509,7 +509,7 @@ class Ad_Code_Manager {
 				$this->wp_list_table = new $table_class();
 				$this->wp_list_table->prepare_items();
 				$new_ad_code = $this->get_ad_code( $id );
-				echo $this->wp_list_table->single_row( $new_ad_code );
+				$this->wp_list_table->single_row( $new_ad_code );
 			}
 		} else {
 			// @todo support ajax and non-ajax requests
@@ -863,7 +863,7 @@ class Ad_Code_Manager {
 		global $pagenow;
 
 		// Only load this on the proper page.
-		if ( 'options-general.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) {
+		if ( 'options-general.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only decides whether to load assets.
 			return;
 		}
 
@@ -1091,6 +1091,7 @@ class Ad_Code_Manager {
 	 * @param string $tag_id Unique ID for the ad tag.
 	 */
 	public function action_acm_tag( $tag_id ): void {
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Ad content is escaped during token replacement in get_acm_tag().
 		echo $this->get_acm_tag( $tag_id );
 	}
 
@@ -1116,7 +1117,7 @@ class Ad_Code_Manager {
 
 		// This method might be expensive when there's a lot of ad codes
 		// So instead of executing over and over again, return cached matching ad code.
-		$cache_key = "acm:{$tag_id}:" . md5( serialize( $wp_query->query_vars ) );
+		$cache_key = "acm:{$tag_id}:" . md5( serialize( $wp_query->query_vars ) ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_serialize -- Only hashed for a cache key, never unserialized.
 
 		/**
 		 * Filters the cache expiration time for matching ad codes.
@@ -1281,7 +1282,7 @@ class Ad_Code_Manager {
 		if ( false === $cache_expiration ) {
 			$checked_ad_codes[ $cache_key ] = $code_to_display;
 		} else {
-			wp_cache_add( $cache_key, $code_to_display, 'acm', $cache_expiration );
+			wp_cache_add( $cache_key, $code_to_display, 'acm', $cache_expiration ); // phpcs:ignore WordPressVIPMinimum.Performance.LowExpiryCacheTime.CacheTimeUndetermined -- Filterable; defaults to 600 seconds.
 		}
 
 		return $code_to_display;
