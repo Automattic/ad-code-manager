@@ -11,18 +11,86 @@ declare(strict_types=1);
 use const Automattic\AdCodeManager\AD_CODE_MANAGER_FILE;
 use const Automattic\AdCodeManager\AD_CODE_MANAGER_VERSION;
 
+/**
+ * Registers ad codes and the conditions for showing them, and outputs the matching ad code for each ad tag.
+ */
 class Ad_Code_Manager {
 
-	public $ad_codes                 = array();
+	/**
+	 * Registered ad codes, keyed by ad tag ID. Each ad tag holds a list of ad codes.
+	 *
+	 * @var array
+	 */
+	public $ad_codes = array();
+
+	/**
+	 * Names of the conditional functions that ad codes are allowed to run.
+	 *
+	 * @var string[]
+	 */
 	public $whitelisted_conditionals = array();
-	public $post_type                = 'acm-code';
-	public $plugin_slug              = 'ad-code-manager';
-	public $manage_ads_cap           = 'manage_options';
+
+	/**
+	 * Post type that stores the ad codes.
+	 *
+	 * @var string
+	 */
+	public $post_type = 'acm-code';
+
+	/**
+	 * Slug of the admin settings page.
+	 *
+	 * @var string
+	 */
+	public $plugin_slug = 'ad-code-manager';
+
+	/**
+	 * Capability needed to manage ad codes.
+	 *
+	 * @var string
+	 */
+	public $manage_ads_cap = 'manage_options';
+
+	/**
+	 * Default logical operator for combining an ad code's conditionals, either 'OR' or 'AND'.
+	 *
+	 * @var string
+	 */
 	public $logical_operator;
+
+	/**
+	 * Ad tags that ad codes can be registered against, from the current provider.
+	 *
+	 * @var array
+	 */
 	public $ad_tag_ids;
+
+	/**
+	 * Available providers, keyed by slug. Each holds the 'provider' and 'table' class names.
+	 *
+	 * @var object
+	 */
 	public $providers;
+
+	/**
+	 * Slug of the provider in use.
+	 *
+	 * @var string|false
+	 */
 	public $current_provider_slug;
+
+	/**
+	 * Instance of the provider in use, if one was found.
+	 *
+	 * @var ACM_Provider|null
+	 */
 	public $current_provider;
+
+	/**
+	 * List table for the current provider's ad codes on the admin screen.
+	 *
+	 * @var ACM_WP_List_Table|null
+	 */
 	public $wp_list_table;
 
 	/**
@@ -291,6 +359,9 @@ class Ad_Code_Manager {
 	 * Get an ACM option
 	 *
 	 * @since 0.4
+	 *
+	 * @param string $key Option name.
+	 * @return mixed The option value, or false if it isn't set.
 	 */
 	public function get_option( $key ) {
 		$options = $this->get_options();
@@ -303,9 +374,13 @@ class Ad_Code_Manager {
 	}
 
 	/**
-	 * Update an ACM option
+	 * Update ACM options
+	 *
+	 * Merges the new values into the existing options and saves them.
 	 *
 	 * @since 0.4
+	 *
+	 * @param array $new_options Option values to save, keyed by option name.
 	 */
 	public function update_options( $new_options ) {
 		$options = $this->get_options();
@@ -447,6 +522,12 @@ class Ad_Code_Manager {
 
 	/**
 	 * Get the ad codes stored in our custom post type
+	 *
+	 * The result is cached, so the query arguments only take effect when the cache is empty.
+	 *
+	 * @param array $query_args Optional. Arguments for get_posts(). Only those allowed by the
+	 *                          `acm_allowed_get_posts_args` filter are used. Default empty array.
+	 * @return array List of ad codes, each with conditionals, URL vars, priority, operator and post ID.
 	 */
 	public function get_ad_codes( $query_args = array() ) {
 		/**
@@ -517,7 +598,7 @@ class Ad_Code_Manager {
 	/**
 	 * Get a single ad code
 	 *
-	 * @param int $post_id Post ID for the ad code that we want
+	 * @param int $post_id Post ID for the ad code that we want.
 	 * @return array|bool $ad_code Ad code representation of the data
 	 */
 	public function get_ad_code( $post_id ) {
@@ -555,6 +636,9 @@ class Ad_Code_Manager {
 
 	/**
 	 * Get the conditional values for an ad code
+	 *
+	 * @param int $ad_code_id Post ID of the ad code.
+	 * @return array The ad code's conditionals, or an empty array if it has none.
 	 */
 	public function get_conditionals( $ad_code_id ) {
 		$conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
@@ -571,7 +655,7 @@ class Ad_Code_Manager {
 	 *
 	 * @uses register_ad_code()
 	 *
-	 * @param array $ad_code
+	 * @param array $ad_code Values for the provider's ad code fields, plus the priority and operator.
 	 * @return int|false|WP_Error post_id or false
 	 */
 	public function create_ad_code( $ad_code = array() ) {
@@ -606,6 +690,10 @@ class Ad_Code_Manager {
 
 	/**
 	 * Update an existing ad code
+	 *
+	 * @param int   $ad_code_id Post ID of the ad code.
+	 * @param array $ad_code    Values for the provider's ad code fields, plus the priority and operator.
+	 * @return int|WP_Error The ad code ID, or WP_Error if a required field is missing.
 	 */
 	public function edit_ad_code( $ad_code_id, $ad_code = array() ) {
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
@@ -627,6 +715,9 @@ class Ad_Code_Manager {
 
 	/**
 	 * Delete an existing ad code
+	 *
+	 * @param int $ad_code_id Post ID of the ad code.
+	 * @return true|null True if the ad code was deleted, null if the ID isn't an ad code.
 	 */
 	public function delete_ad_code( $ad_code_id ) {
 		if ( 0 !== $ad_code_id && get_post_type( $ad_code_id ) === $this->post_type ) {
@@ -783,15 +874,17 @@ class Ad_Code_Manager {
 	 * Register an ad tag with the plugin so it can be used
 	 * on the frontend of the site
 	 *
+	 * The ad code isn't registered if the script URL fails the whitelist check.
+	 *
 	 * @since 0.1
 	 *
-	 * @param string $tag          Ad tag for this instance of code
-	 * @param string $url          Script URL for ad code
-	 * @param array  $conditionals WordPress-style conditionals for where this code should be displayed
-	 * @param int    $priority     What priority this registration runs at
-	 * @param array  $url_vars     Replace tokens in $script with these values
-	 * @param int    $priority     Priority of the ad code in comparison to others
-	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
+	 * @param string       $tag          Ad tag for this instance of code.
+	 * @param string       $url          Script URL for ad code.
+	 * @param array        $conditionals WordPress-style conditionals for where this code should be displayed.
+	 * @param array        $url_vars     Replace tokens in $script with these values.
+	 * @param int          $priority     Priority of the ad code in comparison to others.
+	 * @param string|false $operator     Logical operator for the conditionals, 'AND' or 'OR'. Anything else
+	 *                                   falls back to the default operator.
 	 */
 	public function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
 
@@ -830,7 +923,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 *
-	 * @param array $ad_codes An array of ad tags
+	 * @param array $ad_codes An array of ad tags.
 	 */
 	public function register_ad_codes( $ad_codes = array() ) {
 		if ( empty( $ad_codes ) ) {
@@ -886,7 +979,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.6.0
 	 *
-	 * @param string $tag_id Unique ID for the ad tag
+	 * @param string $tag_id Unique ID for the ad tag.
 	 * @return string The ad code. May be an empty string.
 	 */
 	public function get_acm_tag( $tag_id ): string {
@@ -993,7 +1086,7 @@ class Ad_Code_Manager {
 	 * Display the ad code for an ad ID.
 	 *
 	 * Example:
-	 *   do_action( 'acm_tag, 'your_tag_id' )
+	 *   do_action( 'acm_tag', 'your_tag_id' )
 	 *
 	 * @param string $tag_id Unique ID for the ad tag.
 	 */
@@ -1004,7 +1097,12 @@ class Ad_Code_Manager {
 	/**
 	 * Of all the ad codes registered, get the one that matches our current context
 	 *
+	 * Where several ad codes match, the one with the lowest priority number wins.
+	 *
 	 * @since 0.4
+	 *
+	 * @param string $tag_id Unique ID for the ad tag.
+	 * @return array|null The matching ad code, or null if none match.
 	 */
 	public function get_matching_ad_code( $tag_id ) {
 		global $wp_query;
@@ -1194,6 +1292,9 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 *
+	 * @param array  $output_tokens   Placeholder tokens and their values.
+	 * @param string $tag_id          Unique ID for the ad tag being rendered.
+	 * @param array  $code_to_display The matching ad code.
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
 	public function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
@@ -1212,8 +1313,13 @@ class Ad_Code_Manager {
 	/**
 	 * Ensure the URL being used passes our whitelist check
 	 *
+	 * The URL's host must match a whitelisted domain or be a subdomain of one. An empty URL passes.
+	 *
 	 * @since 0.1
 	 * @see https://gist.github.com/1623788
+	 *
+	 * @param string $url Script URL to check.
+	 * @return bool Whether the URL is allowed.
 	 */
 	public function validate_script_url( $url ) {
 		// If url is empty, there's nothing to validate
@@ -1244,8 +1350,11 @@ class Ad_Code_Manager {
 	/**
 	 * Shortcode function
 	 *
+	 * Outputs the ad code for the ad tag given in the shortcode's id attribute.
+	 *
 	 * @since 0.2
 	 *
+	 * @param array|string $atts Shortcode attributes.
 	 * @return string HTML output. May be an empty string if no ad code is found.
 	 */
 	public function shortcode( $atts ): string {

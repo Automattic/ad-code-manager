@@ -1,4 +1,9 @@
 <?php
+/**
+ * Base test case for the integration tests.
+ *
+ * @package Automattic\AdCodeManager\Tests\Integration
+ */
 
 declare(strict_types=1);
 
@@ -11,8 +16,16 @@ use Yoast\WPTestUtils\WPIntegration\TestCase as WPIntegrationTestCase;
  */
 abstract class TestCase extends WPIntegrationTestCase {
 
+	/**
+	 * The plugin's global Ad_Code_Manager instance.
+	 *
+	 * @var \Ad_Code_Manager
+	 */
 	public $acm;
 
+	/**
+	 * Loads the providers and runs the plugin's init routine before each test.
+	 */
 	public function set_up() {
 		parent::set_up();
 		$this->acm = $GLOBALS['ad_code_manager'];

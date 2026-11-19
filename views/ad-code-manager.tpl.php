@@ -1,7 +1,10 @@
 <?php
 /**
  * Template file for Ad Code Manager
+ *
+ * @package Automattic\AdCodeManager
  */
+
 ?>
 	<div class="acm-ui-wrapper wrap">
 	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Integration tests for the Ad_Code_Manager class.
+ *
+ * @package Automattic\AdCodeManager\Tests\Integration
+ */
 
 declare(strict_types=1);
 
@@ -11,37 +16,61 @@ use WP_Error;
  */
 class AdCodeManagerTest extends TestCase {
 
+	/**
+	 * Checks that the default provider slug is doubleclick_for_publishers.
+	 */
 	public function test_default_provider_slug() {
 		self::assertEquals( 'doubleclick_for_publishers', $this->acm->current_provider_slug );
 	}
 
+	/**
+	 * Checks that the current provider is an ACM_Provider instance.
+	 */
 	public function test_default_provider_is_an_object() {
 		self::assertInstanceOf( 'ACM_Provider', $this->acm->current_provider );
 	}
 
+	/**
+	 * Checks that at least one provider has been loaded.
+	 */
 	public function test_providers_are_avaliable() {
 		self::assertNotEmpty( $this->acm->providers );
 	}
 
+	/**
+	 * Checks that creating an ad code with all fields set returns its post ID.
+	 */
 	public function test_create_proper_ad_code() {
 		self::assertIsInt( $this->create_ad_code_and_return() );
 	}
 
+	/**
+	 * Checks that get_ad_codes() returns ad codes after one has been created.
+	 */
 	public function test_get_ad_codes_after_create() {
 		$this->create_ad_code_and_return();
 		self::assertNotEmpty( $this->acm->get_ad_codes() );
 	}
 
+	/**
+	 * Checks that editing an ad code without a required field returns a WP_Error.
+	 */
 	public function test_edit_ad_code_not_all_required() {
 		$ad_code = $this->mock_ad_code();
 		array_shift( $ad_code );
 		self::assertInstanceOf( WP_Error::class, $this->acm->edit_ad_code( 555, $ad_code ) );
 	}
 
+	/**
+	 * Checks that editing an ad code with all fields set returns its ID.
+	 */
 	public function test_edit_ad_code_proper() {
 		self::assertIsInt( $this->acm->edit_ad_code( 555, $this->mock_ad_code() ) );
 	}
 
+	/**
+	 * Checks that only posts of the ad code post type can be deleted as ad codes.
+	 */
 	public function test_deleting_ad_requires_correct_post_type() {
 		$ad_id   = $this->create_ad_code_and_return();
 		$post_id = self::factory()->post->create();
@@ -53,6 +82,11 @@ class AdCodeManagerTest extends TestCase {
 		self::assertNull( $this->acm->delete_ad_code( $post_id ) );
 	}
 
+	/**
+	 * Builds ad code values for every field of the current provider, with priority 10 and the AND operator.
+	 *
+	 * @return array Ad code values, keyed by field.
+	 */
 	private function mock_ad_code() {
 		$ad_code = array();
 		foreach ( $this->acm->current_provider->ad_code_args as $arg ) {
@@ -63,6 +97,11 @@ class AdCodeManagerTest extends TestCase {
 		return $ad_code;
 	}
 
+	/**
+	 * Creates an ad code from the mock values.
+	 *
+	 * @return int|false|\WP_Error The new ad code's post ID, or false or WP_Error on failure.
+	 */
 	private function create_ad_code_and_return() {
 		return $this->acm->create_ad_code( $this->mock_ad_code() );
 	}

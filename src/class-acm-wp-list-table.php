@@ -1,5 +1,16 @@
 <?php
 /**
+ * Base list table for showing ad codes in the admin.
+ *
+ * @package Automattic\AdCodeManager
+ */
+
+// Our class extends the WP_List_Table class, so we need to make sure that it's there.
+
+require_once ABSPATH . 'wp-admin/includes/screen.php';
+require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+
+/**
  * Skeleton child class of WP_List_Table
  *
  * You need to extend it for a specific provider
@@ -8,11 +19,6 @@
  *
  * @since v0.1.3
  */
-// Our class extends the WP_List_Table class, so we need to make sure that it's there.
-
-require_once ABSPATH . 'wp-admin/includes/screen.php';
-require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
-
 class ACM_WP_List_Table extends WP_List_Table {
 
 	/**
@@ -151,6 +157,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * Prepare and echo a single ad code row
 	 *
 	 * @since 0.2
+	 *
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
 	 */
 	public function single_row( $item ) {
 		static $alternate_class = '';
@@ -167,8 +175,8 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2
 	 *
-	 * @param object $item        Custom status as an object
-	 * @param string $column_name Name of the column as registered in $this->prepare_items()
+	 * @param array  $item        Ad code, as returned by Ad_Code_Manager::get_ad_codes().
+	 * @param string $column_name Name of the column as registered in $this->prepare_items().
 	 * @return string $output What will be rendered
 	 */
 	public function column_default( $item, $column_name ) {
@@ -230,7 +238,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2.2
 	 *
-	 * @param object $item Ad code as an object
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
 	 * @return string $output What will be rendered
 	 */
 	public function column_cb( $item ) {
@@ -241,7 +249,10 @@ class ACM_WP_List_Table extends WP_List_Table {
 
 
 	/**
+	 * Display the ad code's name, with the row actions
 	 *
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
+	 * @return string HTML for the column.
 	 */
 	public function column_name( $item ) {
 		$output  = isset( $item['name'] ) ? esc_html( $item['name'] ) : esc_html( $item['url_vars']['name'] );
@@ -252,7 +263,12 @@ class ACM_WP_List_Table extends WP_List_Table {
 	/**
 	 * Display the conditionals for this ad code
 	 *
+	 * Each conditional is shown with its first argument only.
+	 *
 	 * @since 0.2
+	 *
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
+	 * @return string HTML for the column.
 	 */
 	public function column_conditionals( $item ) {
 		if ( empty( $item['conditionals'] ) ) {
@@ -267,9 +283,12 @@ class ACM_WP_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 * Produce the action links and hidden HTML for inline editing
+	 * Produce the edit and delete row action links
 	 *
 	 * @since 0.2
+	 *
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
+	 * @return string HTML for the edit and delete row actions.
 	 */
 	public function row_actions_output( $item ) {
 		$output = '';
