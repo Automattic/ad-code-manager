@@ -1,6 +1,6 @@
 {
 	"name": "automattic/ad-code-manager",
-	"description": "Easy ad code management",
+	"description": "Manage ad codes and the conditions for showing them from the WordPress admin",
 	"license": "GPL-2.0-or-later",
 	"type": "wordpress-plugin",
 	"authors": [

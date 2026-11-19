@@ -1,6 +1,6 @@
 # Ad Code Manager
 
-WordPress plugin for easy ad code management.
+WordPress plugin to manage ad codes and the conditions for showing them from the WordPress admin.
 
 ## Project Knowledge
 

@@ -9,7 +9,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers  
 Contributors: rinatkhaziev, jeremyfelt, danielbachhuber, carldanley, zztimur, automattic, doejo, garyj
 
-Manage your ad codes through the WordPress admin safely and easily.
+Manage ad codes and the conditions for showing them from the WordPress admin.
 
 ## Description
 
