@@ -32,7 +32,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function run() {
+	public function run() {
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 
@@ -52,7 +52,7 @@ class Ad_Code_Manager {
 	 *
 	 * Also, set selected as ACM_Provider $current_provider which holds all necessary configuration properties.
 	 */
-	function action_load_providers() {
+	public function action_load_providers() {
 		$providers_dir   = dirname( AD_CODE_MANAGER_FILE ) . '/src/Providers/';
 		$providers_files = array_diff( scandir( $providers_dir ), array( '..', '.' ) );
 
@@ -140,7 +140,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function action_init() {
+	public function action_init() {
 		// Allow other conditionals to be used
 		$this->whitelisted_conditionals = array(
 			'is_home',
@@ -253,7 +253,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function register_acm_post_type() {
+	public function register_acm_post_type() {
 		$labels = array(
 			'name'          => _x( 'Ad Codes', 'Post Type General Name', 'ad-code-manager' ),
 			'singular_name' => _x( 'Ad Code', 'Post Type Singular Name', 'ad-code-manager' ),
@@ -272,7 +272,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.4
 	 */
-	function get_options() {
+	public function get_options() {
 		$default_provider = 'doubleclick_for_publishers';
 		// Make sure our default provider exists. Otherwise, the sky will fall on our head
 		if ( ! isset( $this->providers->$default_provider ) ) {
@@ -294,7 +294,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.4
 	 */
-	function get_option( $key ) {
+	public function get_option( $key ) {
 		$options = $this->get_options();
 
 		if ( isset( $options[ $key ] ) ) {
@@ -309,7 +309,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.4
 	 */
-	function update_options( $new_options ) {
+	public function update_options( $new_options ) {
 		$options = $this->get_options();
 		$options = array_merge( $options, $new_options );
 		update_option( 'acm_options', $options );
@@ -321,7 +321,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.2
 	 */
-	function handle_admin_action() {
+	public function handle_admin_action() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), 'acm-admin-action' ) ) {
 			wp_die( esc_html__( 'Doing something fishy, eh?', 'ad-code-manager' ) );
 		}
@@ -450,7 +450,7 @@ class Ad_Code_Manager {
 	/**
 	 * Get the ad codes stored in our custom post type
 	 */
-	function get_ad_codes( $query_args = array() ) {
+	public function get_ad_codes( $query_args = array() ) {
 		/**
 		 * Filters the allowed query parameters for retrieving ad codes.
 		 *
@@ -522,7 +522,7 @@ class Ad_Code_Manager {
 	 * @param int $post_id Post ID for the ad code that we want
 	 * @return array|bool $ad_code Ad code representation of the data
 	 */
-	function get_ad_code( $post_id ) {
+	public function get_ad_code( $post_id ) {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			return false;
@@ -551,14 +551,14 @@ class Ad_Code_Manager {
 	/**
 	 * Flush cache
 	 */
-	function flush_cache() {
+	public function flush_cache() {
 		wp_cache_delete( 'ad_codes', 'acm' );
 	}
 
 	/**
 	 * Get the conditional values for an ad code
 	 */
-	function get_conditionals( $ad_code_id ) {
+	public function get_conditionals( $ad_code_id ) {
 		$conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
 		if ( empty( $conditionals ) ) {
 			$conditionals = array();
@@ -576,7 +576,7 @@ class Ad_Code_Manager {
 	 * @param array $ad_code
 	 * @return int|false|WP_Error post_id or false
 	 */
-	function create_ad_code( $ad_code = array() ) {
+	public function create_ad_code( $ad_code = array() ) {
 		$titles = array();
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// We shouldn't create an ad code if any of required fields are not set.
@@ -608,7 +608,7 @@ class Ad_Code_Manager {
 	/**
 	 * Update an existing ad code
 	 */
-	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
+	public function edit_ad_code( $ad_code_id, $ad_code = array() ) {
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// If a required argument is not set, we return an error message with the missing parameter
 			if ( ! isset( $ad_code[ $arg['key'] ] ) && $arg['required'] === true ) {
@@ -629,7 +629,7 @@ class Ad_Code_Manager {
 	/**
 	 * Delete an existing ad code
 	 */
-	function delete_ad_code( $ad_code_id ) {
+	public function delete_ad_code( $ad_code_id ) {
 		if ( 0 !== $ad_code_id && $this->post_type === get_post_type( $ad_code_id ) ) {
 			wp_delete_post( $ad_code_id, true ); // Force delete post.
 			$this->flush_cache();
@@ -644,7 +644,7 @@ class Ad_Code_Manager {
 	 * @param array $conditional Conditional to add.
 	 * @return bool
 	 */
-	function create_conditional( $ad_code_id, $conditional ) {
+	public function create_conditional( $ad_code_id, $conditional ) {
 		if ( 0 !== $ad_code_id && ! empty( $conditional ) ) {
 			$existing_conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( ! is_array( $existing_conditionals ) ) {
@@ -668,7 +668,7 @@ class Ad_Code_Manager {
 	 * @param array $conditionals Conditionals to edit.
 	 * @return bool
 	 */
-	function edit_conditionals( $ad_code_id, $conditionals = array() ) {
+	public function edit_conditionals( $ad_code_id, $conditionals = array() ) {
 		if ( 0 !== $ad_code_id && ! empty( $conditionals ) ) {
 			$new_conditionals = array();
 			foreach ( $conditionals as $conditional ) {
@@ -705,7 +705,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.2.2
 	 */
-	function action_load_ad_code_manager() {
+	public function action_load_ad_code_manager() {
 
 		// Instantiate this list table
 		$table_class         = $this->providers->{$this->current_provider_slug}['table'];
@@ -726,7 +726,7 @@ class Ad_Code_Manager {
 	/**
 	 * Print the admin interface for managing the ad codes.
 	 */
-	function admin_view_controller() {
+	public function admin_view_controller() {
 		// Check for edit action.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in render_edit_page.
 		if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['id'] ) ) {
@@ -742,7 +742,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.10.0
 	 */
-	function render_edit_page() {
+	public function render_edit_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, nonce verified on form submission.
 		$ad_code_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 		$ad_code    = $this->get_ad_code( $ad_code_id );
@@ -762,14 +762,14 @@ class Ad_Code_Manager {
 	/**
 	 * Register a custom widget to display ad zones
 	 */
-	function register_widget() {
+	public function register_widget() {
 		register_widget( 'ACM_Ad_Zones' );
 	}
 
 	/**
 	 * Register scripts and styles
 	 */
-	function register_scripts_and_styles() {
+	public function register_scripts_and_styles() {
 		global $pagenow;
 
 		// Only load this on the proper page
@@ -794,7 +794,7 @@ class Ad_Code_Manager {
 	 * @param int    $priority     Priority of the ad code in comparison to others
 	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
 	 */
-	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
+	public function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
 
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( ! $this->validate_script_url( $url ) ) {
@@ -833,7 +833,7 @@ class Ad_Code_Manager {
 	 *
 	 * @param array $ad_codes An array of ad tags
 	 */
-	function register_ad_codes( $ad_codes = array() ) {
+	public function register_ad_codes( $ad_codes = array() ) {
 		if ( empty( $ad_codes ) ) {
 			return;
 		}
@@ -890,7 +890,7 @@ class Ad_Code_Manager {
 	 * @param string $tag_id Unique ID for the ad tag
 	 * @return string The ad code. May be an empty string.
 	 */
-	function get_acm_tag( $tag_id ): string {
+	public function get_acm_tag( $tag_id ): string {
 		/**
 		 * Filters whether to disable ad rendering.
 		 *
@@ -1197,7 +1197,7 @@ class Ad_Code_Manager {
 	 *
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
-	function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
+	public function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
 		if ( ! isset( $code_to_display['url_vars'] ) || ! is_array( $code_to_display['url_vars'] ) ) {
 			return $output_tokens;
 		}
@@ -1216,7 +1216,7 @@ class Ad_Code_Manager {
 	 * @since 0.1
 	 * @see https://gist.github.com/1623788
 	 */
-	function validate_script_url( $url ) {
+	public function validate_script_url( $url ) {
 		// If url is empty, there's nothing to validate
 		// Fixes issue with DFP JS
 		if ( empty( $url ) ) {
@@ -1249,7 +1249,7 @@ class Ad_Code_Manager {
 	 *
 	 * @return string HTML output. May be an empty string if no ad code is found.
 	 */
-	function shortcode( $atts ): string {
+	public function shortcode( $atts ): string {
 		$atts = shortcode_atts(
 			array(
 				'id' => '',

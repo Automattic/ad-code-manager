@@ -15,7 +15,7 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class ACM_WP_List_Table extends WP_List_Table {
 
-	function __construct( $params = array() ) {
+	public function __construct( $params = array() ) {
 		parent::__construct( $params );
 	}
 
@@ -24,7 +24,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @return array $columns, the array of columns to use with the table
 	 */
-	function get_columns() {
+	public function get_columns() {
 		/**
 		 * Filters the columns displayed in the ad codes list table.
 		 *
@@ -68,7 +68,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @return array $bulk_actions All of the bulk actions permitted on the List Table
 	 */
-	function get_bulk_actions() {
+	public function get_bulk_actions() {
 		$bulk_actions = array(
 			'delete' => __( 'Delete', 'ad-code-manager' ),
 		);
@@ -78,7 +78,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	/**
 	 * Prepare the table with different parameters, pagination, columns and table elements
 	 */
-	function prepare_items() {
+	public function prepare_items() {
 		global $ad_code_manager;
 
 		$screen = get_current_screen();
@@ -147,7 +147,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2
 	 */
-	function no_items() {
+	public function no_items() {
 		_e( 'No ad codes have been configured.', 'ad-code-manager' );
 	}
 
@@ -156,7 +156,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2
 	 */
-	function single_row( $item ) {
+	public function single_row( $item ) {
 		static $alternate_class = '';
 		$alternate_class        = ( $alternate_class == '' ? ' alternate' : '' );
 		$row_class              = ' class="term-static' . esc_attr( $alternate_class ) . '"';
@@ -175,7 +175,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @param string $column_name Name of the column as registered in $this->prepare_items()
 	 * @return string $output What will be rendered
 	 */
-	function column_default( $item, $column_name ) {
+	public function column_default( $item, $column_name ) {
 		global $ad_code_manager;
 
 		switch ( $column_name ) {
@@ -238,7 +238,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 * @param object $item Ad code as an object
 	 * @return string $output What will be rendered
 	 */
-	function column_cb( $item ) {
+	public function column_cb( $item ) {
 		$id     = $item['post_id'];
 		$output = "<input type='checkbox' name='ad-codes[]' id='ad_code_" . esc_attr( $id ) . "' value='" . esc_attr( $id ) . "' />";
 		return $output;
@@ -248,7 +248,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	/**
 	 *
 	 */
-	function column_name( $item ) {
+	public function column_name( $item ) {
 		$output  = isset( $item['name'] ) ? esc_html( $item['name'] ) : esc_html( $item['url_vars']['name'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
@@ -259,7 +259,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2
 	 */
-	function column_conditionals( $item ) {
+	public function column_conditionals( $item ) {
 		if ( empty( $item['conditionals'] ) ) {
 			return '<em>' . __( 'None', 'ad-code-manager' ) . '</em>';
 		}
@@ -276,7 +276,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 *
 	 * @since 0.2
 	 */
-	function row_actions_output( $item ) {
+	public function row_actions_output( $item ) {
 		$output = '';
 
 		// Build edit URL for dedicated edit page.

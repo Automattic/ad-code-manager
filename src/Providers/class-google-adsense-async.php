@@ -166,7 +166,7 @@ class Google_AdSense_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns( $columns = null ) {
+	public function get_columns( $columns = null ) {
 		$columns = array(
 			'cb'           => '<input type="checkbox" />',
 			'id'           => __( 'ID', 'ad-code-manager' ),
@@ -183,7 +183,7 @@ class Google_AdSense_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * Output the tag cell in the list table
 	 */
-	function column_tag( $item ) {
+	public function column_tag( $item ) {
 		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;

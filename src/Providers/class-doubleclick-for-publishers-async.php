@@ -306,7 +306,7 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 }
 
 class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
-	function __construct() {
+	public function __construct() {
 		parent::__construct(
 			array(
 				'singular' => 'doubleclick_for_publishers_async_acm_wp_list_table', // Singular label
@@ -319,7 +319,7 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	/**
 	 * @return array The columns that shall be used
 	 */
-	function filter_columns() {
+	public function filter_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
 			'id'           => __( 'ID', 'ad-code-manager' ),
@@ -336,7 +336,7 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns() {
+	public function get_columns() {
 		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
 		return parent::get_columns();
 	}
@@ -344,7 +344,7 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	/**
 	 * Output the tag cell in the list table
 	 */
-	function column_tag( $item ) {
+	public function column_tag( $item ) {
 		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;

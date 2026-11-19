@@ -165,7 +165,7 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * @return array The columns that shall be used
 	 */
-	function filter_columns() {
+	public function filter_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
 			'id'           => __( 'ID', 'ad-code-manager' ),
@@ -181,7 +181,7 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns() {
+	public function get_columns() {
 		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
 		return parent::get_columns();
 	}
@@ -189,7 +189,7 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * Output the tag cell in the list table
 	 */
-	function column_tag( $item ) {
+	public function column_tag( $item ) {
 		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;

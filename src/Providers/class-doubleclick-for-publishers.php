@@ -11,7 +11,7 @@ class Doubleclick_For_Publishers_Columns {
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 	public $crawler_user_agent = 'Mediapartners-Google';
 
-	function __construct() {
+	public function __construct() {
 		// Default output HTML
 		$this->output_html = '<script type="text/javascript" src="%url%"></script>';
 
@@ -85,7 +85,7 @@ class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 }
 
 class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
-	function __construct() {
+	public function __construct() {
 		parent::__construct(
 			array(
 				'singular' => 'doubleclick_for_publishers_acm_wp_list_table', // Singular label
@@ -98,7 +98,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * @return array The columns that shall be used
 	 */
-	function filter_columns() {
+	public function filter_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
 			'id'           => __( 'ID', 'ad-code-manager' ),
@@ -113,7 +113,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns() {
+	public function get_columns() {
 		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
 		return parent::get_columns();
 	}
@@ -121,7 +121,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * Representation of the site name
 	 */
-	function column_site_name( $item ) {
+	public function column_site_name( $item ) {
 		$output  = esc_html( $item['url_vars']['site_name'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
@@ -130,7 +130,7 @@ class Doubleclick_For_Publishers_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * Representation of zone1
 	 */
-	function column_zone1( $item ) {
+	public function column_zone1( $item ) {
 		return esc_html( $item['url_vars']['zone1'] );
 	}
 }

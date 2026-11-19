@@ -8,7 +8,7 @@
 class ACM_Ad_Zones extends WP_Widget {
 
 	// Process the new widget
-	function __construct() {
+	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'acm_ad_zones',
 			'description' => __( 'Display an Ad Code Manager ad zone within a widget area', 'ad-code-manager' ),
@@ -17,7 +17,7 @@ class ACM_Ad_Zones extends WP_Widget {
 	}
 
 	// Build the widget settings form
-	function form( $instance ) {
+	public function form( $instance ) {
 		$defaults = array(
 			'title'   => '',
 			'ad_zone' => '',
@@ -54,7 +54,7 @@ class ACM_Ad_Zones extends WP_Widget {
 	}
 
 	// Save the widget settings
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 		$instance            = $old_instance;
 		$instance['title']   = sanitize_text_field( $new_instance['title'] );
 		$instance['ad_zone'] = sanitize_text_field( $new_instance['ad_zone'] );
@@ -62,7 +62,7 @@ class ACM_Ad_Zones extends WP_Widget {
 	}
 
 	// Display the widget
-	function widget( $args, $instance ) {
+	public function widget( $args, $instance ) {
 		// Capture the ad content to check if we have anything to display.
 		// This fixes issue #72: don't output empty widget wrapper when no ad code found.
 		ob_start();
