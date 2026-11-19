@@ -20,6 +20,7 @@
  * GitHub Plugin URI: https://github.com/Automattic/ad-code-manager/
  * Requires PHP:      7.4
  * Requires WP:       6.4
+ * Tested up to:      7.1
  */
 
 declare(strict_types=1);
