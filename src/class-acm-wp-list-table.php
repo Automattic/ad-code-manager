@@ -15,10 +15,6 @@ require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class ACM_WP_List_Table extends WP_List_Table {
 
-	public function __construct( $params = array() ) {
-		parent::__construct( $params );
-	}
-
 	/**
 	 * Define the columns that are going to be used in the table
 	 *
@@ -158,7 +154,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 	 */
 	public function single_row( $item ) {
 		static $alternate_class = '';
-		$alternate_class        = ( $alternate_class == '' ? ' alternate' : '' );
+		$alternate_class        = ( '' == $alternate_class ? ' alternate' : '' );
 		$row_class              = ' class="term-static' . esc_attr( $alternate_class ) . '"';
 
 		echo '<tr id="ad-code-' . esc_attr( $item['post_id'] ) . '"' . $row_class . '>';
@@ -181,7 +177,6 @@ class ACM_WP_List_Table extends WP_List_Table {
 		switch ( $column_name ) {
 			case 'priority':
 				return esc_html( $item['priority'] );
-			break;
 			case 'operator':
 				return ( ! empty( $item['operator'] ) ) ? $item['operator'] : $ad_code_manager->logical_operator;
 			default:

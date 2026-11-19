@@ -63,7 +63,7 @@ class Ad_Code_Manager {
 			$slug_name        = '';
 			$table_class_name = '';
 			foreach ( $tmp as $word ) {
-				if ( $word === 'class' ) {
+				if ( 'class' === $word ) {
 					continue;
 				}
 				$class_name .= ucfirst( $word ) . '_';
@@ -578,7 +578,7 @@ class Ad_Code_Manager {
 		$titles = array();
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// We shouldn't create an ad code if any of required fields are not set.
-			if ( ! isset( $ad_code[ $arg['key'] ] ) && $arg['required'] === true ) {
+			if ( ! isset( $ad_code[ $arg['key'] ] ) && true === $arg['required'] ) {
 				return new WP_Error();
 			}
 			$titles[] = $ad_code[ $arg['key'] ];
@@ -591,7 +591,8 @@ class Ad_Code_Manager {
 			'post_type'      => $this->post_type,
 		);
 
-		if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
+		$acm_inserted_post_id = wp_insert_post( $acm_post, true );
+		if ( ! is_wp_error( $acm_inserted_post_id ) ) {
 			foreach ( $this->current_provider->ad_code_args as $arg ) {
 				update_post_meta( $acm_inserted_post_id, $arg['key'], $ad_code[ $arg['key'] ] );
 			}
@@ -609,7 +610,7 @@ class Ad_Code_Manager {
 	public function edit_ad_code( $ad_code_id, $ad_code = array() ) {
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// If a required argument is not set, we return an error message with the missing parameter.
-			if ( ! isset( $ad_code[ $arg['key'] ] ) && $arg['required'] === true ) {
+			if ( ! isset( $ad_code[ $arg['key'] ] ) && true === $arg['required'] ) {
 				return new WP_Error( 'edit-error', 'Error updating ad code, a parameter for ' . esc_html( $arg['key'] ) . ' is required.' );
 			}
 		}
@@ -628,7 +629,7 @@ class Ad_Code_Manager {
 	 * Delete an existing ad code
 	 */
 	public function delete_ad_code( $ad_code_id ) {
-		if ( 0 !== $ad_code_id && $this->post_type === get_post_type( $ad_code_id ) ) {
+		if ( 0 !== $ad_code_id && get_post_type( $ad_code_id ) === $this->post_type ) {
 			wp_delete_post( $ad_code_id, true ); // Force delete post.
 			$this->flush_cache();
 			return true;
@@ -858,7 +859,7 @@ class Ad_Code_Manager {
 					continue;
 				}
 
-				$ad_code['priority'] = $ad_code['priority'] === '' ? 10 : (int) $ad_code['priority']; // make sure priority is int, if it's unset, we set it to 10.
+				$ad_code['priority'] = '' === $ad_code['priority'] ? 10 : (int) $ad_code['priority']; // make sure priority is int, if it's unset, we set it to 10.
 
 				// Make sure our operator is 'OR' or 'AND'.
 				if ( ! $ad_code['operator'] || ! in_array( $ad_code['operator'], array( 'AND', 'OR' ) ) ) {

@@ -226,7 +226,7 @@ final class ConditionalAutocompleteTest extends TestCase {
 
 		self::assertCount( 2, $results );
 		// Results should use slug as ID.
-		self::assertStringContainsString( 'wordpress', $results[0]['id'] );
+		self::assertStringContainsString( 'wordpress', $results[0]['id'] ); // phpcs:ignore WordPress.WP.CapitalPDangit.MisspelledInText -- A term slug, which is lowercase.
 	}
 
 	/**

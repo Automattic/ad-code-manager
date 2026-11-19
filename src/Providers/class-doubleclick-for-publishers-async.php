@@ -161,7 +161,7 @@ node.parentNode.insertBefore(gads, node);
 googletag.cmd.push(function() {
 				<?php
 				foreach ( (array) $ad_tags as $tag ) :
-					if ( $tag['tag'] == 'dfp_head' ) {
+					if ( 'dfp_head' == $tag['tag'] ) {
 						continue;
 					}
 

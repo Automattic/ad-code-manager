@@ -124,13 +124,13 @@ class AdCodeManagerTest extends TestCase {
 		}
 
 		// Filter to add custom classes.
-		$filter_callback = function ( $classes, $tag_id ) {
+		$filter_callback = function ( $classes ) {
 			$classes[] = 'custom-ad-class';
 			$classes[] = 'another-class';
 			return $classes;
 		};
 
-		add_filter( 'acm_wrapper_classes', $filter_callback, 10, 2 );
+		add_filter( 'acm_wrapper_classes', $filter_callback );
 		add_filter( 'acm_display_ad_codes_without_conditionals', '__return_true' );
 
 		$output = $this->acm->get_acm_tag( $test_tag );
