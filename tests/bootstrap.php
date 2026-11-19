@@ -13,7 +13,7 @@ namespace Automattic\AdCodeManager\Tests;
 require_once dirname( __DIR__ ) . '/vendor/autoload.php';
 
 // Check for a `--testsuite Unit` arg when calling phpunit.
-$argv_local = $GLOBALS['argv'] ?? [];
+$argv_local = $GLOBALS['argv'] ?? array();
 $key        = (int) array_search( '--testsuite', $argv_local, true );
 $is_unit    = false;
 

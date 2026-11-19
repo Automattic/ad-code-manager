@@ -303,7 +303,6 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 
 		return false;
 	}
-
 }
 
 class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
@@ -350,6 +349,4 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
-
-
 }

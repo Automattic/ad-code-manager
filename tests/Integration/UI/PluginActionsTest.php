@@ -25,7 +25,7 @@ final class PluginActionsTest extends TestCase {
 	 * @uses ACM_Provider::__construct
 	 * @uses Ad_Code_Manager::action_init
 	 * @uses Ad_Code_Manager::action_load_providers
- 	 * @uses Ad_Code_Manager::get_ad_codes
+	 * @uses Ad_Code_Manager::get_ad_codes
 	 * @uses Ad_Code_Manager::get_option
 	 * @uses Ad_Code_Manager::get_options
 	 * @uses Ad_Code_Manager::register_acm_post_type
@@ -48,7 +48,7 @@ final class PluginActionsTest extends TestCase {
 	 * @uses ACM_Provider::__construct
 	 * @uses Ad_Code_Manager::action_init
 	 * @uses Ad_Code_Manager::action_load_providers
- 	 * @uses Ad_Code_Manager::get_ad_codes
+	 * @uses Ad_Code_Manager::get_ad_codes
 	 * @uses Ad_Code_Manager::get_option
 	 * @uses Ad_Code_Manager::get_options
 	 * @uses Ad_Code_Manager::register_acm_post_type

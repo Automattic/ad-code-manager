@@ -258,10 +258,10 @@ class Ad_Code_Manager {
 			'name'          => _x( 'Ad Codes', 'Post Type General Name', 'ad-code-manager' ),
 			'singular_name' => _x( 'Ad Code', 'Post Type Singular Name', 'ad-code-manager' ),
 		);
-		$args = array(
-				'labels'  => $labels,
-				'public'  => false,
-				'rewrite' => false,
+		$args   = array(
+			'labels'  => $labels,
+			'public'  => false,
+			'rewrite' => false,
 		);
 
 		register_post_type( $this->post_type, $args );
@@ -432,7 +432,7 @@ class Ad_Code_Manager {
 		if ( isset( $_REQUEST['doing_ajax'] ) && sanitize_text_field( $_REQUEST['doing_ajax'] ) ) {
 			if ( 'edit' === $method ) {
 				set_current_screen( 'ad-code-manager' );
-				$table_class = $this->providers->{$this->current_provider_slug}['table'];
+				$table_class         = $this->providers->{$this->current_provider_slug}['table'];
 				$this->wp_list_table = new $table_class();
 				$this->wp_list_table->prepare_items();
 				$new_ad_code = $this->get_ad_code( $id );
@@ -691,11 +691,11 @@ class Ad_Code_Manager {
 	 */
 	public function action_admin_menu() {
 		$hook = add_options_page(
-				__( 'Ad Code Manager', 'ad-code-manager' ),
-				__( 'Ad Code Manager', 'ad-code-manager' ),
-				$this->manage_ads_cap,
-				$this->plugin_slug,
-				array( $this, 'admin_view_controller' )
+			__( 'Ad Code Manager', 'ad-code-manager' ),
+			__( 'Ad Code Manager', 'ad-code-manager' ),
+			$this->manage_ads_cap,
+			$this->plugin_slug,
+			array( $this, 'admin_view_controller' )
 		);
 		add_action( 'load-' . $hook, array( $this, 'action_load_ad_code_manager' ) );
 	}
@@ -708,7 +708,7 @@ class Ad_Code_Manager {
 	function action_load_ad_code_manager() {
 
 		// Instantiate this list table
-		$table_class = $this->providers->{$this->current_provider_slug}['table'];
+		$table_class         = $this->providers->{$this->current_provider_slug}['table'];
 		$this->wp_list_table = new $table_class();
 		// Handle any bulk action requests
 		if ( 'delete' === $this->wp_list_table->current_action() ) {
@@ -1264,5 +1264,4 @@ class Ad_Code_Manager {
 
 		return $this->get_acm_tag( $id );
 	}
-
 }

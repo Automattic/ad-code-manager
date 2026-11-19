@@ -89,8 +89,7 @@ class ACM_WP_List_Table extends WP_List_Table {
 			return;
 		}
 
-		/*
-		 -- Pagination parameters -- */
+		// Pagination parameters.
 		// Number of elements in your table?
 		$totalitems = count( $this->items ); // return the total number of affected rows
 
@@ -304,6 +303,4 @@ class ACM_WP_List_Table extends WP_List_Table {
 		$output .= $this->row_actions( $row_actions );
 		return $output;
 	}
-
-
 }

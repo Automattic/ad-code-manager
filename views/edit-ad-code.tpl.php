@@ -92,11 +92,11 @@ $main_page_url = admin_url( 'options-general.php?page=ad-code-manager' );
 								</select>
 							<?php else : ?>
 								<input type="text"
-									   name="<?php echo esc_attr( $column_id ); ?>"
-									   id="<?php echo esc_attr( $column_id ); ?>"
-									   value="<?php echo esc_attr( $current_value ); ?>"
-									   class="regular-text"
-									   aria-required="<?php echo esc_attr( $arg['required'] ); ?>" />
+										name="<?php echo esc_attr( $column_id ); ?>"
+										id="<?php echo esc_attr( $column_id ); ?>"
+										value="<?php echo esc_attr( $current_value ); ?>"
+										class="regular-text"
+										aria-required="<?php echo esc_attr( $arg['required'] ); ?>" />
 							<?php endif; ?>
 						</td>
 					</tr>
@@ -109,10 +109,10 @@ $main_page_url = admin_url( 'options-general.php?page=ad-code-manager' );
 					</th>
 					<td>
 						<input type="number"
-							   name="priority"
-							   id="priority"
-							   value="<?php echo esc_attr( $ad_code['priority'] ); ?>"
-							   class="small-text" />
+								name="priority"
+								id="priority"
+								value="<?php echo esc_attr( $ad_code['priority'] ); ?>"
+								class="small-text" />
 						<p class="description">
 							<?php esc_html_e( 'Lower numbers have higher priority.', 'ad-code-manager' ); ?>
 						</p>
@@ -143,9 +143,9 @@ $main_page_url = admin_url( 'options-general.php?page=ad-code-manager' );
 											</div>
 											<div class="conditional-arguments">
 												<input name="acm-arguments[]"
-													   type="text"
-													   value="<?php echo esc_attr( is_array( $conditional['arguments'] ) ? implode( ';', $conditional['arguments'] ) : $conditional['arguments'] ); ?>"
-													   size="20" />
+														type="text"
+														value="<?php echo esc_attr( is_array( $conditional['arguments'] ) ? implode( ';', $conditional['arguments'] ) : $conditional['arguments'] ); ?>"
+														size="20" />
 												<?php if ( $index > 0 ) : ?>
 													<a href="#" class="acm-remove-conditional">
 														<?php esc_html_e( 'Remove', 'ad-code-manager' ); ?>
