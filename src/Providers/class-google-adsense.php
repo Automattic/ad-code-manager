@@ -1,18 +1,28 @@
 <?php
 /**
+ * Google AdSense ad provider for Ad Code Manager.
+ *
+ * @package Automattic\AdCodeManager
+ */
+
+/**
  * Google AdSense Ad Provider for Ad Code manager
  */
 class Google_AdSense_ACM_Provider extends ACM_Provider {
+	/**
+	 * User agent of Google's ad crawler, which gets a robots.txt rule.
+	 *
+	 * @var string
+	 */
 	public $crawler_user_agent = 'Mediapartners-Google';
 
 	/**
 	 * Register default options for Google AdSense
 	 *
 	 * @uses apply_filters, parent::__construct
-	 * @return null
 	 */
 	public function __construct() {
-		// Default output HTML
+		// Default output HTML.
 		$this->output_html = '<div id="acm-ad-tag-%tag%"><script type="text/javascript"><!--
 google_ad_client = "%publisher_id%";
 google_ad_slot = "%tag_id%";
@@ -22,7 +32,7 @@ google_ad_height = %height%;
 </script>
 <script type="text/javascript" src="http://pagead2.googlesyndication.com/pagead/show_ads.js"></script></div>';
 
-		// Default Ad Tag Ids (you will pass this in your shortcode or template tag)
+		// Default Ad Tag Ids (you will pass this in your shortcode or template tag).
 		$this->ad_tag_ids = array(
 			array(
 				'tag'               => '728x90_leaderboard',
@@ -97,7 +107,7 @@ google_ad_height = %height%;
 				'required' => true,
 				'type'     => 'select',
 				'options'  => array(
-					// This is added later, through 'acm_ad_code_args' filter
+					// This is added later, through 'acm_ad_code_args' filter.
 				),
 			),
 			array(
@@ -122,6 +132,11 @@ google_ad_height = %height%;
 
 	/**
 	 * Register the 'tag's available for mapping in the UI
+	 *
+	 * Adds each ad tag that has 'enable_ui_mapping' set as an option of the 'tag' field.
+	 *
+	 * @param array $ad_code_args Ad code field configurations.
+	 * @return array The field configurations, with the tag options added.
 	 */
 	public function filter_ad_code_args( $ad_code_args ) {
 		global $ad_code_manager;
@@ -131,7 +146,7 @@ google_ad_height = %height%;
 				continue;
 			}
 
-			// Get all of the tags that are registered, and provide them as options
+			// Get all of the tags that are registered, and provide them as options.
 			foreach ( (array) $ad_code_manager->ad_tag_ids as $ad_tag ) {
 				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] ) {
 					$ad_code_args[ $tag ]['options'][ $ad_tag['tag'] ] = $ad_tag['tag'];
@@ -150,7 +165,6 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 * Register table settings
 	 *
 	 * @uses parent::__construct
-	 * @return null
 	 */
 	public function __construct() {
 		parent::__construct(
@@ -163,9 +177,13 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	}
 
 	/**
+	 * Replace the list table columns with this provider's columns
+	 *
+	 * Hooked to the `acm_list_table_columns` filter.
+	 *
 	 * @return array The columns that shall be used
 	 */
-	function filter_columns() {
+	public function filter_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
 			'id'           => __( 'ID', 'ad-code-manager' ),
@@ -181,18 +199,20 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns() {
+	public function get_columns() {
 		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
 		return parent::get_columns();
 	}
 
 	/**
 	 * Output the tag cell in the list table
+	 *
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
+	 * @return string HTML for the column, with the row actions.
 	 */
-	function column_tag( $item ) {
+	public function column_tag( $item ) {
 		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
 }
-

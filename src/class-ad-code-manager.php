@@ -8,23 +8,89 @@
 
 declare(strict_types=1);
 
-// namespace Automattic\AdCodeManager;
-
 use const Automattic\AdCodeManager\AD_CODE_MANAGER_FILE;
 use const Automattic\AdCodeManager\AD_CODE_MANAGER_VERSION;
 
+/**
+ * Registers ad codes and the conditions for showing them, and outputs the matching ad code for each ad tag.
+ */
 class Ad_Code_Manager {
 
-	public $ad_codes                 = array();
+	/**
+	 * Registered ad codes, keyed by ad tag ID. Each ad tag holds a list of ad codes.
+	 *
+	 * @var array
+	 */
+	public $ad_codes = array();
+
+	/**
+	 * Names of the conditional functions that ad codes are allowed to run.
+	 *
+	 * @var string[]
+	 */
 	public $whitelisted_conditionals = array();
-	public $post_type                = 'acm-code';
-	public $plugin_slug              = 'ad-code-manager';
-	public $manage_ads_cap           = 'manage_options';
+
+	/**
+	 * Post type that stores the ad codes.
+	 *
+	 * @var string
+	 */
+	public $post_type = 'acm-code';
+
+	/**
+	 * Slug of the admin settings page.
+	 *
+	 * @var string
+	 */
+	public $plugin_slug = 'ad-code-manager';
+
+	/**
+	 * Capability needed to manage ad codes.
+	 *
+	 * @var string
+	 */
+	public $manage_ads_cap = 'manage_options';
+
+	/**
+	 * Default logical operator for combining an ad code's conditionals, either 'OR' or 'AND'.
+	 *
+	 * @var string
+	 */
 	public $logical_operator;
+
+	/**
+	 * Ad tags that ad codes can be registered against, from the current provider.
+	 *
+	 * @var array
+	 */
 	public $ad_tag_ids;
+
+	/**
+	 * Available providers, keyed by slug. Each holds the 'provider' and 'table' class names.
+	 *
+	 * @var object
+	 */
 	public $providers;
+
+	/**
+	 * Slug of the provider in use.
+	 *
+	 * @var string|false
+	 */
 	public $current_provider_slug;
+
+	/**
+	 * Instance of the provider in use, if one was found.
+	 *
+	 * @var ACM_Provider|null
+	 */
 	public $current_provider;
+
+	/**
+	 * List table for the current provider's ad codes on the admin screen.
+	 *
+	 * @var ACM_WP_List_Table|null
+	 */
 	public $wp_list_table;
 
 	/**
@@ -32,18 +98,18 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function run() {
+	public function run() {
 		add_action( 'init', array( $this, 'action_load_providers' ) );
 		add_action( 'init', array( $this, 'action_init' ) );
 
-		// Incorporate the link to our admin menu
+		// Incorporate the link to our admin menu.
 		add_action( 'admin_menu', array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'wp_ajax_acm_admin_action', array( $this, 'handle_admin_action' ) );
 
 		add_action( 'widgets_init', array( $this, 'register_widget' ) );
 		add_shortcode( 'acm-tag', array( $this, 'shortcode' ) );
-		// Workaround for PHP 5.4 warning: Creating default object from empty value in
+		// Workaround for PHP 5.4 warning: Creating default object from empty value in.
 		$this->providers = new stdClass();
 	}
 
@@ -52,7 +118,7 @@ class Ad_Code_Manager {
 	 *
 	 * Also, set selected as ACM_Provider $current_provider which holds all necessary configuration properties.
 	 */
-	function action_load_providers() {
+	public function action_load_providers() {
 		$providers_dir   = dirname( AD_CODE_MANAGER_FILE ) . '/src/Providers/';
 		$providers_files = array_diff( scandir( $providers_dir ), array( '..', '.' ) );
 
@@ -65,7 +131,7 @@ class Ad_Code_Manager {
 			$slug_name        = '';
 			$table_class_name = '';
 			foreach ( $tmp as $word ) {
-				if ( $word === 'class' ) {
+				if ( 'class' === $word ) {
 					continue;
 				}
 				$class_name .= ucfirst( $word ) . '_';
@@ -76,7 +142,7 @@ class Ad_Code_Manager {
 			$slug_name        = rtrim( $slug_name, '_' );
 
 			// Store class names, but don't instantiate
-			// We don't need them all at once
+			// We don't need them all at once.
 			if ( class_exists( $class_name ) ) {
 				$this->providers->$slug_name = array(
 					'provider' => $class_name,
@@ -112,13 +178,13 @@ class Ad_Code_Manager {
 		 */
 		$this->current_provider_slug = apply_filters( 'acm_provider_slug', $this->get_option( 'provider' ) );
 
-		// Instantiate one that we need
+		// Instantiate one that we need.
 		if ( isset( $this->providers->{$this->current_provider_slug} ) ) {
 			$current_provider_class = $this->providers->{$this->current_provider_slug}['provider'];
 			$this->current_provider = new $current_provider_class();
 		}
 
-		// Nothing to do without a provider
+		// Nothing to do without a provider.
 		if ( ! is_object( $this->current_provider ) ) {
 			return;
 		}
@@ -140,8 +206,8 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function action_init() {
-		// Allow other conditionals to be used
+	public function action_init() {
+		// Allow other conditionals to be used.
 		$this->whitelisted_conditionals = array(
 			'is_home',
 			'is_front_page',
@@ -188,7 +254,7 @@ class Ad_Code_Manager {
 		 */
 		$this->manage_ads_cap = apply_filters( 'acm_manage_ads_cap', $this->manage_ads_cap );
 
-		// Load default ad tags for provider
+		// Load default ad tags for provider.
 		$this->ad_tag_ids = $this->current_provider->ad_tag_ids;
 
 		/**
@@ -226,7 +292,7 @@ class Ad_Code_Manager {
 
 		$this->register_acm_post_type();
 
-		// Ad tags are only run on the frontend
+		// Ad tags are only run on the frontend.
 		if ( ! is_admin() ) {
 			/**
 			 * Action: acm_tag
@@ -244,7 +310,7 @@ class Ad_Code_Manager {
 			add_filter( 'acm_output_tokens', array( $this, 'filter_output_tokens' ), 5, 3 );
 		}
 
-		// Load all of our registered ad codes
+		// Load all of our registered ad codes.
 		$this->register_ad_codes( $this->get_ad_codes() );
 	}
 
@@ -253,15 +319,15 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 */
-	function register_acm_post_type() {
+	public function register_acm_post_type() {
 		$labels = array(
 			'name'          => _x( 'Ad Codes', 'Post Type General Name', 'ad-code-manager' ),
 			'singular_name' => _x( 'Ad Code', 'Post Type Singular Name', 'ad-code-manager' ),
 		);
-		$args = array(
-				'labels'  => $labels,
-				'public'  => false,
-				'rewrite' => false,
+		$args   = array(
+			'labels'  => $labels,
+			'public'  => false,
+			'rewrite' => false,
 		);
 
 		register_post_type( $this->post_type, $args );
@@ -272,9 +338,9 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.4
 	 */
-	function get_options() {
+	public function get_options() {
 		$default_provider = 'doubleclick_for_publishers';
-		// Make sure our default provider exists. Otherwise, the sky will fall on our head
+		// Make sure our default provider exists. Otherwise, the sky will fall on our head.
 		if ( ! isset( $this->providers->$default_provider ) ) {
 			foreach ( $this->providers as $slug => $provider ) {
 				$default_provider = $slug;
@@ -293,8 +359,11 @@ class Ad_Code_Manager {
 	 * Get an ACM option
 	 *
 	 * @since 0.4
+	 *
+	 * @param string $key Option name.
+	 * @return mixed The option value, or false if it isn't set.
 	 */
-	function get_option( $key ) {
+	public function get_option( $key ) {
 		$options = $this->get_options();
 
 		if ( isset( $options[ $key ] ) ) {
@@ -305,11 +374,15 @@ class Ad_Code_Manager {
 	}
 
 	/**
-	 * Update an ACM option
+	 * Update ACM options
+	 *
+	 * Merges the new values into the existing options and saves them.
 	 *
 	 * @since 0.4
+	 *
+	 * @param array $new_options Option values to save, keyed by option name.
 	 */
-	function update_options( $new_options ) {
+	public function update_options( $new_options ) {
 		$options = $this->get_options();
 		$options = array_merge( $options, $new_options );
 		update_option( 'acm_options', $options );
@@ -321,7 +394,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.2
 	 */
-	function handle_admin_action() {
+	public function handle_admin_action() {
 		if ( ! isset( $_REQUEST['nonce'] ) || ! wp_verify_nonce( sanitize_key( $_REQUEST['nonce'] ), 'acm-admin-action' ) ) {
 			wp_die( esc_html__( 'Doing something fishy, eh?', 'ad-code-manager' ) );
 		}
@@ -379,7 +452,7 @@ class Ad_Code_Manager {
 					$id = $this->edit_ad_code( $id, $ad_code_vals );
 				}
 				if ( is_wp_error( $id ) ) {
-					// We can die with an error if this is an edit/ajax request
+					// We can die with an error if this is an edit/ajax request.
 					if ( isset( $id->errors['edit-error'][0] ) ) {
 						die( '<div class="error">' . esc_html( $id->errors['edit-error'][0] ) . '</div>' );
 					} else {
@@ -432,7 +505,7 @@ class Ad_Code_Manager {
 		if ( isset( $_REQUEST['doing_ajax'] ) && sanitize_text_field( $_REQUEST['doing_ajax'] ) ) {
 			if ( 'edit' === $method ) {
 				set_current_screen( 'ad-code-manager' );
-				$table_class = $this->providers->{$this->current_provider_slug}['table'];
+				$table_class         = $this->providers->{$this->current_provider_slug}['table'];
 				$this->wp_list_table = new $table_class();
 				$this->wp_list_table->prepare_items();
 				$new_ad_code = $this->get_ad_code( $id );
@@ -449,8 +522,14 @@ class Ad_Code_Manager {
 
 	/**
 	 * Get the ad codes stored in our custom post type
+	 *
+	 * The result is cached, so the query arguments only take effect when the cache is empty.
+	 *
+	 * @param array $query_args Optional. Arguments for get_posts(). Only those allowed by the
+	 *                          `acm_allowed_get_posts_args` filter are used. Default empty array.
+	 * @return array List of ad codes, each with conditionals, URL vars, priority, operator and post ID.
 	 */
-	function get_ad_codes( $query_args = array() ) {
+	public function get_ad_codes( $query_args = array() ) {
 		/**
 		 * Filters the allowed query parameters for retrieving ad codes.
 		 *
@@ -487,7 +566,7 @@ class Ad_Code_Manager {
 
 		$ad_codes_formatted = wp_cache_get( 'ad_codes', 'acm' );
 		if ( false === $ad_codes_formatted ) {
-			// Store an empty array when no ad codes exist so this block doesn't run on each page load
+			// Store an empty array when no ad codes exist so this block doesn't run on each page load.
 			$ad_codes_formatted = array();
 			$ad_codes           = get_posts( $args );
 			foreach ( $ad_codes as $ad_code_cpt ) {
@@ -519,10 +598,10 @@ class Ad_Code_Manager {
 	/**
 	 * Get a single ad code
 	 *
-	 * @param int $post_id Post ID for the ad code that we want
+	 * @param int $post_id Post ID for the ad code that we want.
 	 * @return array|bool $ad_code Ad code representation of the data
 	 */
-	function get_ad_code( $post_id ) {
+	public function get_ad_code( $post_id ) {
 		$post = get_post( $post_id );
 		if ( ! $post ) {
 			return false;
@@ -551,14 +630,17 @@ class Ad_Code_Manager {
 	/**
 	 * Flush cache
 	 */
-	function flush_cache() {
+	public function flush_cache() {
 		wp_cache_delete( 'ad_codes', 'acm' );
 	}
 
 	/**
 	 * Get the conditional values for an ad code
+	 *
+	 * @param int $ad_code_id Post ID of the ad code.
+	 * @return array The ad code's conditionals, or an empty array if it has none.
 	 */
-	function get_conditionals( $ad_code_id ) {
+	public function get_conditionals( $ad_code_id ) {
 		$conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
 		if ( empty( $conditionals ) ) {
 			$conditionals = array();
@@ -573,14 +655,14 @@ class Ad_Code_Manager {
 	 *
 	 * @uses register_ad_code()
 	 *
-	 * @param array $ad_code
+	 * @param array $ad_code Values for the provider's ad code fields, plus the priority and operator.
 	 * @return int|false|WP_Error post_id or false
 	 */
-	function create_ad_code( $ad_code = array() ) {
+	public function create_ad_code( $ad_code = array() ) {
 		$titles = array();
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
 			// We shouldn't create an ad code if any of required fields are not set.
-			if ( ! isset( $ad_code[ $arg['key'] ] ) && $arg['required'] === true ) {
+			if ( ! isset( $ad_code[ $arg['key'] ] ) && true === $arg['required'] ) {
 				return new WP_Error();
 			}
 			$titles[] = $ad_code[ $arg['key'] ];
@@ -593,7 +675,8 @@ class Ad_Code_Manager {
 			'post_type'      => $this->post_type,
 		);
 
-		if ( ! is_wp_error( $acm_inserted_post_id = wp_insert_post( $acm_post, true ) ) ) {
+		$acm_inserted_post_id = wp_insert_post( $acm_post, true );
+		if ( ! is_wp_error( $acm_inserted_post_id ) ) {
 			foreach ( $this->current_provider->ad_code_args as $arg ) {
 				update_post_meta( $acm_inserted_post_id, $arg['key'], $ad_code[ $arg['key'] ] );
 			}
@@ -607,11 +690,15 @@ class Ad_Code_Manager {
 
 	/**
 	 * Update an existing ad code
+	 *
+	 * @param int   $ad_code_id Post ID of the ad code.
+	 * @param array $ad_code    Values for the provider's ad code fields, plus the priority and operator.
+	 * @return int|WP_Error The ad code ID, or WP_Error if a required field is missing.
 	 */
-	function edit_ad_code( $ad_code_id, $ad_code = array() ) {
+	public function edit_ad_code( $ad_code_id, $ad_code = array() ) {
 		foreach ( $this->current_provider->ad_code_args as $arg ) {
-			// If a required argument is not set, we return an error message with the missing parameter
-			if ( ! isset( $ad_code[ $arg['key'] ] ) && $arg['required'] === true ) {
+			// If a required argument is not set, we return an error message with the missing parameter.
+			if ( ! isset( $ad_code[ $arg['key'] ] ) && true === $arg['required'] ) {
 				return new WP_Error( 'edit-error', 'Error updating ad code, a parameter for ' . esc_html( $arg['key'] ) . ' is required.' );
 			}
 		}
@@ -628,9 +715,12 @@ class Ad_Code_Manager {
 
 	/**
 	 * Delete an existing ad code
+	 *
+	 * @param int $ad_code_id Post ID of the ad code.
+	 * @return true|null True if the ad code was deleted, null if the ID isn't an ad code.
 	 */
-	function delete_ad_code( $ad_code_id ) {
-		if ( 0 !== $ad_code_id && $this->post_type === get_post_type( $ad_code_id ) ) {
+	public function delete_ad_code( $ad_code_id ) {
+		if ( 0 !== $ad_code_id && get_post_type( $ad_code_id ) === $this->post_type ) {
 			wp_delete_post( $ad_code_id, true ); // Force delete post.
 			$this->flush_cache();
 			return true;
@@ -644,7 +734,7 @@ class Ad_Code_Manager {
 	 * @param array $conditional Conditional to add.
 	 * @return bool
 	 */
-	function create_conditional( $ad_code_id, $conditional ) {
+	public function create_conditional( $ad_code_id, $conditional ) {
 		if ( 0 !== $ad_code_id && ! empty( $conditional ) ) {
 			$existing_conditionals = get_post_meta( $ad_code_id, 'conditionals', true );
 			if ( ! is_array( $existing_conditionals ) ) {
@@ -668,7 +758,7 @@ class Ad_Code_Manager {
 	 * @param array $conditionals Conditionals to edit.
 	 * @return bool
 	 */
-	function edit_conditionals( $ad_code_id, $conditionals = array() ) {
+	public function edit_conditionals( $ad_code_id, $conditionals = array() ) {
 		if ( 0 !== $ad_code_id && ! empty( $conditionals ) ) {
 			$new_conditionals = array();
 			foreach ( $conditionals as $conditional ) {
@@ -691,11 +781,11 @@ class Ad_Code_Manager {
 	 */
 	public function action_admin_menu() {
 		$hook = add_options_page(
-				__( 'Ad Code Manager', 'ad-code-manager' ),
-				__( 'Ad Code Manager', 'ad-code-manager' ),
-				$this->manage_ads_cap,
-				$this->plugin_slug,
-				array( $this, 'admin_view_controller' )
+			__( 'Ad Code Manager', 'ad-code-manager' ),
+			__( 'Ad Code Manager', 'ad-code-manager' ),
+			$this->manage_ads_cap,
+			$this->plugin_slug,
+			array( $this, 'admin_view_controller' )
 		);
 		add_action( 'load-' . $hook, array( $this, 'action_load_ad_code_manager' ) );
 	}
@@ -705,12 +795,12 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.2.2
 	 */
-	function action_load_ad_code_manager() {
+	public function action_load_ad_code_manager() {
 
-		// Instantiate this list table
-		$table_class = $this->providers->{$this->current_provider_slug}['table'];
+		// Instantiate this list table.
+		$table_class         = $this->providers->{$this->current_provider_slug}['table'];
 		$this->wp_list_table = new $table_class();
-		// Handle any bulk action requests
+		// Handle any bulk action requests.
 		if ( 'delete' === $this->wp_list_table->current_action() ) {
 			check_admin_referer( 'acm-bulk-action', 'bulk-action-nonce' );
 			$ad_code_ids = array_map( 'intval', $_REQUEST['ad-codes'] ?? array() );
@@ -726,7 +816,7 @@ class Ad_Code_Manager {
 	/**
 	 * Print the admin interface for managing the ad codes.
 	 */
-	function admin_view_controller() {
+	public function admin_view_controller() {
 		// Check for edit action.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Nonce verified in render_edit_page.
 		if ( isset( $_GET['action'] ) && 'edit' === $_GET['action'] && isset( $_GET['id'] ) ) {
@@ -742,7 +832,7 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.10.0
 	 */
-	function render_edit_page() {
+	public function render_edit_page() {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is a view, nonce verified on form submission.
 		$ad_code_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
 		$ad_code    = $this->get_ad_code( $ad_code_id );
@@ -762,17 +852,17 @@ class Ad_Code_Manager {
 	/**
 	 * Register a custom widget to display ad zones
 	 */
-	function register_widget() {
+	public function register_widget() {
 		register_widget( 'ACM_Ad_Zones' );
 	}
 
 	/**
 	 * Register scripts and styles
 	 */
-	function register_scripts_and_styles() {
+	public function register_scripts_and_styles() {
 		global $pagenow;
 
-		// Only load this on the proper page
+		// Only load this on the proper page.
 		if ( 'options-general.php' !== $pagenow || ! isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug ) {
 			return;
 		}
@@ -784,19 +874,21 @@ class Ad_Code_Manager {
 	 * Register an ad tag with the plugin so it can be used
 	 * on the frontend of the site
 	 *
+	 * The ad code isn't registered if the script URL fails the whitelist check.
+	 *
 	 * @since 0.1
 	 *
-	 * @param string $tag          Ad tag for this instance of code
-	 * @param string $url          Script URL for ad code
-	 * @param array  $conditionals WordPress-style conditionals for where this code should be displayed
-	 * @param int    $priority     What priority this registration runs at
-	 * @param array  $url_vars     Replace tokens in $script with these values
-	 * @param int    $priority     Priority of the ad code in comparison to others
-	 * @return bool|WP_Error $success Whether we were successful in registering the ad tag
+	 * @param string       $tag          Ad tag for this instance of code.
+	 * @param string       $url          Script URL for ad code.
+	 * @param array        $conditionals WordPress-style conditionals for where this code should be displayed.
+	 * @param array        $url_vars     Replace tokens in $script with these values.
+	 * @param int          $priority     Priority of the ad code in comparison to others.
+	 * @param string|false $operator     Logical operator for the conditionals, 'AND' or 'OR'. Anything else
+	 *                                   falls back to the default operator.
 	 */
-	function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
+	public function register_ad_code( $tag, $url, $conditionals = array(), $url_vars = array(), $priority = 10, $operator = false ) {
 
-		// Run $url aganist a whitelist to make sure it's a safe URL
+		// Run $url aganist a whitelist to make sure it's a safe URL.
 		if ( ! $this->validate_script_url( $url ) ) {
 			return;
 		}
@@ -806,17 +898,17 @@ class Ad_Code_Manager {
 
 		// @todo Sanitize all of the other input
 
-		// Make sure our priority is an integer
+		// Make sure our priority is an integer.
 		if ( ! is_int( $priority ) ) {
 			$priority = 10;
 		}
 
-		// Make sure our operator is 'OR' or 'AND'
+		// Make sure our operator is 'OR' or 'AND'.
 		if ( ! $operator || ! in_array( $operator, array( 'AND', 'OR' ) ) ) {
 			$operator = $this->logical_operator;
 		}
 
-		// Save the ad code to our set of ad codes
+		// Save the ad code to our set of ad codes.
 		$this->ad_codes[ $tag ][] = array(
 			'url'          => $url,
 			'priority'     => $priority,
@@ -831,9 +923,9 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 *
-	 * @param array $ad_codes An array of ad tags
+	 * @param array $ad_codes An array of ad tags.
 	 */
-	function register_ad_codes( $ad_codes = array() ) {
+	public function register_ad_codes( $ad_codes = array() ) {
 		if ( empty( $ad_codes ) ) {
 			return;
 		}
@@ -860,9 +952,9 @@ class Ad_Code_Manager {
 					continue;
 				}
 
-				$ad_code['priority'] = $ad_code['priority'] === '' ? 10 : (int) $ad_code['priority']; // make sure priority is int, if it's unset, we set it to 10
+				$ad_code['priority'] = '' === $ad_code['priority'] ? 10 : (int) $ad_code['priority']; // make sure priority is int, if it's unset, we set it to 10.
 
-				// Make sure our operator is 'OR' or 'AND'
+				// Make sure our operator is 'OR' or 'AND'.
 				if ( ! $ad_code['operator'] || ! in_array( $ad_code['operator'], array( 'AND', 'OR' ) ) ) {
 					$operator = $this->logical_operator;
 				}
@@ -887,10 +979,10 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.6.0
 	 *
-	 * @param string $tag_id Unique ID for the ad tag
+	 * @param string $tag_id Unique ID for the ad tag.
 	 * @return string The ad code. May be an empty string.
 	 */
-	function get_acm_tag( $tag_id ): string {
+	public function get_acm_tag( $tag_id ): string {
 		/**
 		 * Filters whether to disable ad rendering.
 		 *
@@ -994,7 +1086,7 @@ class Ad_Code_Manager {
 	 * Display the ad code for an ad ID.
 	 *
 	 * Example:
-	 *   do_action( 'acm_tag, 'your_tag_id' )
+	 *   do_action( 'acm_tag', 'your_tag_id' )
 	 *
 	 * @param string $tag_id Unique ID for the ad tag.
 	 */
@@ -1005,7 +1097,12 @@ class Ad_Code_Manager {
 	/**
 	 * Of all the ad codes registered, get the one that matches our current context
 	 *
+	 * Where several ad codes match, the one with the lowest priority number wins.
+	 *
 	 * @since 0.4
+	 *
+	 * @param string $tag_id Unique ID for the ad tag.
+	 * @return array|null The matching ad code, or null if none match.
 	 */
 	public function get_matching_ad_code( $tag_id ) {
 		global $wp_query;
@@ -1061,7 +1158,7 @@ class Ad_Code_Manager {
 		}
 
 		// Run our ad codes through all of the conditionals to make sure we should
-		// be displaying it
+		// be displaying it.
 		$display_codes = array();
 		foreach ( (array) $this->ad_codes[ $tag_id ] as $ad_code ) {
 
@@ -1077,7 +1174,7 @@ class Ad_Code_Manager {
 			 * @param bool $display Whether to display ad codes without conditionals. Default false.
 			 */
 			// If the ad code doesn't have any conditionals
-			// we should add it to the display list
+			// we should add it to the display list.
 			if ( empty( $ad_code['conditionals'] ) && apply_filters( 'acm_display_ad_codes_without_conditionals', false ) ) {
 				$display_codes[] = $ad_code;
 				continue;
@@ -1085,7 +1182,7 @@ class Ad_Code_Manager {
 
 			// If the ad code doesn't have any conditionals
 			// and configuration filter acm_display_ad_codes_without_conditionals returns false
-			// We should should skip it
+			// We should should skip it.
 
 			if ( empty( $ad_code['conditionals'] ) && ! apply_filters( 'acm_display_ad_codes_without_conditionals', false ) ) {
 				continue;
@@ -1120,7 +1217,7 @@ class Ad_Code_Manager {
 					continue;
 				}
 
-				// Run our conditional and use any arguments that were passed
+				// Run our conditional and use any arguments that were passed.
 				if ( ! empty( $cond_args ) ) {
 					/**
 					 * Filters the arguments passed to conditional functions.
@@ -1138,38 +1235,38 @@ class Ad_Code_Manager {
 					$result = $cond_func();
 				}
 
-				// If our results don't match what we need, don't include this ad code
+				// If our results don't match what we need, don't include this ad code.
 				if ( $cond_result !== $result ) {
 					$include = false;
 				} else {
 					$include = true;
 				}
 
-				// If we have matching conditional and $ad_code['operator'] equals OR just break from the loop and do not try to evaluate others
+				// If we have matching conditional and $ad_code['operator'] equals OR just break from the loop and do not try to evaluate others.
 				if ( $include && 'OR' === $ad_code['operator'] ) {
 					break;
 				}
 
-				// If $ad_code['operator'] equals AND and one conditional evaluates false, skip this ad code
+				// If $ad_code['operator'] equals AND and one conditional evaluates false, skip this ad code.
 				if ( ! $include && 'AND' === $ad_code['operator'] ) {
 					break;
 				}
 			}
 
 			// If we're supposed to include the ad code even after we've run the conditionals,
-			// let's do it
+			// let's do it.
 			if ( $include ) {
 				$display_codes[] = $ad_code;
 			}
 		}
 
-		// Don't do anything if we've ended up with no ad codes
+		// Don't do anything if we've ended up with no ad codes.
 		if ( empty( $display_codes ) ) {
 			return;
 		}
 
 		// Prioritize the display of the ad codes based on
-		// the priority argument for the ad code
+		// the priority argument for the ad code.
 		$prioritized_display_codes = array();
 		foreach ( $display_codes as $display_code ) {
 			$priority                                 = $display_code['priority'];
@@ -1195,9 +1292,12 @@ class Ad_Code_Manager {
 	 *
 	 * @since 0.1
 	 *
+	 * @param array  $output_tokens   Placeholder tokens and their values.
+	 * @param string $tag_id          Unique ID for the ad tag being rendered.
+	 * @param array  $code_to_display The matching ad code.
 	 * @return array $output Placeholder tokens to be replaced with their values
 	 */
-	function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
+	public function filter_output_tokens( $output_tokens, $tag_id, $code_to_display ) {
 		if ( ! isset( $code_to_display['url_vars'] ) || ! is_array( $code_to_display['url_vars'] ) ) {
 			return $output_tokens;
 		}
@@ -1213,19 +1313,24 @@ class Ad_Code_Manager {
 	/**
 	 * Ensure the URL being used passes our whitelist check
 	 *
+	 * The URL's host must match a whitelisted domain or be a subdomain of one. An empty URL passes.
+	 *
 	 * @since 0.1
 	 * @see https://gist.github.com/1623788
+	 *
+	 * @param string $url Script URL to check.
+	 * @return bool Whether the URL is allowed.
 	 */
-	function validate_script_url( $url ) {
+	public function validate_script_url( $url ) {
 		// If url is empty, there's nothing to validate
-		// Fixes issue with DFP JS
+		// Fixes issue with DFP JS.
 		if ( empty( $url ) ) {
 			return true;
 		}
 
 		$domain = wp_parse_url( $url, PHP_URL_HOST );
 
-		// Check if we match the domain exactly
+		// Check if we match the domain exactly.
 		if ( in_array( $domain, $this->current_provider->whitelisted_script_urls, true ) ) {
 			return true;
 		}
@@ -1233,7 +1338,7 @@ class Ad_Code_Manager {
 		$valid = false;
 
 		foreach ( $this->current_provider->whitelisted_script_urls as $whitelisted_domain ) {
-			$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'
+			$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'.
 			if ( strpos( $domain, $whitelisted_domain ) === ( strlen( $domain ) - strlen( $whitelisted_domain ) ) ) {
 				$valid = true;
 				break;
@@ -1245,11 +1350,14 @@ class Ad_Code_Manager {
 	/**
 	 * Shortcode function
 	 *
+	 * Outputs the ad code for the ad tag given in the shortcode's id attribute.
+	 *
 	 * @since 0.2
 	 *
+	 * @param array|string $atts Shortcode attributes.
 	 * @return string HTML output. May be an empty string if no ad code is found.
 	 */
-	function shortcode( $atts ): string {
+	public function shortcode( $atts ): string {
 		$atts = shortcode_atts(
 			array(
 				'id' => '',
@@ -1264,5 +1372,4 @@ class Ad_Code_Manager {
 
 		return $this->get_acm_tag( $id );
 	}
-
 }

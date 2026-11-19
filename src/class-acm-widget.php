@@ -1,14 +1,21 @@
 <?php
 /**
+ * Ad Code Manager ad zone widget.
+ *
+ * @package Automattic\AdCodeManager
+ */
+
+/**
  * ACM custom widget to choose ad tags to display in widget areas.
  *
  * @since v0.2
  */
-
 class ACM_Ad_Zones extends WP_Widget {
 
-	// Process the new widget
-	function __construct() {
+	/**
+	 * Registers the widget with its ID, name and description.
+	 */
+	public function __construct() {
 		$widget_ops = array(
 			'classname'   => 'acm_ad_zones',
 			'description' => __( 'Display an Ad Code Manager ad zone within a widget area', 'ad-code-manager' ),
@@ -16,8 +23,14 @@ class ACM_Ad_Zones extends WP_Widget {
 		parent::__construct( 'ACM_Ad_Zones', __( 'Ad Code Manager Ad Zone', 'ad-code-manager' ), $widget_ops );
 	}
 
-	// Build the widget settings form
-	function form( $instance ) {
+	/**
+	 * Outputs the widget settings form, with a title field and an ad zone dropdown.
+	 *
+	 * If no ad codes exist yet, a link to the settings page is shown instead of the dropdown.
+	 *
+	 * @param array $instance Current widget settings.
+	 */
+	public function form( $instance ) {
 		$defaults = array(
 			'title'   => '',
 			'ad_zone' => '',
@@ -53,16 +66,30 @@ class ACM_Ad_Zones extends WP_Widget {
 		<?php
 	}
 
-	// Save the widget settings
-	function update( $new_instance, $old_instance ) {
+	/**
+	 * Sanitizes the title and ad zone before the widget settings are saved.
+	 *
+	 * @param array $new_instance New settings submitted from the form.
+	 * @param array $old_instance Previously saved settings.
+	 * @return array Settings to save.
+	 */
+	public function update( $new_instance, $old_instance ) {
 		$instance            = $old_instance;
 		$instance['title']   = sanitize_text_field( $new_instance['title'] );
 		$instance['ad_zone'] = sanitize_text_field( $new_instance['ad_zone'] );
 		return $instance;
 	}
 
-	// Display the widget
-	function widget( $args, $instance ) {
+	/**
+	 * Outputs the ad zone's ad code in the widget area.
+	 *
+	 * Nothing is output if the ad zone renders no ad content, unless the
+	 * `acm_display_empty_widget` filter says otherwise.
+	 *
+	 * @param array $args     Widget display arguments, including the before and after wrappers.
+	 * @param array $instance Widget settings.
+	 */
+	public function widget( $args, $instance ) {
 		// Capture the ad content to check if we have anything to display.
 		// This fixes issue #72: don't output empty widget wrapper when no ad code found.
 		ob_start();

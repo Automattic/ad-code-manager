@@ -1,11 +1,28 @@
 <?php
+/**
+ * DoubleClick for Publishers Async ad provider for Ad Code Manager.
+ *
+ * @package Automattic\AdCodeManager
+ */
 
+/**
+ * Provider for asynchronous DoubleClick for Publishers ad tags, using Google Publisher Tags (gpt.js).
+ */
 class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
+	/**
+	 * User agent of Google's ad crawler, which gets a robots.txt rule.
+	 *
+	 * @var string
+	 */
 	public $crawler_user_agent = 'Mediapartners-Google';
 
+	/**
+	 * Sets the default ad tags and ad code fields, and hooks the filters and actions
+	 * that build the ad slots and output the setup script in the head.
+	 */
 	public function __construct() {
 
-		// Default ad zones for DFP Async
+		// Default ad zones for DFP Async.
 		$this->ad_tag_ids = array(
 			array(
 				'tag'               => '728x90',
@@ -59,14 +76,14 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 			),
 
 
-			// An extra, special tag to make sure the <head> gets the output we need it to
+			// An extra, special tag to make sure the <head> gets the output we need it to.
 			array(
 				'tag'      => 'dfp_head',
 				'url_vars' => array(),
 			),
 		);
 
-		// Default fields for DFP Async
+		// Default fields for DFP Async.
 		$this->ad_code_args = array(
 			array(
 				'key'      => 'tag',
@@ -75,7 +92,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 				'required' => true,
 				'type'     => 'select',
 				'options'  => array(
-					// This is added later, through 'acm_ad_code_args' filter
+					// This is added later, through 'acm_ad_code_args' filter.
 				),
 			),
 			array(
@@ -111,6 +128,11 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 
 	/**
 	 * Register the 'tag's available for mapping in the UI
+	 *
+	 * Adds each ad tag that has 'enable_ui_mapping' set as an option of the 'tag' field.
+	 *
+	 * @param array $ad_code_args Ad code field configurations.
+	 * @return array The field configurations, with the tag options added.
 	 */
 	public function filter_ad_code_args( $ad_code_args ) {
 		global $ad_code_manager;
@@ -120,7 +142,7 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 				continue;
 			}
 
-			// Get all of the tags that are registered, and provide them as options
+			// Get all of the tags that are registered, and provide them as options.
 			foreach ( (array) $ad_code_manager->ad_tag_ids as $ad_tag ) {
 				if ( isset( $ad_tag['enable_ui_mapping'] ) && $ad_tag['enable_ui_mapping'] ) {
 					$ad_code_args[ $tag ]['options'][ $ad_tag['tag'] ] = $ad_tag['tag'];
@@ -133,6 +155,13 @@ class Doubleclick_For_Publishers_Async_ACM_Provider extends ACM_Provider {
 
 	/**
 	 * Filter the output HTML to automagically produce the <script> we need
+	 *
+	 * The 'dfp_head' tag gets the script that loads gpt.js and defines a slot for each
+	 * ad tag with a matching ad code. Every other tag gets a div that displays its slot.
+	 *
+	 * @param string $output_html The provider's output HTML. Not used, as it is replaced.
+	 * @param string $tag_id      The ad tag ID being rendered.
+	 * @return string The output HTML for the ad tag.
 	 */
 	public function filter_output_html( $output_html, $tag_id ) {
 		global $ad_code_manager;
@@ -161,7 +190,7 @@ node.parentNode.insertBefore(gads, node);
 googletag.cmd.push(function() {
 				<?php
 				foreach ( (array) $ad_tags as $tag ) :
-					if ( $tag['tag'] == 'dfp_head' ) {
+					if ( 'dfp_head' == $tag['tag'] ) {
 						continue;
 					}
 
@@ -209,6 +238,11 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 	 * Allow ad sizes to be defined as arrays or as basic width x height.
 	 * The purpose of this is to solve for flex units, where multiple ad
 	 * sizes may be required to load in the same ad unit.
+	 *
+	 * @param array $url_vars URL vars of the ad tag, with either a 'sizes' list of
+	 *                        width and height pairs, or a single 'width' and 'height'.
+	 * @return array|null A list of [ width, height ] pairs, a single [ width, height ] pair,
+	 *                    or null if there are no URL vars.
 	 */
 	public function parse_ad_tag_sizes( $url_vars ) {
 		if ( empty( $url_vars ) ) {
@@ -223,7 +257,7 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 					(int) $unit_size['height'],
 				);
 			}
-		} else { // fallback for old style width x height
+		} else { // fallback for old style width x height.
 			$unit_sizes_output = array(
 				(int) $url_vars['width'],
 				(int) $url_vars['height'],
@@ -303,24 +337,33 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 
 		return false;
 	}
-
 }
 
+/**
+ * List table for DoubleClick for Publishers Async ad codes.
+ */
 class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
-	function __construct() {
+	/**
+	 * Sets up the list table with AJAX support.
+	 */
+	public function __construct() {
 		parent::__construct(
 			array(
-				'singular' => 'doubleclick_for_publishers_async_acm_wp_list_table', // Singular label
-				'plural'   => 'doubleclick_for_publishers_async_acm_wp_list_table', // plural label, also this well be one of the table css class
+				'singular' => 'doubleclick_for_publishers_async_acm_wp_list_table', // Singular label.
+				'plural'   => 'doubleclick_for_publishers_async_acm_wp_list_table', // plural label, also this well be one of the table css class.
 				'ajax'     => true,
 			) 
 		);
 	}
 
 	/**
+	 * Replace the list table columns with this provider's columns
+	 *
+	 * Hooked to the `acm_list_table_columns` filter.
+	 *
 	 * @return array The columns that shall be used
 	 */
-	function filter_columns() {
+	public function filter_columns() {
 		return array(
 			'cb'           => '<input type="checkbox" />',
 			'id'           => __( 'ID', 'ad-code-manager' ),
@@ -337,19 +380,20 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 	/**
 	 * This is nuts and bolts of table representation
 	 */
-	function get_columns() {
+	public function get_columns() {
 		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
 		return parent::get_columns();
 	}
 
 	/**
 	 * Output the tag cell in the list table
+	 *
+	 * @param array $item Ad code, as returned by Ad_Code_Manager::get_ad_codes().
+	 * @return string HTML for the column, with the row actions.
 	 */
-	function column_tag( $item ) {
+	public function column_tag( $item ) {
 		$output  = isset( $item['tag'] ) ? esc_html( $item['tag'] ) : esc_html( $item['url_vars']['tag'] );
 		$output .= $this->row_actions_output( $item );
 		return $output;
 	}
-
-
 }

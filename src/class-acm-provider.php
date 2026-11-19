@@ -1,5 +1,11 @@
 <?php
 /**
+ * Base class for ad providers.
+ *
+ * @package Automattic\AdCodeManager
+ */
+
+/**
  * Skeleton Ad Provider class
  *
  * Each of those properties should be correctly set in a child class
@@ -13,16 +19,55 @@
  * @since v0.1.3
  */
 class ACM_Provider {
+	/**
+	 * Domains that ad code script URLs may be loaded from.
+	 *
+	 * @var string[]
+	 */
 	public $whitelisted_script_urls = array();
+
+	/**
+	 * HTML template for an ad tag, with tokens such as %url% to be replaced.
+	 *
+	 * @var string
+	 */
 	public $output_html;
+
+	/**
+	 * Tokens to replace in the output HTML, keyed by token, e.g. '%width%'.
+	 *
+	 * @var array
+	 */
 	public $output_tokens = array();
+
+	/**
+	 * Default ad tags, each with a tag ID and its URL vars.
+	 *
+	 * @var array
+	 */
 	public $ad_tag_ids;
+
+	/**
+	 * Fields that make up an ad code, shown in the admin.
+	 *
+	 * @var array
+	 */
 	public $ad_code_args = array();
+
+	/**
+	 * User agent of the ad network's crawler. If set, a robots.txt rule is added for it.
+	 *
+	 * @var string
+	 */
 	public $crawler_user_agent;
 	
+	/**
+	 * Sets the default ad code fields and output HTML if the child class hasn't, and
+	 * hooks the robots.txt rule for the provider's crawler.
+	 */
 	public function __construct() {
 		if ( empty( $this->ad_code_args ) ) {
-			// This is not actual data, but rather format:
+			// This is not actual data, but the format the data takes.
 			$this->ad_code_args = array(
 				array(
 					'key'      => 'name',
@@ -71,6 +116,12 @@ class ACM_Provider {
 		}
 	}
 
+	/**
+	 * Adds a robots.txt rule for the provider's crawler.
+	 *
+	 * The crawler is disallowed from the whole site if the site is set to discourage
+	 * search engines, and allowed everywhere otherwise.
+	 */
 	public function action_do_robotstxt() {
 		$public = get_option( 'blog_public' );
 
